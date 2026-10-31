@@ -1,11 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { Flip } from "gsap/Flip";
 import type { CV, Skill, SkillLevel } from "@/lib/cv";
 import SlideFrame from "@/components/ui/SlideFrame";
 import Eyebrow from "@/components/ui/Eyebrow";
-
-gsap.registerPlugin(Flip);
 
 const LEVEL_VALUE: Record<SkillLevel, number> = { familiar: 1, advanced: 2, expert: 3 };
 const ALL = "__all__";
@@ -16,9 +13,14 @@ type Entry = Skill & { group: string; key: string };
 function Logo({ skill, className = "" }: { skill: Skill; className?: string }) {
   if (skill.icon) {
     return (
-      <svg viewBox="0 0 24 24" className={className} aria-hidden="true" fill="currentColor">
-        <path d={skill.icon.path} />
-      </svg>
+      <svg
+        viewBox={skill.icon.viewBox}
+        className={className}
+        aria-hidden="true"
+        fill="currentColor"
+        // Markup comes from the icon sets at build time, never from user input.
+        dangerouslySetInnerHTML={{ __html: skill.icon.body }}
+      />
     );
   }
   // No brand logo: a monogram in the same footprint.
@@ -141,35 +143,72 @@ export default function Skills({ cv }: { cv: CV }) {
   const [selected, setSelected] = useState<string>(entries[0]?.key ?? "");
   const [sheetOpen, setSheetOpen] = useState(false);
   const gridRef = useRef<HTMLUListElement>(null);
-  const flipState = useRef<Flip.FlipState | null>(null);
+  const settling = useRef(false); // tiles are animating in: ignore hover
+  const filtered = useRef(false);
 
   // Phones start on the first group, so the board fits on one screen.
   useEffect(() => {
     if (!window.matchMedia("(min-width: 1024px)").matches && skills.groups[0]) setFilter(skills.groups[0].name);
   }, [skills.groups]);
 
+  // The board keeps the height of its largest group, so changing the filter
+  // never moves the title, the filters or the legend.
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const fit = () => {
+      const wide = window.matchMedia("(min-width: 1024px)").matches;
+      const largest = wide ? entries.length : Math.max(...skills.groups.map((g) => g.items.length));
+      const cols = getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
+      const tile = grid.querySelector<HTMLElement>("[data-tile]:not([hidden])");
+      const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+      if (!tile) return;
+      const rows = Math.ceil(largest / cols);
+      grid.style.minHeight = `${rows * tile.offsetHeight + (rows - 1) * gap}px`;
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(grid);
+    return () => ro.disconnect();
+  }, [entries.length, skills.groups]);
+
   const changeFilter = (next: string) => {
     if (next === filter) return;
-    if (gridRef.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      flipState.current = Flip.getState(gridRef.current.querySelectorAll("[data-tile]"));
-    }
+    filtered.current = true;
     setFilter(next);
+    // Keep a visible skill selected.
+    const cur = entries.find((e) => e.key === selected);
+    if (cur && next !== ALL && cur.group !== next) {
+      const first = entries.find((e) => e.group === next);
+      if (first) setSelected(first.key);
+    }
   };
 
-  // Tiles glide to their new places when the filter changes.
+  // New tiles deal in, set up before the browser paints so nothing flashes
+  // in its final place first.
   useLayoutEffect(() => {
-    const state = flipState.current;
-    if (!state || !gridRef.current) return;
-    flipState.current = null;
-    Flip.from(state, {
-      targets: gridRef.current.querySelectorAll("[data-tile]"),
-      duration: 0.55,
-      ease: "power3.inOut",
-      absolute: true,
-      stagger: 0.008,
-      onEnter: (els) => gsap.fromTo(els, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, delay: 0.1 }),
-      onLeave: (els) => gsap.to(els, { opacity: 0, scale: 0.85, duration: 0.3 }),
-    });
+    const grid = gridRef.current;
+    if (!filtered.current || !grid) return;
+    filtered.current = false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    settling.current = true;
+    const tiles = grid.querySelectorAll("[data-tile]:not([hidden])");
+    gsap.killTweensOf(tiles);
+    gsap.fromTo(
+      tiles,
+      { opacity: 0, y: 10 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "power3.out",
+        stagger: 0.02,
+        clearProps: "opacity,transform",
+        onComplete: () => {
+          settling.current = false;
+        },
+      },
+    );
   }, [filter]);
 
   const visible = (e: Entry) => filter === ALL || e.group === filter;
@@ -191,7 +230,7 @@ export default function Skills({ cv }: { cv: CV }) {
     >
       <Eyebrow id="skills" label={skills.label} />
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-12 xl:gap-16">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:gap-10">
         <div className="min-w-0">
           {skills.title ? (
             <h2 className="mb-5 font-serif text-[clamp(2rem,4.2vw,3.5rem)] leading-[1.02] tracking-tight short:mb-4 short:text-[2.5rem]" data-reveal>
@@ -228,16 +267,17 @@ export default function Skills({ cv }: { cv: CV }) {
           </div>
 
           {/* Board */}
-          <ul ref={gridRef} className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4" data-reveal>
+          <ul ref={gridRef} className="grid content-start grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4" data-reveal>
             {entries.map((e) => {
               const on = current?.key === e.key;
               return (
-                <li key={e.key} data-tile data-flip-id={e.key} style={visible(e) ? undefined : { display: "none" }}>
+                <li key={e.key} data-tile hidden={!visible(e)}>
                   <button
                     type="button"
                     aria-pressed={on}
                     onClick={() => select(e.key, true)}
-                    onPointerEnter={(ev) => ev.pointerType === "mouse" && canHover() && select(e.key, false)}
+                    // Move, not enter: a tile sliding under a resting cursor doesn't select itself.
+                    onPointerMove={(ev) => ev.pointerType === "mouse" && !settling.current && !on && canHover() && select(e.key, false)}
                     onFocus={() => select(e.key, false)}
                     className={`group flex h-12 w-full items-center gap-3 rounded-xl border px-3 text-left transition-all duration-300 short:h-11 ${
                       on

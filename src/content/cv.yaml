@@ -33,6 +33,7 @@ ui:
   introLabel: Intro
   scrollHint: Scroll
   talkButton: Let's talk
+  contentsLabel: Contents
   footer: Built with Astro, React & GSAP
   # Knop rechtsonder die de PDF-versie van dit CV downloadt (gegenereerd bij de build).
   downloadCv: Download CV
@@ -197,37 +198,39 @@ skills:
   #   name    naam (verplicht)
   #   level   expert | advanced | familiar            TODO: nakijken
   #   since   jaar sinds wanneer je het gebruikt (anders afgeleid uit je ervaring)
-  #   icon    slug van https://simpleicons.org (optioneel; anders initialen)
+  #   icon    logo: slug van https://simpleicons.org (bv. kubernetes),
+  #           of een Iconify-naam: lucide:<naam> voor begrippen (https://lucide.dev/icons),
+  #           devicon:<naam> voor logo's die Simple Icons niet heeft (bv. devicon:azure)
   #   match   extra namen om het te herkennen in `tech` en `tags` van ervaring en projecten
   # "Used in" wordt automatisch opgebouwd uit `tech` (ervaring) en `tags` (projecten).
   groups:
     - name: Backend
       items:
-        - { name: Java, level: expert, since: 2016, icon: openjdk }
+        - { name: Java, level: expert, since: 2016, icon: devicon:java }
         - { name: Spring Boot, level: expert, since: 2019, icon: springboot }
-        - { name: Microservices, level: expert, since: 2019, match: [Event-driven] }
+        - { name: Microservices, level: expert, since: 2019, icon: lucide:boxes, match: [Event-driven] }
         - { name: Kafka, level: advanced, since: 2019, icon: apachekafka }
         - { name: REST, level: expert, since: 2016, icon: openapiinitiative }
         - { name: GraphQL, level: advanced, since: 2019, icon: graphql }
-        - { name: Domain-Driven Design, level: advanced, since: 2019, match: [DDD] }
-        - { name: SQL, level: advanced, since: 2016, icon: postgresql }
+        - { name: Domain-Driven Design, level: advanced, since: 2019, icon: lucide:shapes, match: [DDD] }
+        - { name: SQL, level: advanced, since: 2016, icon: lucide:database }
         - { name: Scala, level: familiar, since: 2015, icon: scala }
     - name: Cloud & platform
       items:
-        - { name: Azure, level: advanced, since: 2023 }
-        - { name: AWS, level: advanced, since: 2019, match: [CloudFormation] }
+        - { name: Azure, level: advanced, since: 2023, icon: devicon:azure }
+        - { name: AWS, level: advanced, since: 2019, icon: devicon:amazonwebservices, match: [CloudFormation] }
         - { name: Kubernetes, level: advanced, since: 2023, icon: kubernetes }
-        - { name: Operator pattern, level: advanced, since: 2026 }
+        - { name: Operator pattern, level: advanced, since: 2026, icon: lucide:refresh-cw }
         - { name: Istio, level: advanced, since: 2026, icon: istio }
         - { name: Backstage, level: familiar, since: 2026, icon: backstage }
-        - { name: CI/CD, level: expert, since: 2018, icon: jenkins, match: [Jenkins] }
+        - { name: CI/CD, level: expert, since: 2018, icon: lucide:infinity, match: [Jenkins] }
         - { name: Datadog, level: advanced, since: 2019, icon: datadog }
         - { name: Elastic, level: advanced, since: 2026, icon: elastic }
     - name: Ways of working
       items:
-        - { name: Agentic AI, level: advanced, since: 2025, icon: claude, match: [AI] }
+        - { name: Agentic AI, level: advanced, since: 2025, icon: lucide:sparkles, match: [AI] }
         - { name: GitHub Copilot CLI, level: advanced, since: 2025, icon: githubcopilot }
-        - { name: Spec-driven development, level: advanced, since: 2025 }
+        - { name: Spec-driven development, level: advanced, since: 2025, icon: lucide:clipboard-check }
         - { name: BDD, level: advanced, since: 2019, icon: cucumber }
         - { name: Automated testing, level: expert, since: 2016, icon: junit5 }
     - name: IoT & home automation
@@ -235,7 +238,7 @@ skills:
         - { name: Home Assistant, level: expert, since: 2017, icon: homeassistant }
         - { name: Raspberry Pi, level: advanced, since: 2017, icon: raspberrypi }
         - { name: ESP8266, level: advanced, since: 2017, icon: espressif }
-        - { name: Sensors, level: advanced, since: 2014, match: [Embedded] }
+        - { name: Sensors, level: advanced, since: 2014, icon: lucide:radar, match: [Embedded] }
 
 projects:
   label: Projects
