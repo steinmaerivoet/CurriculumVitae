@@ -22,16 +22,19 @@ export async function activeIndex(page: Page): Promise<number> {
 export async function expectAtRestOn(page: Page, index: number) {
   await expect.poll(() => activeIndex(page), { timeout: 5000 }).toBe(index);
   const h = await deckHeight(page);
+  // Still for half a second: longer than the magnet holds a pull (380ms)
+  // before it springs back, so a held pull never passes for "at rest".
   let prev = NaN;
+  let stillFor = 0;
   await expect
     .poll(
       async () => {
         const y = await trackY(page);
-        const still = Math.abs(y - prev) < 0.5;
+        stillFor = Math.abs(y - prev) < 0.5 ? stillFor + 1 : 0;
         prev = y;
-        return still;
+        return stillFor >= 5;
       },
-      { timeout: 5000, intervals: [120] },
+      { timeout: 6000, intervals: [100] },
     )
     .toBe(true);
   expect(Math.abs((await trackY(page)) - -index * h)).toBeLessThan(1);
