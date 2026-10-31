@@ -83,95 +83,118 @@ about:
 experience:
   label: Experience
   presentLabel: Present
+  projectsLabel: Projects
+  # Eén blok per werkgever, zoals op LinkedIn.
+  #   roles      functies bij die werkgever, nieuwste eerst (end: null = heden)
+  #   projects   projecten bij die werkgever, los van de functietitels
+  #              (de eerste staat open; period en url zijn optioneel)
+  #   highlights korte extra punten (optioneel)
+  #   tech       technologieën; voedt ook "Used in" op de skills-slide
   items:
     - company: Belfius
-      role: Lead Engineer
-      start: "2026"
-      end: null # null = heden
       location: Brussels, Belgium
+      roles:
+        - { title: Lead Engineer, start: "2026", end: null }
+        - { title: Senior Engineer, start: "2023", end: "2026" }
       summary: >-
-        Leading the migration of the Belfius integration layer, the service bus
-        between Belfius Technology platforms and third-party applications. A
-        greenfield project to build a resilient, cloud-native replacement.
-      highlights:
-        - Greenfield, cloud-native successor for a business-critical service bus
-        - Kubernetes operator pattern and an Istio service mesh on Azure
-        - Agentic workflows with custom skills and agents, and spec-driven development
-      tech: [Java 25, Spring Boot, Azure, Azure DevOps, Kubernetes, Operator pattern, Istio, Backstage, Elastic, Agentic AI, GitHub Copilot CLI, Spec-driven development]
-
-    - company: Belfius
-      role: Senior Engineer
-      start: "2023"
-      end: "2026"
-      location: Brussels, Belgium
-      # TODO: LinkedIn heeft hier geen omschrijving. Vul aan wat je deed.
-      summary: >-
-        Senior engineer in Belfius Technology, building the backend services
-        behind one of Belgium's largest banks.
-      highlights:
-        - Won first prize at the Belfius hackathon with a prototype built in 48 hours
-      tech: [Java, Spring Boot, Azure, Kubernetes]
+        Engineering in Belfius Technology, one of Belgium's largest banks:
+        modernising how critical banking systems, cloud applications and
+        external services talk to each other.
+      projects:
+        - name: Cloud-native integration platform
+          description:
+            - >-
+              Architected and developed a cloud-native integration platform
+              modernizing communication between critical banking systems, cloud
+              applications, and external services. Designed a scalable,
+              distributed architecture leveraging Java, Spring Boot, and
+              Kubernetes.
+            - >-
+              Applied platform engineering principles by developing a custom
+              Kubernetes Operator, enabling declarative configuration, automated
+              lifecycle management, and developer self-service. Leveraged Helm
+              and Kubernetes-native automation to simplify enterprise
+              integrations and streamline software delivery.
+        - name: Belfius Hackathon
+          period: First prize
+          description: >-
+            Pitched an idea, built a working prototype in 48 hours and presented
+            it to a jury from Belfius management and Mistral AI.
+      tech: [Java 25, Spring Boot, Azure, Azure DevOps, Kubernetes, Operator pattern, Helm, Istio, Backstage, Elastic, Agentic AI, GitHub Copilot CLI, Spec-driven development]
 
     - company: Ixor
-      role: Software Engineer
-      start: "2019"
-      end: "2023"
       location: Mechelen, Belgium
+      roles:
+        - { title: Software Engineer, start: "2019", end: "2023" }
       summary: >-
         Backend development of web applications for a range of clients, with
         cloud-native microservices, event-driven architecture and AWS.
-      highlights:
-        - "Verkeerscentrum: event-driven platform for operators controlling traffic in Flanders"
-        - "myVandelanotte: client portal with Azure AD single sign-on across accountancy tools"
-        - "E-invoicing for Belfius: upload, recognise and send PDF invoices via PEPPOL"
-        - "IxorDocs: reworked the engine that turns XML, PDF and CSV into PEPPOL BIS3"
+      projects:
+        - name: Verkeerscentrum
+          period: 2022 – 2023
+          description: >-
+            Application for operators to control the traffic in Flanders: an
+            event-driven microservice architecture integrating Waze, DATEX,
+            video walls, traffic signs and vehicle detection loops.
+        - name: myVandelanotte
+          period: 2021 – 2022
+          url: https://www.vandelanotte.be/en/myvandelanotte
+          description: >-
+            Client portal built from scratch that connects accountancy tools
+            through Azure AD single sign-on, so clients find their statements,
+            reports and documents to sign in one place.
+        - name: E-invoicing for Belfius
+          period: 2020 – 2021
+          url: https://www.youtube.com/watch?v=x5VHU6d7-I0
+          description: >-
+            New e-invoicing platform: upload a PDF invoice, have it recognised,
+            and send it in a structured way over the PEPPOL network.
+        - name: IxorDocs
+          period: 2019 – 2020
+          url: https://www.ixordocs.be/
+          description: >-
+            Portal connecting companies to Doccle (document platform) and PEPPOL
+            (e-invoicing). Reworked the preprocessor engine that turns XML, PDF
+            and CSV into output formats like PEPPOL BIS3.
       tech: [Java, Spring Boot, Kafka, GraphQL, REST, AWS, CloudFormation, Datadog, DDD, BDD, Automated testing]
 
     - company: Objective International
-      role: Software Engineer
-      start: "2018"
-      end: "2019"
       location: Wichelen, Belgium
+      roles:
+        - { title: Software Engineer, start: "2018", end: "2019" }
+        - { title: Junior Software Engineer, start: "2016", end: "2017" }
       summary: >-
-        Translated customer needs into technical designs and implemented them in
-        the Objective Java framework for MES and WMS in the process industry.
-        Owned the codebase and the releases.
+        Tailored the Objective Java framework for MES and WMS to customers in
+        the process industry, through the full cycle from analysis to go-live.
+        Later turned customer needs into technical designs, and owned the
+        codebase and the releases.
       highlights:
         - Introduced Jenkins, which became the standard for building and shipping releases
         - Built a cloud-based tool that pushes new releases to customers automatically
-      tech: [Java, SQL, Jenkins, CI/CD, MES, WMS]
-
-    - company: Objective International
-      role: Junior Software Engineer
-      start: "2016"
-      end: "2017"
-      location: Wichelen, Belgium
-      summary: >-
-        Tailored the Objective Java framework to customers in the process
-        industry, through the full project cycle from analysis to go-live.
-      highlights:
         - On-site key-user training, fixes and installations during test phases
-        - Excel VBA automation for planning sheets and offers
-      tech: [Java, SQL, VBA]
+      tech: [Java, SQL, Jenkins, CI/CD, MES, WMS, VBA]
 
     - company: Winfri
-      role: Co-founder & Software Engineer
-      start: "2015"
-      end: "2015"
       location: Ghent, Belgium
+      roles:
+        - { title: Co-founder & Software Engineer, start: "2015", end: "2015" }
       summary: >-
-        Joined a start-up building an online freecycle platform as
-        co-entrepreneur and developer, turning an idea into a real company.
+        Someone pitched me the idea of an online freecycle platform. I joined
+        as co-entrepreneur and developer to turn it into a real company.
+      projects:
+        - name: Winfri platform
+          period: "2015"
+          description: >-
+            Built the freecycle platform on Scala and the Play Framework with
+            MongoDB. It grew to more than a thousand users.
       highlights:
         - Startup Weekend Leuven, Durf Ondernemen (Ghent University) and Start it @KBC
-        - Grew to more than a thousand users
       tech: [Scala, Play Framework, MongoDB]
 
     - company: Crelan
-      role: Summer Student
-      start: "2011"
-      end: "2013"
       location: Anderlecht, Belgium
+      roles:
+        - { title: Summer Student, start: "2011", end: "2013" }
       summary: >-
         Summer job in the home loan administration, where I spotted repetitive
         work in Excel and automated it.
@@ -219,6 +242,7 @@ skills:
         - { name: AWS, level: advanced, since: 2019, icon: devicon:amazonwebservices, match: [CloudFormation] }
         - { name: Kubernetes, level: advanced, since: 2023, icon: kubernetes }
         - { name: Operator pattern, level: advanced, since: 2026, icon: lucide:refresh-cw }
+        - { name: Helm, level: advanced, since: 2026, icon: helm }
         - { name: Istio, level: advanced, since: 2026, icon: istio }
         - { name: Backstage, level: familiar, since: 2026, icon: backstage }
         - { name: CI/CD, level: expert, since: 2018, icon: lucide:infinity, match: [Jenkins] }
@@ -241,6 +265,14 @@ skills:
 projects:
   label: Projects
   items:
+    - name: Integration platform
+      meta: Belfius · Kubernetes Operator
+      description: >-
+        Cloud-native platform modernising communication between critical
+        banking systems, cloud applications and external services, with a custom
+        Kubernetes Operator for declarative, self-service integrations.
+      tags: [Java, Kubernetes, Helm]
+
     - name: Belfius Hackathon
       meta: First prize · 48 hours
       description: >-
@@ -254,14 +286,6 @@ projects:
         Application for operators to control the traffic in Flanders, integrating
         Waze, DATEX, video walls, traffic signs and vehicle detection loops.
       tags: [Event-driven, Kafka, Microservices]
-
-    - name: myVandelanotte
-      meta: Ixor · 2021 – 2022
-      description: >-
-        Portal built from scratch that connects accountancy tools via Azure AD
-        single sign-on, so clients find everything in one place.
-      url: https://www.vandelanotte.be/en/myvandelanotte
-      tags: [Spring Boot, Azure AD, SSO]
 
     - name: E-invoicing for Belfius
       meta: Ixor · 2020 – 2021

@@ -51,17 +51,43 @@ const schema = z.object({
   experience: z.object({
     label: z.string().default("Experience"),
     presentLabel: z.string().default("Present"),
+    projectsLabel: z.string().default("Projects"),
+    // One item per employer, like LinkedIn. `role`, `start` and `end` are
+    // derived from the roles, so consumers that need one line per employer
+    // (the skills slide, the PDF) don't have to.
     items: z.array(
-      z.object({
-        company: z.string(),
-        role: z.string(),
-        start: year,
-        end: year.nullable().default(null),
-        location: z.string().optional(),
-        summary: z.string(),
-        highlights: z.array(z.string()).default([]),
-        tech: z.array(z.string()).default([]),
-      }),
+      z
+        .object({
+          company: z.string(),
+          location: z.string().optional(),
+          roles: z
+            .array(z.object({ title: z.string(), start: year, end: year.nullable().default(null) }))
+            .min(1),
+          summary: z.string(),
+          projects: z
+            .array(
+              z.object({
+                name: z.string(),
+                period: year.optional(),
+                url: z.url().optional(),
+                // One paragraph, or a list of paragraphs.
+                description: z.union([z.string(), z.array(z.string())]).transform((d) => (Array.isArray(d) ? d : [d])),
+              }),
+            )
+            .default([]),
+          highlights: z.array(z.string()).default([]),
+          tech: z.array(z.string()).default([]),
+        })
+        .transform((e) => {
+          const starts = e.roles.map((r) => r.start).sort();
+          const ends = e.roles.map((r) => r.end);
+          return {
+            ...e,
+            role: e.roles[0]!.title,
+            start: starts[0]!,
+            end: ends.includes(null) ? null : (ends as string[]).sort().at(-1)!,
+          };
+        }),
     ),
   }),
   skills: z.object({
