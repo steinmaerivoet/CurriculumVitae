@@ -48,9 +48,9 @@ person:
     A passionate engineer on a continuous quest to improve the efficiency of
     everything around me.
   location: Mechelen, Belgium
-  # TODO: dit adres wordt publiek. Liever hello@steinmaerivoet.dev? Dat kan
-  # gratis via Cloudflare Email Routing (zie CLOUDFLARE.md).
-  email: steinmaerivoet@hotmail.com
+  # Publiek adres; Cloudflare Email Routing stuurt het door naar je eigen
+  # mailbox (zie CLOUDFLARE.md §6).
+  email: hello@steinmaerivoet.dev
   # Zet op true om een "beschikbaar"-badge op de intro te tonen.
   available: false
   availabilityText: Open to new challenges
