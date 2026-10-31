@@ -1,0 +1,77 @@
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-sans/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+
+/*
+ * API reference: the CV documented like a developer API. A crisp light page
+ * for the docs, a dark pane for the responses, which are the real JSON the
+ * site publishes under /api/v1/.
+ */
+[data-theme="reference"] {
+  --f-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --f-display: var(--f-sans);
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --c-bg: #f6f7f9;
+  --c-bg-2: #eef0f4;
+  --c-surface: #ffffff;
+  --c-fg: #10131a;
+  --c-mute: #5b6373;
+  --c-line: #e1e4ea;
+  --c-accent: #2f5bff;
+  --c-on-accent: #ffffff;
+  /* The response pane */
+  --r-code: #0f1322;
+  --r-code-fg: #c8d0e6;
+  --r-code-line: #222842;
+  --r-key: #8fb3ff;
+  --r-string: #9fe0b4;
+  --r-number: #ffc27a;
+  --r-bool: #ff8fb1;
+  --r-punct: #5a6487;
+  --r-ok: #0f9d6a;
+  color-scheme: light;
+}
+
+[data-theme="reference"] {
+  .r-code { background: var(--r-code); color: var(--r-code-fg); }
+  .r-key { color: var(--r-key); }
+  .r-string { color: var(--r-string); }
+  .r-number { color: var(--r-number); }
+  .r-bool { color: var(--r-bool); }
+  .r-punct { color: var(--r-punct); }
+  .r-ok { color: var(--r-ok); }
+
+  /* HTTP method badges */
+  .r-method {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 3px 5px;
+    font: 600 10px/1 var(--f-mono);
+    background: #e3f6ee;
+    color: var(--r-ok);
+  }
+  .r-method[data-method="MAIL"] { background: #eaefff; color: var(--c-accent); }
+
+  .r-level {
+    border-radius: 4px;
+    padding: 3px 6px;
+    font: 600 10.5px/1 var(--f-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #f1f2f5;
+    color: #5e6676;
+  }
+  .r-level[data-level="expert"] { background: #e1e8ff; color: #2442c9; }
+  .r-level[data-level="advanced"] { background: #e3f6ee; color: #0b7a52; }
+
+  /* The response streams in when its slide is first reached. */
+  .r-stream { clip-path: inset(0 0 0 0); }
+}
+
+html.js:not(.no-reveal) [data-theme-deck="reference"] .slide:not(.is-seen) .r-stream { clip-path: inset(0 0 100% 0); }
+[data-theme-deck="reference"] .r-stream { transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.45s; }

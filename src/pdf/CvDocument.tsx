@@ -37,15 +37,16 @@ Font.register({
 // Never break words with hyphens: it looks sloppy in a CV.
 Font.registerHyphenationCallback((word) => [word]);
 
-/* ── Design tokens (print-friendly take on the website palette) ─────────── */
+/* ── Design tokens (print-friendly take on the Plain theme, src/web/themes/plain/theme.css) ── */
 const c = {
-  ink: "#0a0b0f",
+  ink: "#141518",
   text: "#24262d",
-  mute: "#6b6f7b",
-  line: "#e3e1da",
-  side: "#f6f4ee",
-  accent: "#d4ff5a",
-  accentInk: "#4d5f12",
+  mute: "#6a6c73",
+  line: "#e2e2dc",
+  side: "#f3f3ef",
+  accent: "#2e4ee6",
+  accentInk: "#2e4ee6",
+  accentOnInk: "#8fa3ff",
 };
 
 const s = StyleSheet.create({
@@ -67,7 +68,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  monogramText: { fontFamily: "Instrument Serif", fontSize: 21, color: c.accent, marginTop: 3 },
+  monogramText: { fontFamily: "Instrument Serif", fontSize: 21, color: c.accentOnInk, marginTop: 3 },
   name: { fontFamily: "Instrument Serif", fontSize: 34, color: c.ink, lineHeight: 1 },
   nameAccent: { color: c.accentInk },
   headline: { fontSize: 11, fontWeight: 600, color: c.ink, marginTop: 6 },

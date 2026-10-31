@@ -4,6 +4,7 @@ import type { ChromeProps } from "@/web/themes/types";
 import { pad } from "@/bff/shared/format";
 import ThemeSwitcher from "@/web/shared/ThemeSwitcher";
 import ModeToggle from "./ui/ModeToggle";
+import { useChromeIntro } from "@/web/headless/useChromeIntro";
 
 /** Fixed UI around the slides: brand, call to action, dot navigation, counter and progress. */
 export default function Chrome({ deck, index, goTo, ready }: ChromeProps) {
@@ -14,15 +15,7 @@ export default function Chrome({ deck, index, goTo, ready }: ChromeProps) {
   const contactIndex = deck.sections.findIndex((s) => s.id === "contact");
   const fullName = `${deck.person.firstName} ${deck.person.lastName}`;
 
-  // Fade the chrome in once the deck is ready.
-  useEffect(() => {
-    if (!ready || !rootRef.current) return;
-    gsap.fromTo(
-      rootRef.current.querySelectorAll("[data-chrome]"),
-      { autoAlpha: 0, y: (i) => (i % 2 ? 10 : -10) },
-      { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.08, delay: 0.6 },
-    );
-  }, [ready]);
+  useChromeIntro(rootRef, ready);
 
   // Progress line follows the glide.
   useEffect(() => {

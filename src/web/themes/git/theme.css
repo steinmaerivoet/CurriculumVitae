@@ -1,0 +1,68 @@
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/martian-mono";
+
+/*
+ * Commit graph: the career as a git history. An editorial grotesque for the
+ * big type, a mono for hashes and log lines, warm dark paper and one colour
+ * per branch.
+ */
+[data-theme="git"] {
+  --f-sans: "Martian Mono Variable", ui-monospace, Menlo, monospace;
+  --f-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --f-mono: var(--f-sans);
+
+  --c-bg: #131210;
+  --c-bg-2: #1c1a17;
+  --c-surface: #23201c;
+  --c-fg: #ece7df;
+  --c-mute: #8f887d;
+  --c-line: #2c2924;
+  --c-accent: #ff7a45;
+  --c-on-accent: #131210;
+  /* Branches and diffs */
+  --g-teal: #4fd1c5;
+  --g-violet: #c792ea;
+  --g-gold: #f5c451;
+  --g-add: #6fdc8c;
+  --g-del: #ff6b6b;
+  --g-prose: #c4bdb2;
+  color-scheme: dark;
+}
+
+[data-theme="git"] {
+  .g-teal { color: var(--g-teal); }
+  .g-violet { color: var(--g-violet); }
+  .g-gold { color: var(--g-gold); }
+  .g-add { color: var(--g-add); }
+  .g-del { color: var(--g-del); }
+  .g-prose { color: var(--g-prose); }
+
+  .g-paper {
+    background:
+      radial-gradient(90% 70% at 100% 0%, color-mix(in oklab, var(--c-accent) 8%, transparent), transparent 60%),
+      var(--c-bg);
+  }
+
+  /* Heatmap cells */
+  .g-cell { display: block; height: 100%; border-radius: 3px; background: #201e1a; }
+  .g-cell[data-heat="1"] { background: color-mix(in oklab, var(--c-accent) 25%, #201e1a); }
+  .g-cell[data-heat="2"] { background: color-mix(in oklab, var(--c-accent) 45%, #201e1a); }
+  .g-cell[data-heat="3"] { background: color-mix(in oklab, var(--c-accent) 70%, #201e1a); }
+  .g-cell[data-heat="4"] { background: var(--c-accent); }
+
+  /* Graph lines draw themselves the first time their slide is reached. */
+  .g-draw { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s; }
+  .g-pulse { animation: g-pulse 2.2s ease-in-out infinite; }
+}
+
+html.js:not(.no-reveal) [data-theme-deck="git"] .slide:not(.is-seen) .g-draw { stroke-dashoffset: 1; }
+html.js:not(.no-reveal) [data-theme-deck="git"] .slide:not(.is-seen) .g-cell { opacity: 0; }
+[data-theme-deck="git"] .g-cell { transition: opacity 0.5s ease-out calc(0.3s + var(--col, 0) * 0.05s); }
+
+@keyframes g-pulse {
+  50% { opacity: 0.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="git"] .g-pulse { animation: none; }
+}
