@@ -40,7 +40,7 @@ export default function About({ cv }: { cv: CV }) {
               <div key={s.label} className="flex flex-col-reverse" data-reveal>
                 <dt className="mt-3 text-xs leading-snug text-mute sm:text-sm">{s.label}</dt>
                 <dd className="font-serif text-[clamp(2.5rem,6vw,4.5rem)] leading-none tracking-tight">
-                  <span data-count={s.value}>{s.value}</span>
+                  <span data-count={s.value}>{s.value.toLocaleString("en")}</span>
                   {s.suffix ? <span className="text-accent">{s.suffix}</span> : null}
                 </dd>
               </div>
