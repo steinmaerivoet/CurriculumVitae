@@ -2,8 +2,8 @@
 import { cv } from "@/lib/cv";
 import { cvPdfPath, cvSlug } from "@/pdf/filename";
 
-// Always-visible button in the bottom-right corner that downloads the PDF version
-// of the CV. The PDF itself is generated at build time by src/pages/[file].pdf.ts.
+// Downloads the PDF version of the CV. Shown in the bottom-right corner by
+// Downloads.astro; the PDF itself is generated at build time by src/pages/[file].pdf.ts.
 const label = cv.ui.downloadCv;
 ---
 
@@ -12,7 +12,7 @@ const label = cv.ui.downloadCv;
   download={`${cvSlug(cv)}.pdf`}
   aria-label={`${label} (PDF)`}
   title={`${label} (PDF)`}
-  class="download-cv group fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex h-10 items-center rounded-full border border-line bg-ink/70 text-paper/90 backdrop-blur-md transition-colors duration-500 hover:border-accent hover:bg-accent hover:text-ink sm:right-4 lg:right-7"
+  class="download-cv group pointer-events-auto flex h-10 items-center rounded-full border border-line bg-ink/70 text-paper/90 backdrop-blur-md transition-colors duration-500 hover:border-accent hover:bg-accent hover:text-ink"
 >
   <span
     class="grid max-w-0 overflow-hidden text-xs font-medium tracking-wide whitespace-nowrap opacity-0 transition-all duration-500 ease-out-expo group-hover:max-w-40 group-hover:pl-4 group-hover:opacity-100 group-focus-visible:max-w-40 group-focus-visible:pl-4 group-focus-visible:opacity-100"
@@ -27,21 +27,3 @@ const label = cv.ui.downloadCv;
     </svg>
   </span>
 </a>
-
-<style>
-  /* Appear together with the rest of the deck chrome. */
-  .download-cv {
-    animation: download-cv-in 1s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
-  }
-  @keyframes download-cv-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .download-cv {
-      animation: none;
-    }
-  }
-</style>
