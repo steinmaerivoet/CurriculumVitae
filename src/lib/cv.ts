@@ -22,6 +22,7 @@ const schema = z.object({
       scrollHint: z.string().default("Scroll"),
       talkButton: z.string().default("Let's talk"),
       footer: z.string().default(""),
+      downloadCv: z.string().default("Download CV"),
     })
     .prefault({}),
   person: z.object({
