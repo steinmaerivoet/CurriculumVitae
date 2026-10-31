@@ -34,8 +34,8 @@ function layout(graph: Graph, w: number, h: number): Laid {
   const links = graph.edges.map(([a, b]) => ({ source: a, target: b }));
   const aspect = w / h;
   forceSimulation(nodes)
-    .force("link", forceLink<Node, { source: string; target: string }>(links).id((n) => n.id).distance((l) => (isEmployer(l.source) || isEmployer(l.target) ? 95 : 70)).strength(0.45))
-    .force("charge", forceManyBody().strength(-260))
+    .force("link", forceLink<Node, { source: string; target: string }>(links).id((n) => n.id).distance((l) => (isEmployer(l.source) || isEmployer(l.target) ? 120 : 70)).strength(0.4))
+    .force("charge", forceManyBody<Node>().strength((n) => (n.kind === "employer" ? -1400 : -300)))
     .force("collide", forceCollide<Node>().radius((n) => n.r + 26).iterations(2))
     // The longer side of the screen gets the weaker pull, so the web fills it.
     .force("x", forceX(0).strength(0.07 / Math.max(1, aspect)))
