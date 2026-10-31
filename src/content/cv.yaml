@@ -35,6 +35,8 @@ ui:
   talkButton: Let's talk
   contentsLabel: Contents
   footer: Built with Astro, React & GSAP
+  # Knop rechtsonder die de PDF-versie van dit CV downloadt (gegenereerd bij de build).
+  downloadCv: Download CV
 
 person:
   firstName: Stein

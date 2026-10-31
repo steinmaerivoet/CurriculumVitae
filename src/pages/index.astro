@@ -1,9 +1,11 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Deck from "@/components/Deck";
+import DownloadCv from "@/components/DownloadCv.astro";
 import { cv } from "@/lib/cv";
 ---
 
 <Layout>
   <Deck client:load cv={cv} />
+  <DownloadCv />
 </Layout>

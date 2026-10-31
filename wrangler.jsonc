@@ -1,0 +1,13 @@
+// Cloudflare Workers configuration: the site is fully static, so the Worker only
+// serves the files Astro builds into ./dist (including the PDF CV).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "curriculumvitae",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist"
+  },
+  // Pull requests and other branches get a Preview deployment. The block may stay
+  // empty: assets and compatibility settings above are shared with Previews.
+  "previews": {}
+}

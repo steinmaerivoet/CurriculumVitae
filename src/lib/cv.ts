@@ -30,6 +30,7 @@ const schema = z.object({
       talkButton: z.string().default("Let's talk"),
       contentsLabel: z.string().default("Contents"),
       footer: z.string().default(""),
+      downloadCv: z.string().default("Download CV"),
     })
     .prefault({}),
   person: z.object({
