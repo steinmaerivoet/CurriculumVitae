@@ -54,3 +54,14 @@ De build controleert ook `src/content/cv.yaml`. Zit daar een fout in, dan faalt 
 - **Domein blijft "Pending"**: controleer bij Porkbun of de nameservers exact overeenkomen en of DNSSEC uit staat.
 - **Custom domain blijft hangen op "Verifying"**: kijk in **DNS → Records** of er geen oude Porkbun-record op `@` of `www` meer staat.
 - **Build faalt**: open de build-log in Pages. Meestal is het een tikfout in `cv.yaml`; de melding noemt het veld.
+
+## 6. Optioneel: e-mail op je eigen domein (gratis)
+
+Wil je op de site `hello@steinmaerivoet.dev` tonen in plaats van je persoonlijke adres?
+
+1. In Cloudflare: **Email → Email Routing → Get started**.
+2. Maak een adres aan, bv. `hello`, en laat het doorsturen naar je eigen mailbox. Bevestig de verificatiemail.
+3. Cloudflare voegt zelf de nodige MX- en TXT-records toe.
+4. Pas `person.email` aan in `src/content/cv.yaml`.
+
+Antwoorden verstuur je dan nog vanuit je gewone mailbox.

@@ -7,7 +7,7 @@ export default function Eyebrow({ id, label }: { id: SlideId; label: string }) {
   const { ids } = useDeck();
   const n = ids.indexOf(id);
   return (
-    <p className="eyebrow mb-6 sm:mb-10" data-anim>
+    <p className="eyebrow mb-6 sm:mb-10 short:mb-6" data-anim>
       {n >= 0 ? `${pad(n)} · ` : ""}
       {label}
     </p>

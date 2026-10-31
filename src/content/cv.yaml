@@ -5,13 +5,15 @@
 #  - Volgorde van de slides wijzigen of een slide verbergen: zie `slides`.
 #  - Het bestand wordt bij elke build gecontroleerd. Een fout (bv. een
 #    verplicht veld vergeten) geeft een duidelijke melding met het pad.
-#  - Regels met "TODO" zijn nog niet geverifieerd: LinkedIn kon niet
-#    automatisch uitgelezen worden. Controleer en vul aan.
+#  - Bron: LinkedIn-profiel (oktober 2026). Regels met "TODO" verdienen nog
+#    een blik van jou.
 # ─────────────────────────────────────────────────────────────────────────────
 
 meta:
   title: Stein Maerivoet
-  description: Software engineer uit Mechelen. Backend, cloud en IoT.
+  description: >-
+    Stein Maerivoet, Lead Engineer at Belfius. Cloud-native backends, Java and
+    Spring Boot, agentic software engineering and a lifelong love for automation.
   url: https://steinmaerivoet.dev
   lang: en
 
@@ -36,11 +38,16 @@ ui:
 person:
   firstName: Stein
   lastName: Maerivoet
-  headline: Software Engineer # TODO: exacte titel van LinkedIn
-  tagline: I build reliable backends, cloud platforms and connected products.
-  location: Mechelen, Belgium
-  email: hello@steinmaerivoet.dev # TODO: echt e-mailadres
-  available: true
+  headline: Lead Engineer at Belfius
+  tagline: >-
+    A passionate engineer on a continuous quest to improve the efficiency of
+    everything around me.
+  location: Antwerp, Belgium
+  # TODO: dit adres wordt publiek. Liever hello@steinmaerivoet.dev? Dat kan
+  # gratis via Cloudflare Email Routing (zie CLOUDFLARE.md).
+  email: steinmaerivoet@hotmail.com
+  # Zet op true om een "beschikbaar"-badge op de intro te tonen.
+  available: false
   availabilityText: Open to new challenges
   socials:
     - label: LinkedIn
@@ -50,95 +57,230 @@ person:
 
 about:
   label: About
-  statement: I turn complex problems into software that is simple to use and easy to maintain.
+  statement: >-
+    Software engineering is becoming less about knowing how to write code, and
+    more about knowing what to build.
   paragraphs:
     - >-
-      TODO: korte intro uit je LinkedIn "Info"-sectie. Bijvoorbeeld wat je
-      doet, waar je sterk in bent en wat je drijft.
+      I'm a passionate engineer in a continuous quest for improving the
+      efficiency of things I see around me. I'm highly committed and
+      goal-oriented when something captures my interest, and you can always
+      make my day with a conversation about IoT or home automation.
     - >-
-      Outside of work I automate my own house with Home Assistant and write
-      small tools that scratch my own itch.
+      In my spare time you can find me on my bike, at my computer, or planning
+      a backpacking journey to explore a new part of our planet.
   stats:
-    - value: 10 # TODO
+    - value: 10
       suffix: "+"
-      label: Years in software
-    - value: 20 # TODO
-      suffix: "+"
-      label: Projects delivered
-    - value: 3 # TODO
+      label: Years of professional software engineering
+    - value: 1
+      suffix: "st"
+      label: Prize at the Belfius hackathon
+    - value: 4
       label: Languages spoken
 
 experience:
   label: Experience
+  presentLabel: Present
   items:
-    - company: Ixor
-      role: Software Engineer # TODO
-      start: "2015" # TODO
+    - company: Belfius
+      role: Lead Engineer
+      start: "2026"
       end: null # null = heden
+      location: Brussels, Belgium
+      summary: >-
+        Leading the migration of the Belfius integration layer, the service bus
+        between Belfius Technology platforms and third-party applications. A
+        greenfield project to build a resilient, cloud-native replacement.
+      highlights:
+        - Greenfield, cloud-native successor for a business-critical service bus
+        - Kubernetes operator pattern and an Istio service mesh on Azure
+        - Agentic workflows with custom skills and agents, and spec-driven development
+      tech: [Java 25, Spring Boot, Azure, Kubernetes, Istio, Backstage, Elastic, Agentic AI]
+
+    - company: Belfius
+      role: Senior Engineer
+      start: "2023"
+      end: "2026"
+      location: Brussels, Belgium
+      # TODO: LinkedIn heeft hier geen omschrijving. Vul aan wat je deed.
+      summary: >-
+        Senior engineer in Belfius Technology, building the backend services
+        behind one of Belgium's largest banks.
+      highlights:
+        - Won first prize at the Belfius hackathon with a prototype built in 48 hours
+      tech: [Java, Spring Boot, Azure, Kubernetes]
+
+    - company: Ixor
+      role: Software Engineer
+      start: "2019"
+      end: "2023"
       location: Mechelen, Belgium
       summary: >-
-        Building backend services and cloud platforms for clients, including
-        IxorTalk, an open IoT platform built from Spring Boot microservices.
+        Backend development of web applications for a range of clients, with
+        cloud-native microservices, event-driven architecture and AWS.
       highlights:
-        - Designed and built microservices for the IxorTalk IoT platform
-        - Developed a reusable OAuth2 Spring Boot starter
-        - Deployed and operated services on AWS
-      tech: [Java, Spring Boot, AWS, OAuth2, Microservices]
-    - company: TODO Vorige werkgever
-      role: TODO Functie
-      start: "2012"
+        - "Verkeerscentrum: event-driven platform for operators controlling traffic in Flanders"
+        - "myVandelanotte: client portal with Azure AD single sign-on across accountancy tools"
+        - "E-invoicing for Belfius: upload, recognise and send PDF invoices via PEPPOL"
+        - "IxorDocs: reworked the engine that turns XML, PDF and CSV into PEPPOL BIS3"
+      tech: [Spring Boot, Kafka, GraphQL, REST, AWS, CloudFormation, Datadog, DDD, BDD]
+
+    - company: Objective International
+      role: Software Engineer
+      start: "2018"
+      end: "2019"
+      location: Wichelen, Belgium
+      summary: >-
+        Translated customer needs into technical designs and implemented them in
+        the Objective Java framework for MES and WMS in the process industry.
+        Owned the codebase and the releases.
+      highlights:
+        - Introduced Jenkins, which became the standard for building and shipping releases
+        - Built a cloud-based tool that pushes new releases to customers automatically
+      tech: [Java, SQL, Jenkins, MES, WMS]
+
+    - company: Objective International
+      role: Junior Software Engineer
+      start: "2016"
+      end: "2017"
+      location: Wichelen, Belgium
+      summary: >-
+        Tailored the Objective Java framework to customers in the process
+        industry, through the full project cycle from analysis to go-live.
+      highlights:
+        - On-site key-user training, fixes and installations during test phases
+        - Excel VBA automation for planning sheets and offers
+      tech: [Java, SQL, VBA]
+
+    - company: Winfri
+      role: Co-founder & Software Engineer
+      start: "2015"
       end: "2015"
-      location: Belgium
-      summary: TODO korte omschrijving van je rol en impact.
+      location: Ghent, Belgium
+      summary: >-
+        Joined a start-up building an online freecycle platform as
+        co-entrepreneur and developer, turning an idea into a real company.
       highlights:
-        - TODO realisatie
-      tech: [Java]
+        - Startup Weekend Leuven, Durf Ondernemen (Ghent University) and Start it @KBC
+        - Grew to more than a thousand users
+      tech: [Scala, Play Framework, MongoDB]
+
+    - company: Crelan
+      role: Summer Student
+      start: "2011"
+      end: "2013"
+      location: Anderlecht, Belgium
+      summary: >-
+        Summer job in the home loan administration, where I spotted repetitive
+        work in Excel and automated it.
+      highlights:
+        - Built VBA automations that saved the team time every day
+      tech: [VBA, Excel]
 
 skills:
   label: Skills
   groups:
     - name: Backend
-      items: [Java, Spring Boot, REST APIs, Microservices, OAuth2, Batch processing]
-    - name: Cloud & DevOps
-      items: [AWS, Elastic Beanstalk, Docker, CI/CD]
-    - name: Languages & tools
-      items: [Java, Python, TypeScript, Node.js, Git]
-    - name: Home & IoT
-      items: [IoT platforms, Home Assistant, Automation]
+      items: [Java, Spring Boot, Microservices, Kafka, REST, GraphQL, Domain-Driven Design, Scala]
+    - name: Cloud & platform
+      items: [Azure, AWS, Kubernetes, Operator pattern, Istio, Backstage, CI/CD, Datadog, Elastic & Kibana]
+    - name: Ways of working
+      items: [Agentic AI, GitHub Copilot CLI, Spec-driven development, BDD, Automated testing]
+    - name: IoT & home automation
+      items: [Home Assistant, Raspberry Pi, ESP8266, Sensors]
 
 projects:
   label: Projects
   items:
-    - name: IxorTalk
-      description: Open-source IoT platform built from Spring Boot microservices, covering organisations, authentication and device management.
-      url: https://github.com/steinmaerivoet/ixortalk-organization-api
-      tags: [Java, Spring Boot, IoT]
-    - name: Too Good To Go notifier
-      description: Watches Too Good To Go and sends a notification the moment new surprise bags become available.
-      url: https://github.com/steinmaerivoet/toogoodtogo-notifier
-      tags: [Python, Automation]
-    - name: Smart home
-      description: Fully documented Home Assistant configuration that runs my house.
+    - name: Belfius Hackathon
+      meta: First prize · 48 hours
+      description: >-
+        Pitched an idea, built a working prototype through the night and
+        presented it to a jury from Belfius management and Mistral AI.
+      tags: [AI, Prototype, Pitch]
+
+    - name: Verkeerscentrum
+      meta: Ixor · 2022 – 2023
+      description: >-
+        Application for operators to control the traffic in Flanders, integrating
+        Waze, DATEX, video walls, traffic signs and vehicle detection loops.
+      tags: [Event-driven, Kafka, Microservices]
+
+    - name: myVandelanotte
+      meta: Ixor · 2021 – 2022
+      description: >-
+        Portal built from scratch that connects accountancy tools via Azure AD
+        single sign-on, so clients find everything in one place.
+      url: https://www.vandelanotte.be/en/myvandelanotte
+      tags: [Spring Boot, Azure AD, SSO]
+
+    - name: E-invoicing for Belfius
+      meta: Ixor · 2020 – 2021
+      description: >-
+        Upload a PDF invoice, have it recognised, and send it in a structured
+        way over the PEPPOL network.
+      url: https://www.youtube.com/watch?v=x5VHU6d7-I0
+      tags: [PEPPOL, AWS, Document recognition]
+
+    - name: Home automation
+      meta: Since 2017
+      description: >-
+        It started with a Raspberry Pi, a temperature sensor and a flashed smart
+        socket. Today my mission is to automate every repetitive task at home.
       url: https://github.com/steinmaerivoet/home-assistant-config
-      tags: [Home Assistant, YAML]
+      tags: [Home Assistant, ESP8266, Raspberry Pi]
+
+    - name: Multicopter safety system
+      meta: Master thesis · Cum laude
+      description: >-
+        Obstacle detection for a multicopter with a ring of eight ultrasonic
+        sensors, an AHRS and real-time correction of the S.Bus flight signals.
+      tags: [Embedded, Sensors, Research]
 
 education:
   label: Education
+  languagesLabel: Languages
+  certificationsLabel: Certifications
   items:
-    - school: TODO Hogeschool of universiteit
-      degree: TODO Diploma
-      start: "2008"
-      end: "2012"
+    - school: KU Leuven
+      degree: Master of Science, Electronics and ICT Engineering Technology
+      start: "2014"
+      end: "2015"
+      note: Specialisation ICT · Cum laude
+    - school: KU Leuven
+      degree: Bachelor of Science, Electronics and ICT Engineering Technology
+      start: "2011"
+      end: "2014"
+      note: Specialisation ICT
+    - school: Vrij Katholiek Onderwijs Opwijk
+      degree: Mathematics and Science
+      start: "2005"
+      end: "2011"
+  certifications:
+    - name: AWS Certified Developer – Associate
+      issuer: Amazon Web Services
+      year: "2021"
+    - name: Oracle Certified Professional, Java SE 8 Programmer
+      issuer: Oracle
+      year: "" # TODO: jaartal
+    - name: Machine Learning
+      issuer: Stanford University · Coursera
+      year: "2019"
   languages:
     - name: Dutch
       level: Native
     - name: English
-      level: Professional
+      level: Full professional
     - name: French
-      level: Working knowledge # TODO
+      level: Limited working
+    - name: German
+      level: Elementary
 
 contact:
   label: Contact
   heading: Let's build something together.
-  text: Have a project, a role or just a question? My inbox is open.
+  text: >-
+    Want to talk about cloud-native platforms, agentic engineering or the
+    smartest way to automate your home? My inbox is open.
   cta: Say hello

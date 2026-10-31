@@ -68,6 +68,7 @@ const schema = z.object({
     items: z.array(
       z.object({
         name: z.string(),
+        meta: z.string().optional(),
         description: z.string(),
         url: z.url().optional(),
         tags: z.array(z.string()).default([]),
@@ -77,7 +78,28 @@ const schema = z.object({
   education: z.object({
     label: z.string().default("Education"),
     languagesLabel: z.string().default("Languages"),
-    items: z.array(z.object({ school: z.string(), degree: z.string(), start: year, end: year })).default([]),
+    certificationsLabel: z.string().default("Certifications"),
+    items: z
+      .array(
+        z.object({
+          school: z.string(),
+          degree: z.string(),
+          start: year,
+          end: year,
+          note: z.string().optional(),
+        }),
+      )
+      .default([]),
+    certifications: z
+      .array(
+        z.object({
+          name: z.string(),
+          issuer: z.string(),
+          year: year.optional(),
+          url: z.url().optional(),
+        }),
+      )
+      .default([]),
     languages: z.array(z.object({ name: z.string(), level: z.string() })).default([]),
   }),
   contact: z.object({

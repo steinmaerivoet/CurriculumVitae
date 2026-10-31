@@ -51,7 +51,7 @@ export default function Experience({ cv }: { cv: CV }) {
                 aria-selected={selected}
                 aria-controls="experience-panel"
                 onClick={() => setActive(i)}
-                className={`group relative shrink-0 snap-start rounded-full border px-4 py-2.5 text-left transition-colors duration-300 lg:rounded-none lg:border-0 lg:border-b lg:border-line lg:px-0 lg:py-5 ${
+                className={`group relative shrink-0 snap-start rounded-full border px-4 py-2.5 text-left transition-colors duration-300 lg:rounded-none lg:border-0 lg:border-b lg:border-line lg:px-0 lg:py-3.5 xl:py-4 short:py-2.5 ${
                   selected ? "border-accent bg-accent text-ink lg:bg-transparent lg:text-paper" : "border-line text-paper/70 hover:text-paper"
                 }`}
               >
@@ -60,13 +60,17 @@ export default function Experience({ cv }: { cv: CV }) {
                     selected ? "scale-y-100" : "scale-y-0"
                   }`}
                 />
-                <span className="flex items-baseline justify-between gap-6 lg:pl-0 lg:transition-[padding] lg:duration-500 lg:group-aria-selected:pl-5">
-                  <span className="text-sm font-medium whitespace-nowrap lg:text-2xl lg:font-normal lg:tracking-tight lg:font-serif">
-                    {it.company}
+                <span className="block lg:transition-[padding] lg:duration-500 lg:group-aria-selected:pl-5">
+                  <span className="flex items-baseline justify-between gap-6">
+                    <span className="text-sm font-medium whitespace-nowrap lg:font-serif lg:text-[1.375rem] lg:font-normal lg:tracking-tight xl:text-2xl">
+                      {it.company}
+                      <span className={`lg:hidden ${selected ? "text-ink/60" : "text-mute"}`}> · {it.start}</span>
+                    </span>
+                    <span className={`hidden text-sm tabular-nums lg:inline ${selected ? "text-accent" : "text-mute"}`}>
+                      {range(it.start, it.end, experience.presentLabel)}
+                    </span>
                   </span>
-                  <span className={`hidden text-sm tabular-nums lg:inline ${selected ? "text-accent" : "text-mute"}`}>
-                    {range(it.start, it.end, experience.presentLabel)}
-                  </span>
+                  <span className="mt-0.5 hidden text-sm text-mute lg:block">{it.role}</span>
                 </span>
               </button>
             );
@@ -79,7 +83,7 @@ export default function Experience({ cv }: { cv: CV }) {
             {range(item.start, item.end, experience.presentLabel)}
             {item.location ? <span> · {item.location}</span> : null}
           </p>
-          <h3 data-panel className="mt-3 font-serif text-[clamp(2rem,4.4vw,3.75rem)] leading-[1.02] tracking-tight">
+          <h3 data-panel className="mt-3 font-serif text-[clamp(2rem,4.4vw,3.75rem)] short:text-[2.75rem] leading-[1.02] tracking-tight">
             {item.role}
             <span className="text-mute"> @ </span>
             <span className="italic text-accent">{item.company}</span>

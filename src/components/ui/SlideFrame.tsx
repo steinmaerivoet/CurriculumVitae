@@ -21,7 +21,7 @@ export default function SlideFrame({
         </div>
       ) : null}
       <div
-        className={`relative mx-auto flex w-full max-w-[90rem] flex-col justify-center pt-[max(5.5rem,env(safe-area-inset-top))] pr-11 pb-[max(5rem,env(safe-area-inset-bottom))] sm:pb-[max(5.5rem,env(safe-area-inset-bottom))] pl-6 sm:pr-20 sm:pl-10 lg:pr-28 lg:pl-16 ${className}`}
+        className={`relative mx-auto flex w-full max-w-[90rem] flex-col justify-center pt-[max(5.5rem,env(safe-area-inset-top))] pr-11 pb-[max(5rem,env(safe-area-inset-bottom))] sm:pb-[max(5.5rem,env(safe-area-inset-bottom))] pl-6 sm:pr-20 sm:pl-10 lg:pr-28 lg:pl-16 short:pt-[4.5rem] short:pb-16 ${className}`}
       >
         {children}
       </div>

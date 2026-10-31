@@ -3,6 +3,9 @@
 @import "@fontsource/instrument-serif/400.css";
 @import "@fontsource/instrument-serif/400-italic.css";
 
+/* Laptops with a short viewport (e.g. 1366×768) get a tighter rhythm. */
+@custom-variant short (@media (min-width: 1024px) and (max-height: 820px));
+
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;

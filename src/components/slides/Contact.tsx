@@ -16,7 +16,7 @@ export default function Contact({ cv }: { cv: CV }) {
     >
       <Eyebrow id="contact" label={contact.label} />
 
-      <h2 className="max-w-5xl font-serif text-[clamp(3rem,9vw,8.5rem)] leading-[0.92] tracking-[-0.03em]">
+      <h2 className="max-w-5xl font-serif text-[clamp(3rem,min(9vw,14vh),8.5rem)] leading-[0.92] tracking-[-0.03em]">
         <SplitText text={contact.heading} />
       </h2>
       <p className="mt-6 max-w-xl text-base leading-relaxed text-mute sm:mt-8 sm:text-lg" data-anim>
@@ -41,7 +41,7 @@ export default function Contact({ cv }: { cv: CV }) {
         </a>
       </div>
 
-      <div className="mt-14 flex flex-wrap items-center justify-between gap-6 border-t border-line pt-6 text-sm text-mute sm:mt-20" data-anim>
+      <div className="mt-14 flex flex-wrap short:mt-10 items-center justify-between gap-6 border-t border-line pt-6 text-sm text-mute sm:mt-20" data-anim>
         <ul className="flex flex-wrap gap-x-8 gap-y-2">
           {person.socials.map((s) => (
             <li key={s.url}>
