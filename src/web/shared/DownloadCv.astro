@@ -1,0 +1,30 @@
+---
+import { getCv } from "@/core";
+import { cvSlug, files } from "@/bff/shared/files";
+
+// Downloads the PDF version of the CV. Shown in the bottom-right corner by
+// Downloads.astro; the PDF itself is generated at build time by src/pages/[file].pdf.ts.
+const cv = getCv();
+const label = cv.ui.downloadCv;
+---
+
+<a
+  href={files(cv).pdf}
+  download={`${cvSlug(cv)}.pdf`}
+  aria-label={`${label} (PDF)`}
+  title={`${label} (PDF)`}
+  class="download-cv group pointer-events-auto flex h-10 items-center rounded-full border border-line bg-bg/70 text-fg/90 backdrop-blur-md transition-colors duration-500 hover:border-accent hover:bg-accent hover:text-on-accent"
+>
+  <span
+    class="grid max-w-0 overflow-hidden text-xs font-medium tracking-wide whitespace-nowrap opacity-0 transition-all duration-500 ease-out-expo group-hover:max-w-40 group-hover:pl-4 group-hover:opacity-100 group-focus-visible:max-w-40 group-focus-visible:pl-4 group-focus-visible:opacity-100"
+    aria-hidden="true"
+  >
+    {label}
+  </span>
+  <span class="grid size-10 shrink-0 place-items-center" aria-hidden="true">
+    <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5" />
+      <path d="M5 19.5h14" />
+    </svg>
+  </span>
+</a>

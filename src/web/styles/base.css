@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+/*
+ * Shared by every theme: the semantic colour and font tokens, the deck
+ * engine's layout and the reveal mechanics. A theme sets the --c-* and --f-*
+ * variables under [data-theme="…"] (see src/web/themes/<id>/theme.css) and
+ * styles its components with the utilities below (bg-bg, text-fg, border-line,
+ * text-accent, font-display, …), so components never hard-code a palette.
+ */
+
+/* Laptops with a short viewport (e.g. 1366×768) get a tighter rhythm. */
+@custom-variant short (@media (min-width: 1024px) and (max-height: 820px));
+
+@theme inline {
+  --font-sans: var(--f-sans);
+  --font-display: var(--f-display);
+  --font-mono: var(--f-mono);
+
+  --color-bg: var(--c-bg);
+  --color-bg-2: var(--c-bg-2);
+  --color-surface: var(--c-surface);
+  --color-fg: var(--c-fg);
+  --color-mute: var(--c-mute);
+  --color-line: var(--c-line);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+}
+
+@theme {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --breakpoint-xs: 380px;
+}
+
+:root {
+  --f-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-display: var(--f-sans);
+  --f-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --c-bg: #ffffff;
+  --c-bg-2: #f6f6f6;
+  --c-surface: #ffffff;
+  --c-fg: #111111;
+  --c-mute: #666666;
+  --c-line: rgb(0 0 0 / 0.1);
+  --c-accent: #2f4fe0;
+  --c-on-accent: #ffffff;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: var(--c-bg);
+    color: var(--c-fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: var(--c-accent);
+    color: var(--c-on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /*
+   * All slides live on one long track that glides as a whole.
+   * --deck-h is the measured height of the viewport (set by the deck), so the
+   * track offsets and the slide heights always agree, even while mobile
+   * browser bars change size.
+   */
+  .deck-track {
+    will-change: transform;
+  }
+  .slide {
+    position: relative;
+    height: var(--deck-h, 100vh);
+    overflow: hidden;
+  }
+
+  /* Scroll fallback when content is taller than a (very small) screen. */
+  .slide-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    touch-action: none;
+  }
+  .slide-scroll[data-overflow] {
+    touch-action: pan-y;
+  }
+  .slide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Content reveal. Elements with data-reveal start hidden and appear once, the
+ * first time their slide becomes active (.is-seen). They are never hidden
+ * again, so moving back and forth can't make text flicker.
+ * Only applies when JS runs (html.js); a safety timer removes it if the deck
+ * fails to start.
+ */
+html.js:not(.no-reveal) .slide:not(.is-seen) [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+html.js:not(.no-reveal) .slide:not(.is-seen) .split-char {
+  transform: translate3d(0, 110%, 0) rotate(4deg);
+}
+html.js:not(.no-reveal) .slide:not(.is-seen) [data-reveal-words] .word {
+  opacity: 0.14;
+}
+[data-reveal] {
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(0.18s + var(--ri, 0) * 0.07s);
+}
+.split-char {
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(0.1s + var(--ci, 0) * 0.028s);
+}
+[data-reveal-words] .word {
+  transition: opacity 0.5s ease-out;
+  transition-delay: calc(0.15s + var(--wi, 0) * 0.035s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  .split-char,
+  [data-reveal-words] .word {
+    transition-duration: 0.01s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+html.js [data-chrome] {
+  opacity: 0;
+}
+html.no-reveal [data-chrome] {
+  opacity: 1;
+}
