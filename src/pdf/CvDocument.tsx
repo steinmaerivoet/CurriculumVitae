@@ -2,8 +2,14 @@ import type { ReactNode } from "react";
 import { createRequire } from "node:module";
 import { Document, Font, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
-import { skillKinds, skillLevels, type CV, type SkillLevel } from "@/lib/cv";
-import { range } from "@/lib/format";
+import type { SkillLevel } from "@/core/model";
+import type { PdfModel, PdfProject } from "@/bff/pdf/document";
+
+/*
+ * Lays out the PDF CV. All content decisions (what to show, in which order,
+ * how dates read) are made by the PDF presenter in src/bff/pdf; this file
+ * only knows about paper: fonts, sizes, columns and page breaks.
+ */
 
 /* ── Fonts ────────────────────────────────────────────────────────────────
    Same families as the website, loaded from the static fontsource files so
@@ -31,15 +37,16 @@ Font.register({
 // Never break words with hyphens: it looks sloppy in a CV.
 Font.registerHyphenationCallback((word) => [word]);
 
-/* ── Design tokens (print-friendly take on the website palette) ─────────── */
+/* ── Design tokens (print-friendly take on the Plain theme, src/web/themes/plain/theme.css) ── */
 const c = {
-  ink: "#0a0b0f",
+  ink: "#141518",
   text: "#24262d",
-  mute: "#6b6f7b",
-  line: "#e3e1da",
-  side: "#f6f4ee",
-  accent: "#d4ff5a",
-  accentInk: "#4d5f12",
+  mute: "#6a6c73",
+  line: "#e2e2dc",
+  side: "#f3f3ef",
+  accent: "#2e4ee6",
+  accentInk: "#2e4ee6",
+  accentOnInk: "#8fa3ff",
 };
 
 const s = StyleSheet.create({
@@ -61,7 +68,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  monogramText: { fontFamily: "Instrument Serif", fontSize: 21, color: c.accent, marginTop: 3 },
+  monogramText: { fontFamily: "Instrument Serif", fontSize: 21, color: c.accentOnInk, marginTop: 3 },
   name: { fontFamily: "Instrument Serif", fontSize: 34, color: c.ink, lineHeight: 1 },
   nameAccent: { color: c.accentInk },
   headline: { fontSize: 11, fontWeight: 600, color: c.ink, marginTop: 6 },
@@ -149,10 +156,6 @@ const legendSwatch: Record<SkillLevel, Style> = {
   familiar: { backgroundColor: "transparent", borderColor: c.line },
 };
 
-/* ── Helpers ────────────────────────────────────────────────────────────── */
-const clean = (t: string) => t.replace(/\s+/g, " ").trim();
-const bareUrl = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-
 function Section({ title, children, wrap = true }: { title: string; children: ReactNode; wrap?: boolean }) {
   return (
     <View style={s.section} wrap={wrap}>
@@ -166,10 +169,7 @@ function Section({ title, children, wrap = true }: { title: string; children: Re
   );
 }
 
-type Project = CV["projects"]["items"][number];
-const projectText = (p: Project) => clean(p.summary ?? p.description[0] ?? "");
-
-function ProjectName({ project, style }: { project: Project; style: Style }) {
+function ProjectName({ project, style }: { project: PdfProject; style: Style }) {
   return project.url ? (
     <Link src={project.url} style={style}>
       {project.name}
@@ -180,29 +180,16 @@ function ProjectName({ project, style }: { project: Project; style: Style }) {
 }
 
 /* ── Document ───────────────────────────────────────────────────────────── */
-export default function CvDocument({ cv }: { cv: CV }) {
-  const { person, about, experience, skills, projects, education } = cv;
-  const fullName = `${person.firstName} ${person.lastName}`;
-  const show = (id: CV["slides"][number]) => cv.slides.includes(id);
-  const present = experience.presentLabel;
+export default function CvDocument({ model }: { model: PdfModel }) {
+  const { doc, footer, header, contact, skills, education, certifications, languages, profile, experience, projects } = model;
 
   return (
-    <Document
-      title={`${fullName} · Curriculum Vitae`}
-      author={fullName}
-      subject={person.headline}
-      keywords={skills.groups.flatMap((g) => g.items.map((i) => i.name)).join(", ")}
-      creator={cv.meta.url}
-      producer={cv.meta.url}
-      language={cv.meta.lang}
-    >
+    <Document title={doc.title} author={doc.author} subject={doc.subject} keywords={doc.keywords} creator={doc.creator} producer={doc.creator} language={doc.language}>
       <Page size="A4" style={s.page}>
         <View style={s.sideBg} fixed />
         <View style={s.footer} fixed>
-          <Text>
-            {fullName} · Curriculum Vitae
-          </Text>
-          <Text>{bareUrl(cv.meta.url)}</Text>
+          <Text>{footer.title}</Text>
+          <Text>{footer.url}</Text>
           <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
 
@@ -210,109 +197,90 @@ export default function CvDocument({ cv }: { cv: CV }) {
         <View style={[s.base, s.header]}>
           <View style={s.headerSide}>
             <View style={s.monogram}>
-              <Text style={s.monogramText}>
-                {person.firstName[0]}
-                {person.lastName[0]}
-              </Text>
+              <Text style={s.monogramText}>{header.monogram}</Text>
             </View>
           </View>
           <View style={s.headerMain}>
             <Text style={s.name}>
-              {person.firstName} <Text style={s.nameAccent}>{person.lastName}</Text>
+              {header.firstName} <Text style={s.nameAccent}>{header.lastName}</Text>
             </Text>
-            <Text style={s.headline}>{person.headline}</Text>
-            <Text style={s.tagline}>{clean(person.tagline)}</Text>
+            <Text style={s.headline}>{header.headline}</Text>
+            <Text style={s.tagline}>{header.tagline}</Text>
           </View>
         </View>
 
         <View style={[s.base, s.body]}>
           {/* Sidebar */}
           <View style={s.side}>
-            <Section title="Contact">
-              <Text style={s.label}>Email</Text>
-              <Link src={`mailto:${person.email}`} style={s.contactValue}>
-                {person.email}
-              </Link>
-              <Text style={s.label}>Location</Text>
-              <Text style={s.contactValue}>{person.location}</Text>
-              <Text style={s.label}>Website</Text>
-              <Link src={cv.meta.url} style={s.contactValue}>
-                {bareUrl(cv.meta.url)}
-              </Link>
-              {person.socials.map((social) => (
-                <View key={social.url}>
-                  <Text style={s.label}>{social.label}</Text>
-                  <Link src={social.url} style={s.contactValue}>
-                    {bareUrl(social.url)}
-                  </Link>
+            <Section title={contact.title}>
+              {contact.items.map((item) => (
+                <View key={item.label}>
+                  <Text style={s.label}>{item.label}</Text>
+                  {item.href ? (
+                    <Link src={item.href} style={s.contactValue}>
+                      {item.value}
+                    </Link>
+                  ) : (
+                    <Text style={s.contactValue}>{item.value}</Text>
+                  )}
                 </View>
               ))}
             </Section>
 
-            {/* One block per skill kind (technologies, ways of working, tools). */}
-            {show("skills") &&
-              skillKinds.map((kind, ki) => {
-                const groups = skills.groups.filter((g) => g.kind === kind && g.items.length > 0);
-                if (groups.length === 0) return null;
-                const title = skills.kindLabels[kind];
-                return (
-                  <Section key={kind} title={title} wrap={groups.length > 1}>
-                    {ki === 0 && (
-                      // Legend for the chip styles, only for levels that are actually used.
-                      <View style={s.legend}>
-                        {skillLevels
-                          .filter((level) => skills.groups.some((g) => g.items.some((i) => i.level === level)))
-                          .map((level) => (
-                            <View key={level} style={s.legendItem}>
-                              <View style={[s.legendSwatch, legendSwatch[level]]} />
-                              <Text>{skills.levelLabels[level]}</Text>
-                            </View>
-                          ))}
-                      </View>
-                    )}
-                    {groups.map((group) => (
-                      <View key={group.name} style={s.skillGroup} wrap={false}>
-                        {groups.length > 1 && <Text style={s.skillGroupName}>{group.name}</Text>}
-                        <View style={s.chips}>
-                          {group.items.map((item) => (
-                            <Text key={item.name} style={[s.chip, ...(item.level ? [chipLevel[item.level]] : [])]}>
-                              {item.name}
-                            </Text>
-                          ))}
-                        </View>
+            {skills.map((block) => (
+              <Section key={block.title} title={block.title} wrap={block.wrap}>
+                {block.legend.length > 0 && (
+                  <View style={s.legend}>
+                    {block.legend.map(({ level, label }) => (
+                      <View key={level} style={s.legendItem}>
+                        <View style={[s.legendSwatch, legendSwatch[level]]} />
+                        <Text>{label}</Text>
                       </View>
                     ))}
-                  </Section>
-                );
-              })}
+                  </View>
+                )}
+                {block.groups.map((group, gi) => (
+                  <View key={group.name ?? gi} style={s.skillGroup} wrap={false}>
+                    {group.name && <Text style={s.skillGroupName}>{group.name}</Text>}
+                    <View style={s.chips}>
+                      {group.items.map((item) => (
+                        <Text key={item.name} style={[s.chip, ...(item.level ? [chipLevel[item.level]] : [])]}>
+                          {item.name}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                ))}
+              </Section>
+            ))}
 
-            {show("education") && education.items.length > 0 && (
-              <Section title={education.label}>
+            {education && (
+              <Section title={education.title}>
                 {education.items.map((item) => (
-                  <View key={item.degree + item.start} style={s.sideItem} wrap={false}>
-                    <Text style={s.sideItemTitle}>{item.degree}</Text>
+                  <View key={item.title + item.period} style={s.sideItem} wrap={false}>
+                    <Text style={s.sideItemTitle}>{item.title}</Text>
                     <Text style={s.sideItemMeta}>{item.school}</Text>
-                    <Text style={s.sideItemMeta}>{range(item.start, item.end, present)}</Text>
+                    <Text style={s.sideItemMeta}>{item.period}</Text>
                     {item.note && <Text style={s.sideItemMeta}>{item.note}</Text>}
                   </View>
                 ))}
               </Section>
             )}
 
-            {show("education") && education.certifications.length > 0 && (
-              <Section title={education.certificationsLabel}>
-                {education.certifications.map((cert) => (
-                  <View key={cert.name} style={s.sideItem} wrap={false}>
-                    <Text style={s.sideItemTitle}>{cert.name}</Text>
-                    <Text style={s.sideItemMeta}>{[cert.issuer, cert.year].filter(Boolean).join(" · ")}</Text>
+            {certifications && (
+              <Section title={certifications.title}>
+                {certifications.items.map((cert) => (
+                  <View key={cert.title} style={s.sideItem} wrap={false}>
+                    <Text style={s.sideItemTitle}>{cert.title}</Text>
+                    <Text style={s.sideItemMeta}>{cert.meta}</Text>
                   </View>
                 ))}
               </Section>
             )}
 
-            {show("education") && education.languages.length > 0 && (
-              <Section title={education.languagesLabel}>
-                {education.languages.map((lang) => (
+            {languages && (
+              <Section title={languages.title}>
+                {languages.items.map((lang) => (
                   <View key={lang.name} style={s.langRow}>
                     <Text style={s.langName}>{lang.name}</Text>
                     <Text style={s.langLevel}>{lang.level}</Text>
@@ -324,19 +292,19 @@ export default function CvDocument({ cv }: { cv: CV }) {
 
           {/* Main column */}
           <View style={s.main}>
-            {show("about") && (
-              <Section title="Profile">
-                <Text style={s.profileStatement}>{clean(about.statement)}</Text>
-                {about.paragraphs.map((p, i) => (
+            {profile && (
+              <Section title={profile.title}>
+                <Text style={s.profileStatement}>{profile.statement}</Text>
+                {profile.paragraphs.map((p, i) => (
                   <Text key={i} style={s.paragraph}>
-                    {clean(p)}
+                    {p}
                   </Text>
                 ))}
               </Section>
             )}
 
-            {show("experience") && (
-              <Section title={experience.label}>
+            {experience && (
+              <Section title={experience.title}>
                 {experience.items.map((job) => (
                   <View key={job.company} style={s.company}>
                     {/* Employer, career path and summary stay together on one page. */}
@@ -347,18 +315,18 @@ export default function CvDocument({ cv }: { cv: CV }) {
                       </View>
                       <View style={s.role}>
                         {job.roles.map((role) => (
-                          <View key={role.title + role.start} style={s.roleRow}>
+                          <View key={role.title + role.period} style={s.roleRow}>
                             <Text style={s.roleTitle}>{role.title}</Text>
-                            <Text style={s.roleDates}>{range(role.start, role.end, present)}</Text>
+                            <Text style={s.roleDates}>{role.period}</Text>
                           </View>
                         ))}
-                        <Text style={s.summary}>{clean(job.summary)}</Text>
+                        <Text style={s.summary}>{job.summary}</Text>
                         {job.highlights.length > 0 && (
                           <View style={s.bullets}>
                             {job.highlights.map((h) => (
                               <View key={h} style={s.bullet}>
                                 <Text style={s.bulletDot}>•</Text>
-                                <Text style={s.bulletText}>{clean(h)}</Text>
+                                <Text style={s.bulletText}>{h}</Text>
                               </View>
                             ))}
                           </View>
@@ -366,20 +334,21 @@ export default function CvDocument({ cv }: { cv: CV }) {
                       </View>
                     </View>
                     <View style={s.roleBody}>
-                      {show("projects") &&
-                        job.projects.map((project) => (
-                          <View key={project.id} style={s.jobProject} wrap={false}>
-                            <View style={s.projectRow}>
-                              <ProjectName project={project} style={s.jobProjectName} />
-                              {project.period && <Text style={s.projectMeta}>{project.period}</Text>}
-                            </View>
-                            <Text>{projectText(project)}</Text>
+                      {job.projects.map((project) => (
+                        <View key={project.id} style={s.jobProject} wrap={false}>
+                          <View style={s.projectRow}>
+                            <ProjectName project={project} style={s.jobProjectName} />
+                            {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
                           </View>
-                        ))}
-                      {job.tech.length > 0 && (
+                          {project.text.map((t, i) => (
+                            <Text key={i}>{t}</Text>
+                          ))}
+                        </View>
+                      ))}
+                      {job.tech && (
                         <Text style={s.tech} wrap={false}>
                           <Text style={s.techLabel}>Tech </Text>
-                          {job.tech.join(", ")}
+                          {job.tech}
                         </Text>
                       )}
                     </View>
@@ -388,32 +357,25 @@ export default function CvDocument({ cv }: { cv: CV }) {
               </Section>
             )}
 
-            {/* Projects without an employer (personal, academic). The rest sit under their employer above. */}
-            {show("projects") &&
-              (() => {
-                const own = projects.items.filter((p) => !p.employer || !show("experience"));
-                if (own.length === 0) return null;
-                return (
-                  <Section title={projects.label}>
-                    {own.map((project) => (
-                      <View key={project.id} style={s.project} wrap={false}>
-                        <View style={s.projectRow}>
-                          <ProjectName project={project} style={s.projectName} />
-                          {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
-                        </View>
-                        {project.description.map((para, pi) => (
-                          <Text key={pi} style={s.summary}>
-                            {clean(para)}
-                          </Text>
-                        ))}
-                      </View>
+            {projects && (
+              <Section title={projects.title}>
+                {projects.items.map((project) => (
+                  <View key={project.id} style={s.project} wrap={false}>
+                    <View style={s.projectRow}>
+                      <ProjectName project={project} style={s.projectName} />
+                      {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
+                    </View>
+                    {project.text.map((para, i) => (
+                      <Text key={i} style={s.summary}>
+                        {para}
+                      </Text>
                     ))}
-                  </Section>
-                );
-              })()}
+                  </View>
+                ))}
+              </Section>
+            )}
           </View>
         </View>
-
       </Page>
     </Document>
   );

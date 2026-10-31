@@ -43,8 +43,9 @@ export async function expectAtRestOn(page: Page, index: number) {
   expect(Math.abs(top)).toBeLessThan(1);
 }
 
-export async function openDeck(page: Page, hash = "") {
-  await page.goto(`/${hash ? "#" + hash : ""}`);
+/** Opens a theme's page (Plain by default) on the slide in `hash`. */
+export async function openDeck(page: Page, hash = "", path = "/") {
+  await page.goto(`${path}${hash ? "#" + hash : ""}`);
   await page.waitForSelector("[data-ready='true']");
   await page.waitForTimeout(300);
 }
