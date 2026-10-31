@@ -25,6 +25,7 @@ const schema = z.object({
       introLabel: z.string().default("Intro"),
       scrollHint: z.string().default("Scroll"),
       talkButton: z.string().default("Let's talk"),
+      contentsLabel: z.string().default("Contents"),
       footer: z.string().default(""),
     })
     .prefault({}),

@@ -68,40 +68,81 @@ export default function Chrome({ cv, labels, index, goTo, ready }: Props) {
         )}
       </header>
 
-      {/* Dot navigation */}
+      {/*
+        Slide navigation. Dots on phones and tablets; on wide screens it opens
+        up into a live table of contents that follows the deck.
+      */}
       <nav
         aria-label="Slides"
         data-chrome
-        className="pointer-events-auto absolute top-1/2 right-1 -translate-y-1/2 rounded-full py-1 max-sm:bg-ink/60 max-sm:backdrop-blur-md sm:right-5 lg:right-8"
+        className="pointer-events-auto absolute top-1/2 right-1 -translate-y-1/2 rounded-full py-1 max-sm:bg-ink/60 max-sm:backdrop-blur-md sm:right-5 lg:right-8 xl:right-10"
       >
-        <div className="absolute inset-y-[1.125rem] left-1/2 w-px -translate-x-1/2 bg-line" aria-hidden="true">
-          <div ref={progressRef} className="absolute inset-0 origin-top scale-y-0 bg-accent" />
+        <p className="mb-3 hidden pr-1 text-right text-[10px] font-medium tracking-[0.28em] text-mute/70 uppercase xl:block" aria-hidden="true">
+          {cv.ui.contentsLabel}
+        </p>
+        <div className="relative">
+          <div className="absolute inset-y-3.5 right-3.5 w-px translate-x-1/2 bg-line xl:inset-y-5" aria-hidden="true">
+            <div ref={progressRef} className="absolute inset-0 origin-top scale-y-0 bg-accent" />
+          </div>
+          <ol className="relative flex flex-col">
+            {labels.map((label, i) => {
+              const active = i === index;
+              const passed = i < index;
+              return (
+                <li key={label + i}>
+                  <button
+                    type="button"
+                    onClick={() => goTo(i)}
+                    aria-label={label}
+                    aria-current={active ? "step" : undefined}
+                    className="group relative flex h-7 w-full items-center justify-end xl:h-10 xl:gap-4"
+                  >
+                    <span
+                      className={`hidden items-baseline gap-3 transition-all duration-500 ease-out-expo xl:flex ${
+                        active ? "-translate-x-1" : "group-hover:-translate-x-1"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <span
+                        className={`text-[11px] font-medium tracking-[0.12em] tabular-nums transition-colors duration-500 ${
+                          active ? "text-accent" : "text-mute/60"
+                        }`}
+                      >
+                        {/* Same numbering as the slide eyebrows: the intro is 00. */}
+                        {pad(i)}
+                      </span>
+                      <span
+                        className={`text-sm whitespace-nowrap transition-colors duration-500 ${
+                          active
+                            ? "font-medium text-paper"
+                            : passed
+                              ? "text-paper/55 group-hover:text-paper"
+                              : "text-mute group-hover:text-paper"
+                        }`}
+                      >
+                        {label}
+                      </span>
+                    </span>
+                    <span className="relative flex h-7 w-7 shrink-0 items-center justify-center">
+                      <span
+                        className={`block rounded-full transition-all duration-500 ease-out-expo ${
+                          active
+                            ? "h-2.5 w-2.5 bg-accent shadow-[0_0_16px_var(--color-accent)]"
+                            : passed
+                              ? "h-1.5 w-1.5 bg-accent/70 ring-1 ring-accent/70"
+                              : "h-1.5 w-1.5 bg-ink ring-1 ring-mute/70 group-hover:ring-paper"
+                        }`}
+                      />
+                    </span>
+                    <span className="pointer-events-none absolute right-9 hidden translate-x-2 rounded-md bg-ink-3/90 px-2.5 py-1 text-xs whitespace-nowrap text-paper opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 md:block xl:hidden">
+                      {label}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
         </div>
-        <ol className="relative flex flex-col">
-          {labels.map((label, i) => {
-            const active = i === index;
-            return (
-              <li key={label + i}>
-                <button
-                  type="button"
-                  onClick={() => goTo(i)}
-                  aria-label={label}
-                  aria-current={active ? "step" : undefined}
-                  className="group relative flex h-7 w-7 items-center justify-center"
-                >
-                  <span
-                    className={`block rounded-full transition-all duration-500 ease-out-expo ${
-                      active ? "h-2.5 w-2.5 bg-accent shadow-[0_0_16px_var(--color-accent)]" : "h-1.5 w-1.5 bg-ink ring-1 ring-mute/70 group-hover:ring-paper"
-                    }`}
-                  />
-                  <span className="pointer-events-none absolute right-9 hidden translate-x-2 rounded-md bg-ink-3/90 px-2.5 py-1 text-xs whitespace-nowrap text-paper opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 md:block">
-                    {label}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
       </nav>
 
       {/* Counter + current section */}
@@ -117,7 +158,7 @@ export default function Chrome({ cv, labels, index, goTo, ready }: Props) {
           <span className="mx-1.5 opacity-50">/</span>
           <span>{pad(total)}</span>
         </span>
-        <span className="hidden overflow-hidden xs:inline-flex">
+        <span className="hidden overflow-hidden xs:inline-flex xl:hidden">
           <span className="inline-block">
             {labels[index]}
           </span>

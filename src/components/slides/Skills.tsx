@@ -191,7 +191,7 @@ export default function Skills({ cv }: { cv: CV }) {
     >
       <Eyebrow id="skills" label={skills.label} />
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-12 xl:gap-16">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:gap-10">
         <div className="min-w-0">
           {skills.title ? (
             <h2 className="mb-5 font-serif text-[clamp(2rem,4.2vw,3.5rem)] leading-[1.02] tracking-tight short:mb-4 short:text-[2.5rem]" data-reveal>

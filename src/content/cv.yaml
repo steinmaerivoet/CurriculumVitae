@@ -33,6 +33,7 @@ ui:
   introLabel: Intro
   scrollHint: Scroll
   talkButton: Let's talk
+  contentsLabel: Contents
   footer: Built with Astro, React & GSAP
 
 person:
