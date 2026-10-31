@@ -1,0 +1,13 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import TerminalDeck from "@/web/themes/terminal";
+import { getCv } from "@/core";
+import { buildDeckModel } from "@/bff/web/deck";
+import { buildTerminalView } from "@/bff/web/themes/terminal";
+
+const cv = getCv();
+---
+
+<Layout theme="terminal">
+  <TerminalDeck client:load deck={buildDeckModel(cv)} view={buildTerminalView(cv)} />
+</Layout>

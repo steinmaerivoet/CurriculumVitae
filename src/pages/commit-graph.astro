@@ -1,0 +1,13 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import GitDeck from "@/web/themes/git";
+import { getCv } from "@/core";
+import { buildDeckModel } from "@/bff/web/deck";
+import { buildGitView } from "@/bff/web/themes/git";
+
+const cv = getCv();
+---
+
+<Layout theme="git">
+  <GitDeck client:load deck={buildDeckModel(cv)} view={buildGitView(cv)} />
+</Layout>

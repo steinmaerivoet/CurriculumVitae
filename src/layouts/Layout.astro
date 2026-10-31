@@ -1,26 +1,36 @@
 ---
-import "@/styles/global.css";
-import { cv } from "@/lib/cv";
+import { getCv } from "@/core";
+import { themeInfo, type ThemeId } from "@/web/themes/registry";
+import Downloads from "@/web/shared/Downloads.astro";
 
-const { meta, person } = cv;
+/**
+ * The page around a theme's deck: <head>, the theme attribute that switches
+ * the design tokens, and the download buttons. Every theme page uses it.
+ */
+type Props = { theme: ThemeId };
+const { theme } = Astro.props;
+
+const { meta, person } = getCv();
+const info = themeInfo(theme);
 const title = `${person.firstName} ${person.lastName} · ${person.headline}`;
-const canonical = new URL(Astro.url.pathname, meta.url).toString();
+// Every theme shows the same CV: search engines get one canonical page.
+const canonical = new URL("/", meta.url).toString();
 ---
 
 <!doctype html>
-<html lang={meta.lang}>
+<html lang={meta.lang} data-theme={theme}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{title}</title>
+    <title>{theme === "plain" ? title : `${title} · ${info.label}`}</title>
     <meta name="description" content={meta.description} />
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#0a0b0f" />
-    <meta name="color-scheme" content="dark" />
+    {info.themeColor.map((c) => <meta name="theme-color" content={c.color} media={"media" in c ? c.media : undefined} />)}
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/json" href="/api/v1/cv.json" title="CV as JSON" />
 
     <meta property="og:type" content="profile" />
     <meta property="og:title" content={title} />
@@ -32,6 +42,11 @@ const canonical = new URL(Astro.url.pathname, meta.url).toString();
 
     <script is:inline>
       document.documentElement.classList.add("js");
+      // A light/dark choice made earlier, applied before the first paint.
+      try {
+        var mode = localStorage.getItem("cv-mode");
+        if (mode === "light" || mode === "dark") document.documentElement.dataset.mode = mode;
+      } catch (e) {}
       // If the slideshow fails to start, show all content instead of leaving it hidden.
       setTimeout(function () {
         if (!document.documentElement.classList.contains("deck-ready")) {
@@ -40,8 +55,9 @@ const canonical = new URL(Astro.url.pathname, meta.url).toString();
       }, 4000);
     </script>
   </head>
-  <body class="font-sans">
+  <body>
     <slot />
+    <Downloads />
     <noscript>
       <style>
         html, body { overflow: auto !important; height: auto !important; }

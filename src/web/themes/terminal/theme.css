@@ -1,0 +1,107 @@
+@import "@fontsource-variable/jetbrains-mono";
+
+/*
+ * Terminal: the CV as a tmux session. One monospace face, a midnight palette
+ * and ANSI colours. Slides are windows; each one is a command and its output.
+ */
+[data-theme="terminal"] {
+  --f-sans: "JetBrains Mono Variable", ui-monospace, Menlo, monospace;
+  --f-display: var(--f-sans);
+  --f-mono: var(--f-sans);
+
+  --c-bg: #101317;
+  --c-bg-2: #171b21;
+  --c-surface: #1d232b;
+  --c-fg: #d6dbe3;
+  --c-mute: #7a8392;
+  --c-line: #29303a;
+  --c-accent: #ff9a6b;
+  --c-on-accent: #101317;
+  /* ANSI colours */
+  --t-cyan: #6fd3e6;
+  --t-yellow: #f2cc6b;
+  --t-pink: #e98fd6;
+  --t-green: #9bd88a;
+  --t-red: #ff7a85;
+  color-scheme: dark;
+
+  /* Room for the tmux bar above and the key bar below. */
+  .downloads {
+    bottom: calc(2.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+[data-theme="terminal"] {
+  .t-cyan { color: var(--t-cyan); }
+  .t-yellow { color: var(--t-yellow); }
+  .t-pink { color: var(--t-pink); }
+  .t-green { color: var(--t-green); }
+  .t-red { color: var(--t-red); }
+
+  .t-glow {
+    background:
+      radial-gradient(110% 70% at 85% 0%, color-mix(in oklab, var(--c-accent) 9%, transparent), transparent 60%),
+      var(--c-bg);
+  }
+
+  /* A prompt line: "~/stein ❯ whoami" */
+  .t-prompt::before {
+    content: var(--t-cwd, "~") " ❯ ";
+    color: var(--t-pink);
+    white-space: pre;
+  }
+
+  .t-cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.15em;
+    vertical-align: -0.2em;
+    background: var(--c-accent);
+    animation: t-blink 1.1s steps(1) infinite;
+  }
+
+  /* A bordered pane with its title sitting on the border, like a TUI. */
+  .t-pane {
+    position: relative;
+    border: 1px solid var(--c-line);
+    border-radius: 6px;
+  }
+  .t-pane > .t-pane-title {
+    position: absolute;
+    top: -0.7em;
+    left: 0.75rem;
+    padding: 0 0.4rem;
+    background: var(--c-bg);
+    color: var(--c-accent);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .t-pane > .t-pane-title.right {
+    left: auto;
+    right: 0.75rem;
+    color: var(--c-mute);
+  }
+
+  .t-bullet::before { content: "+ "; color: var(--t-green); }
+  .t-quote::before { content: "> "; color: var(--c-accent); }
+
+  /* clack-style prompt rail */
+  .t-rail { position: relative; margin-left: 0.4rem; padding-left: 1.4rem; border-left: 1px solid #3a424e; }
+  .t-rail[data-mark]::before {
+    content: attr(data-mark);
+    position: absolute;
+    left: -0.45rem;
+    width: 0.9rem;
+    text-align: center;
+    background: var(--c-bg);
+    color: var(--t-mark, #3a424e);
+  }
+}
+
+@keyframes t-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="terminal"] .t-cursor { animation: none; }
+}

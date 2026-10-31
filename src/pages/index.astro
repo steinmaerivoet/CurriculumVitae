@@ -1,11 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import Deck from "@/components/Deck";
-import Downloads from "@/components/Downloads.astro";
-import { cv } from "@/lib/cv";
+import PlainDeck from "@/web/themes/plain";
+import { getCv } from "@/core";
+import { buildDeckModel } from "@/bff/web/deck";
+
+const deck = buildDeckModel(getCv());
 ---
 
-<Layout>
-  <Deck client:load cv={cv} />
-  <Downloads />
+<Layout theme="plain">
+  <PlainDeck client:load deck={deck} view={undefined} />
 </Layout>
