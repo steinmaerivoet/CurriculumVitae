@@ -24,13 +24,16 @@ Dit doe je één keer met de hand. Reken op een half uur, plus wachttijd voor de
    (Zie je alleen een Workers-wizard, kies dan onderaan de optie om een *Pages*-project te maken.)
 2. Koppel je GitHub-account en geef toegang tot de repo `CurriculumVitae`.
 3. Instellingen:
-   - **Production branch**: `main` (of de branch waar de site op staat)
-   - **Framework preset**: `None`
-   - **Build command**: leeg laten
-   - **Build output directory**: `/`
-4. **Save and Deploy**. Na een minuutje staat de site op `<projectnaam>.pages.dev`.
+   - **Production branch**: de branch waar de site op staat (bv. `main`)
+   - **Framework preset**: `Astro`
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+   - De Node-versie wordt uit `.nvmrc` gehaald (22). Lukt dat niet, voeg dan onder *Environment variables* `NODE_VERSION` = `22` toe.
+4. **Save and Deploy**. Na een paar minuten staat de site op `<projectnaam>.pages.dev`.
 
-Vanaf nu wordt elke push naar de production branch automatisch online gezet. Andere branches en pull requests krijgen een eigen preview-link.
+Vanaf nu wordt elke push naar de production branch automatisch gebouwd en online gezet. Andere branches en pull requests krijgen een eigen preview-link.
+
+De build controleert ook `src/content/cv.yaml`. Zit daar een fout in, dan faalt de build met een melding die zegt welk veld fout is, en blijft de vorige versie gewoon online.
 
 ## 4. Je domein koppelen
 
@@ -50,3 +53,4 @@ Vanaf nu wordt elke push naar de production branch automatisch online gezet. And
 - **"Too many redirects"**: zet onder **SSL/TLS → Overview** de modus op **Full**.
 - **Domein blijft "Pending"**: controleer bij Porkbun of de nameservers exact overeenkomen en of DNSSEC uit staat.
 - **Custom domain blijft hangen op "Verifying"**: kijk in **DNS → Records** of er geen oude Porkbun-record op `@` of `www` meer staat.
+- **Build faalt**: open de build-log in Pages. Meestal is het een tikfout in `cv.yaml`; de melding noemt het veld.

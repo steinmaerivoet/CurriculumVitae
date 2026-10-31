@@ -1,0 +1,144 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Alle inhoud van de website staat in dit bestand.
+#
+#  - Pas tekst aan, voeg items toe of verwijder ze: de site past zich aan.
+#  - Volgorde van de slides wijzigen of een slide verbergen: zie `slides`.
+#  - Het bestand wordt bij elke build gecontroleerd. Een fout (bv. een
+#    verplicht veld vergeten) geeft een duidelijke melding met het pad.
+#  - Regels met "TODO" zijn nog niet geverifieerd: LinkedIn kon niet
+#    automatisch uitgelezen worden. Controleer en vul aan.
+# ─────────────────────────────────────────────────────────────────────────────
+
+meta:
+  title: Stein Maerivoet
+  description: Software engineer uit Mechelen. Backend, cloud en IoT.
+  url: https://steinmaerivoet.dev
+  lang: en
+
+# Volgorde en zichtbaarheid van de slides. Laat een regel weg om de slide te verbergen.
+# Mogelijke waarden: hero, about, experience, skills, projects, education, contact
+slides:
+  - hero
+  - about
+  - experience
+  - skills
+  - projects
+  - education
+  - contact
+
+# Kleine teksten in de navigatie en knoppen.
+ui:
+  introLabel: Intro
+  scrollHint: Scroll
+  talkButton: Let's talk
+  footer: Built with Astro, React & GSAP
+
+person:
+  firstName: Stein
+  lastName: Maerivoet
+  headline: Software Engineer # TODO: exacte titel van LinkedIn
+  tagline: I build reliable backends, cloud platforms and connected products.
+  location: Mechelen, Belgium
+  email: hello@steinmaerivoet.dev # TODO: echt e-mailadres
+  available: true
+  availabilityText: Open to new challenges
+  socials:
+    - label: LinkedIn
+      url: https://www.linkedin.com/in/steinmaerivoet/
+    - label: GitHub
+      url: https://github.com/steinmaerivoet
+
+about:
+  label: About
+  statement: I turn complex problems into software that is simple to use and easy to maintain.
+  paragraphs:
+    - >-
+      TODO: korte intro uit je LinkedIn "Info"-sectie. Bijvoorbeeld wat je
+      doet, waar je sterk in bent en wat je drijft.
+    - >-
+      Outside of work I automate my own house with Home Assistant and write
+      small tools that scratch my own itch.
+  stats:
+    - value: 10 # TODO
+      suffix: "+"
+      label: Years in software
+    - value: 20 # TODO
+      suffix: "+"
+      label: Projects delivered
+    - value: 3 # TODO
+      label: Languages spoken
+
+experience:
+  label: Experience
+  items:
+    - company: Ixor
+      role: Software Engineer # TODO
+      start: "2015" # TODO
+      end: null # null = heden
+      location: Mechelen, Belgium
+      summary: >-
+        Building backend services and cloud platforms for clients, including
+        IxorTalk, an open IoT platform built from Spring Boot microservices.
+      highlights:
+        - Designed and built microservices for the IxorTalk IoT platform
+        - Developed a reusable OAuth2 Spring Boot starter
+        - Deployed and operated services on AWS
+      tech: [Java, Spring Boot, AWS, OAuth2, Microservices]
+    - company: TODO Vorige werkgever
+      role: TODO Functie
+      start: "2012"
+      end: "2015"
+      location: Belgium
+      summary: TODO korte omschrijving van je rol en impact.
+      highlights:
+        - TODO realisatie
+      tech: [Java]
+
+skills:
+  label: Skills
+  groups:
+    - name: Backend
+      items: [Java, Spring Boot, REST APIs, Microservices, OAuth2, Batch processing]
+    - name: Cloud & DevOps
+      items: [AWS, Elastic Beanstalk, Docker, CI/CD]
+    - name: Languages & tools
+      items: [Java, Python, TypeScript, Node.js, Git]
+    - name: Home & IoT
+      items: [IoT platforms, Home Assistant, Automation]
+
+projects:
+  label: Projects
+  items:
+    - name: IxorTalk
+      description: Open-source IoT platform built from Spring Boot microservices, covering organisations, authentication and device management.
+      url: https://github.com/steinmaerivoet/ixortalk-organization-api
+      tags: [Java, Spring Boot, IoT]
+    - name: Too Good To Go notifier
+      description: Watches Too Good To Go and sends a notification the moment new surprise bags become available.
+      url: https://github.com/steinmaerivoet/toogoodtogo-notifier
+      tags: [Python, Automation]
+    - name: Smart home
+      description: Fully documented Home Assistant configuration that runs my house.
+      url: https://github.com/steinmaerivoet/home-assistant-config
+      tags: [Home Assistant, YAML]
+
+education:
+  label: Education
+  items:
+    - school: TODO Hogeschool of universiteit
+      degree: TODO Diploma
+      start: "2008"
+      end: "2012"
+  languages:
+    - name: Dutch
+      level: Native
+    - name: English
+      level: Professional
+    - name: French
+      level: Working knowledge # TODO
+
+contact:
+  label: Contact
+  heading: Let's build something together.
+  text: Have a project, a role or just a question? My inbox is open.
+  cta: Say hello

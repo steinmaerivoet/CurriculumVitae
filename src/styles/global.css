@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+
+  --color-ink: #0a0b0f;
+  --color-ink-2: #111319;
+  --color-ink-3: #181b23;
+  --color-paper: #f2efe8;
+  --color-mute: #8b8f9c;
+  --color-line: rgb(242 239 232 / 0.1);
+  --color-accent: #d4ff5a;
+  --color-accent-2: #7c8cff;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --breakpoint-xs: 380px;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* Every slide is a full-viewport window. dvh follows the mobile browser bars. */
+  .slide {
+    position: absolute;
+    inset: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    visibility: hidden;
+  }
+  .slide[data-active="true"] {
+    visibility: visible;
+  }
+  .slide-outer,
+  .slide-inner {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Scroll fallback when content is taller than a (very small) screen. */
+  .slide-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    touch-action: none;
+  }
+  .slide-scroll[data-overflow] {
+    touch-action: pan-y;
+  }
+  .slide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .eyebrow {
+    @apply flex items-center gap-3 text-[11px] font-medium tracking-[0.22em] text-accent uppercase sm:text-xs;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply h-px w-8 bg-accent/60;
+  }
+
+  .grain {
+    pointer-events: none;
+    position: fixed;
+    inset: -50%;
+    z-index: 50;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    animation: grain 1.2s steps(6) infinite;
+  }
+
+  .marquee-track {
+    animation: marquee 60s linear infinite;
+  }
+}
+
+/* Before hydration, hide elements that will animate in, to avoid a flash. */
+html.js [data-anim] {
+  opacity: 0;
+}
+html.js .split-char {
+  transform: translateY(110%);
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-5%, 3%); }
+  40% { transform: translate(4%, -6%); }
+  60% { transform: translate(-3%, 5%); }
+  80% { transform: translate(6%, 2%); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain,
+  .marquee-track {
+    animation: none;
+  }
+  html.js .split-char {
+    transform: none;
+  }
+}
+
+html.js [data-chrome] {
+  opacity: 0;
+}
