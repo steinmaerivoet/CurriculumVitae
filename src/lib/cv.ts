@@ -1,9 +1,13 @@
 import { parse } from "yaml";
 import { z } from "astro/zod";
 import raw from "../content/cv.yaml?raw";
+import { enrichSkills } from "./skills";
 
 const year = z.union([z.string(), z.number()]).transform(String);
 const link = z.object({ label: z.string(), url: z.url() });
+
+export const skillLevels = ["expert", "advanced", "familiar"] as const;
+export type SkillLevel = (typeof skillLevels)[number];
 
 export const slideIds = ["hero", "about", "experience", "skills", "projects", "education", "contact"] as const;
 export type SlideId = (typeof slideIds)[number];
@@ -61,7 +65,36 @@ const schema = z.object({
   }),
   skills: z.object({
     label: z.string().default("Skills"),
-    groups: z.array(z.object({ name: z.string(), items: z.array(z.string()) })),
+    title: z.string().optional(),
+    allLabel: z.string().default("All"),
+    hint: z.string().default("Select a skill to see where I used it."),
+    usedInLabel: z.string().default("Used in"),
+    sinceLabel: z.string().default("Since"),
+    yearsLabel: z.string().default("years"),
+    levelLabels: z
+      .object({
+        expert: z.string().default("Expert"),
+        advanced: z.string().default("Advanced"),
+        familiar: z.string().default("Familiar"),
+      })
+      .prefault({}),
+    groups: z.array(
+      z.object({
+        name: z.string(),
+        items: z.array(
+          z.union([
+            z.string().transform((name) => ({ name })),
+            z.object({
+              name: z.string(),
+              level: z.enum(skillLevels).optional(),
+              since: z.number().int().optional(),
+              icon: z.string().optional(),
+              match: z.array(z.string()).default([]),
+            }),
+          ]),
+        ),
+      }),
+    ),
   }),
   projects: z.object({
     label: z.string().default("Projects"),
@@ -110,7 +143,9 @@ const schema = z.object({
   }),
 });
 
-export type CV = z.infer<typeof schema>;
+export type CVData = z.infer<typeof schema>;
+export type CV = ReturnType<typeof enrichSkills>;
+export type Skill = CV["skills"]["groups"][number]["items"][number];
 
 function load(): CV {
   const result = schema.safeParse(parse(raw));
@@ -120,7 +155,7 @@ function load(): CV {
       .join("\n");
     throw new Error(`src/content/cv.yaml is invalid:\n${issues}`);
   }
-  return result.data;
+  return enrichSkills(result.data);
 }
 
 export const cv = load();

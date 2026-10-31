@@ -29,6 +29,12 @@ const canonical = new URL(Astro.url.pathname, meta.url).toString();
 
     <script is:inline>
       document.documentElement.classList.add("js");
+      // If the slideshow fails to start, show all content instead of leaving it hidden.
+      setTimeout(function () {
+        if (!document.documentElement.classList.contains("deck-ready")) {
+          document.documentElement.classList.add("no-reveal");
+        }
+      }, 4000);
     </script>
   </head>
   <body class="font-sans">
@@ -36,7 +42,7 @@ const canonical = new URL(Astro.url.pathname, meta.url).toString();
     <noscript>
       <style>
         html, body { overflow: auto !important; height: auto !important; }
-        .slide { position: relative !important; visibility: visible !important; }
+        [data-chrome] { opacity: 1 !important; }
       </style>
     </noscript>
   </body>

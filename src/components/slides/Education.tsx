@@ -20,7 +20,7 @@ export default function Education({ cv }: { cv: CV }) {
             <li
               key={e.school + e.start}
               className="grid gap-1.5 border-b border-line py-4 sm:grid-cols-[7.5rem_1fr] sm:gap-8 sm:py-6"
-              data-anim
+              data-reveal
             >
               <span className="text-xs text-mute tabular-nums sm:pt-1.5 sm:text-sm">
                 {range(e.start, e.end, "")}
@@ -38,7 +38,7 @@ export default function Education({ cv }: { cv: CV }) {
 
         <div className="grid content-start gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-1">
           {education.certifications.length > 0 && (
-            <section data-anim>
+            <section data-reveal>
               <SubHeading>{education.certificationsLabel}</SubHeading>
               <ul className="space-y-3">
                 {education.certifications.map((c) => {
@@ -68,7 +68,7 @@ export default function Education({ cv }: { cv: CV }) {
           )}
 
           {education.languages.length > 0 && (
-            <section data-anim>
+            <section data-reveal>
               <SubHeading>{education.languagesLabel}</SubHeading>
               <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
                 {education.languages.map((l) => (

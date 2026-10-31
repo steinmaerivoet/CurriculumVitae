@@ -60,7 +60,7 @@ export default function Hero({ cv }: { cv: CV }) {
 
   return (
     <SlideFrame background={<Aurora />} className="justify-end sm:justify-center">
-      <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-3 sm:mb-10" data-anim>
+      <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-3 sm:mb-10" data-reveal>
         <p className="eyebrow">{person.location}</p>
         {person.available && person.availabilityText ? (
           <p className="flex items-center gap-2 rounded-full border border-line bg-paper/[0.03] px-3 py-1 text-xs text-paper/80 backdrop-blur">
@@ -79,10 +79,10 @@ export default function Hero({ cv }: { cv: CV }) {
       </h1>
 
       <div className="mt-6 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-[auto_1fr] md:items-end md:gap-16">
-        <p className="text-lg font-medium tracking-tight sm:text-2xl" data-anim>
+        <p className="text-lg font-medium tracking-tight sm:text-2xl" data-reveal>
           {person.headline}
         </p>
-        <p className="max-w-md text-base leading-relaxed text-mute sm:text-lg" data-anim>
+        <p className="max-w-md text-base leading-relaxed text-mute sm:text-lg" data-reveal>
           {person.tagline}
         </p>
       </div>
