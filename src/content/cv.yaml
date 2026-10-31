@@ -103,7 +103,7 @@ experience:
         Engineering in Belfius Technology, one of Belgium's largest banks:
         modernising how critical banking systems, cloud applications and
         external services talk to each other.
-      tech: [Java 25, Spring Boot, Azure, Azure DevOps, Kubernetes, Operator pattern, Helm, Docker, Istio, Backstage, Elastic, Playwright, BDD, Gherkin, Agentic AI, GitHub Copilot CLI, Spec-driven development, Jira, Confluence]
+      tech: [Java 25, Spring Boot, PostgreSQL, Azure, Azure DevOps, Git, IntelliJ, Kubernetes, Operator pattern, Platform engineering, Helm, Docker, Istio, Backstage, Elastic, Playwright, BDD, Gherkin, Agentic AI, GitHub Copilot CLI, Spec-driven development, Jira, Confluence]
 
     - company: Ixor
       location: Mechelen, Belgium
@@ -112,7 +112,7 @@ experience:
       summary: >-
         Backend development of web applications for a range of clients, with
         cloud-native microservices, event-driven architecture and AWS.
-      tech: [Java, Spring Boot, Kafka, GraphQL, REST, Microservices, Event-driven, AWS, CloudFormation, Docker, Bitbucket Pipelines, Datadog, DDD, BDD, Gherkin, Selenium, Automated testing, GitHub Copilot, Jira, Confluence]
+      tech: [Java, Spring Boot, Kafka, GraphQL, REST, Microservices, Event-driven, Git, IntelliJ, AWS, CloudFormation, Docker, Bitbucket Pipelines, Datadog, DDD, BDD, Gherkin, Selenium, Automated testing, GitHub Copilot, Jira, Confluence]
 
     - company: Objective International
       location: Wichelen, Belgium
@@ -126,7 +126,7 @@ experience:
         codebase and the releases.
       highlights:
         - On-site key-user training, fixes and installations during test phases
-      tech: [Java, SQL, Jenkins, CI/CD, MES, WMS, VBA]
+      tech: [Java, SQL, MSSQL, Git, IntelliJ, Jenkins, CI/CD, MES, WMS, VBA]
 
     - company: Winfri
       location: Ghent, Belgium
@@ -194,7 +194,12 @@ skills:
         - { name: REST, level: expert, since: 2016, icon: openapiinitiative }
         - { name: GraphQL, level: advanced, since: 2019, icon: graphql }
         - { name: SQL, level: advanced, since: 2016, icon: lucide:database }
+        # TODO: PostgreSQL staat nu bij Belfius; zet het ook in `tech` van andere werkgevers waar je het gebruikte.
+        - { name: PostgreSQL, level: advanced, icon: postgresql, match: [Postgres] }
+        - { name: Microsoft SQL Server, level: advanced, since: 2016, icon: devicon:microsoftsqlserver, match: [MSSQL, SQL Server] }
         - { name: Scala, level: familiar, since: 2015, icon: scala }
+        - { name: Play Framework, level: familiar, since: 2015, icon: lucide:circle-play }
+        - { name: MongoDB, level: familiar, since: 2015, icon: mongodb }
     - name: Cloud & platform
       items:
         - { name: Azure, level: advanced, since: 2023, icon: devicon:azure }
@@ -202,9 +207,14 @@ skills:
         - { name: Kubernetes, level: advanced, since: 2023, icon: kubernetes }
         - { name: Helm, level: advanced, since: 2026, icon: helm }
         - { name: Docker, level: advanced, since: 2019, icon: docker }
-        - { name: Istio, level: advanced, since: 2026, icon: istio }
-        - { name: Elastic, level: advanced, since: 2026, icon: elastic }
+        - { name: Istio, level: advanced, since: 2026, icon: istio, match: [Service mesh] }
+        - { name: Elastic, level: advanced, since: 2026, icon: elastic, match: [Kibana] }
         - { name: Datadog, level: advanced, since: 2019, icon: datadog }
+    - name: Security
+      items:
+        # TODO: nu enkel gekoppeld aan myVandelanotte; voeg toe aan `tech` waar je het nog gebruikte.
+        - { name: OAuth2, level: advanced, since: 2021, icon: devicon:oauth }
+        - { name: OpenID Connect, level: advanced, since: 2021, icon: openid, match: [OIDC] }
     - name: Testing
       items:
         - { name: Playwright, level: advanced, since: 2026, icon: devicon:playwright }
@@ -219,7 +229,10 @@ skills:
     - name: Ways of working
       kind: practice
       items:
-        - { name: Microservices, level: expert, since: 2019, icon: lucide:boxes, match: [Event-driven] }
+        - { name: Microservices, level: expert, since: 2019, icon: lucide:boxes }
+        - { name: Event-driven architecture, level: expert, since: 2019, icon: lucide:zap, match: [Event-driven] }
+        - { name: Platform engineering, level: advanced, since: 2023, icon: lucide:layers }
+        - { name: Identity & SSO, level: advanced, since: 2021, icon: lucide:fingerprint, match: [SSO, Azure AD] }
         - { name: Domain-Driven Design, level: advanced, since: 2019, icon: lucide:shapes, match: [DDD] }
         - { name: Operator pattern, level: advanced, since: 2026, icon: lucide:refresh-cw }
         - { name: CI/CD, level: expert, since: 2018, icon: lucide:infinity, match: [Jenkins] }
@@ -231,8 +244,14 @@ skills:
     - name: Tools
       kind: tool
       items:
+        - { name: Git, level: expert, since: 2016, icon: git }
         - { name: Azure DevOps, level: advanced, since: 2023, icon: devicon:azuredevops }
         - { name: GitHub Copilot, level: advanced, since: 2022, icon: githubcopilot }
+        - { name: Claude Code, level: advanced, since: 2025, icon: claudecode }
+        - { name: Cursor, level: familiar, icon: cursor }
+        # TODO: IntelliJ en VS Code zijn gegokt bij je werkgevers; pas `tech` aan als dat niet klopt.
+        - { name: IntelliJ IDEA, level: expert, since: 2016, icon: intellijidea, match: [IntelliJ] }
+        - { name: Visual Studio Code, level: advanced, icon: devicon:vscode, match: [VS Code] }
         - { name: Backstage, level: familiar, since: 2026, icon: backstage }
         # TODO: Jira en Confluence zijn gekoppeld aan Belfius en Ixor; pas `tech` aan als dat niet klopt.
         - { name: Jira, level: advanced, since: 2019, icon: jira }
@@ -269,7 +288,7 @@ projects:
           lifecycle management, and developer self-service. Leveraged Helm and
           Kubernetes-native automation to simplify enterprise integrations and
           streamline software delivery.
-      tags: [Java, Spring Boot, Kubernetes, Operator pattern, Helm, Istio, Azure]
+      tags: [Java, Spring Boot, Kubernetes, Operator pattern, Platform engineering, Helm]
 
     - name: Belfius Hackathon
       employer: Belfius
@@ -301,7 +320,7 @@ projects:
         Client portal built from scratch that connects accountancy tools through
         Azure AD single sign-on, so clients find their statements, reports and
         documents to sign in one place.
-      tags: [Spring Boot, Azure AD, SSO, GraphQL]
+      tags: [Spring Boot, Azure AD, OAuth2, OIDC, GraphQL]
 
     - name: E-invoicing for Belfius
       employer: Ixor
@@ -347,7 +366,23 @@ projects:
         It started with a Raspberry Pi, a temperature sensor and a flashed smart
         socket. Today my mission is to automate every repetitive task at home.
       url: https://github.com/steinmaerivoet/home-assistant-config
-      tags: [Home Assistant, ESP8266, Raspberry Pi, Sensors, Automation]
+      tags: [Home Assistant, Raspberry Pi, ESP8266, Event-driven, BDD, Claude Code]
+
+    - name: This website
+      meta: Pet project · 2026
+      url: https://steinmaerivoet.dev
+      description: >-
+        This CV as a vertical slideshow with magnet snapping, where skills,
+        experience and projects link to each other. Built with Claude Code and
+        tested with Playwright on desktop and mobile.
+      tags: [Astro, React, TypeScript, Tailwind CSS, GSAP, Playwright, Claude Code, VS Code]
+
+    # TODO: vul jaar, korte omschrijving en technologieën aan.
+    - name: Wedding website
+      meta: Pet project
+      description: >-
+        Website for our wedding, with RSVP for the guests.
+      tags: [Cursor, RSVP]
 
     - name: Multicopter safety system
       featured: true
