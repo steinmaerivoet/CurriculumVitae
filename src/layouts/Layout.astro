@@ -25,7 +25,11 @@ const canonical = new URL("/", meta.url).toString();
     <title>{theme === "plain" ? title : `${title} · ${info.label}`}</title>
     <meta name="description" content={meta.description} />
     <link rel="canonical" href={canonical} />
+    {info.themeColor.map((c) => <meta name="theme-color" content={c.color} media={"media" in c ? c.media : undefined} />)}
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/json" href="/api/v1/cv.json" title="CV as JSON" />
 
     <meta property="og:type" content="profile" />
