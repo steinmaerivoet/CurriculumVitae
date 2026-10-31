@@ -24,6 +24,27 @@ export default function Skills({ deck, view }: SlideProps<ReferenceView>) {
       crumb={`${view.nav[1]?.title ?? ""} / ${skills.label.toLowerCase()}`}
       response={
         <Response title={selected ? `skills["${selected.name}"]` : "skills"} href={ep.href}>
+          {selected ? (
+            <div className="mb-4 border-b border-[var(--r-code-line)] pb-4 font-sans">
+              <h3 className="text-lg font-semibold text-white">
+                {selected.name}
+                <span className="ml-2 text-sm font-normal text-[#8a93b3]">
+                  {selected.group}
+                  {selected.since ? ` · ${skills.sinceLabel.toLowerCase()} ${selected.since}` : ""}
+                </span>
+              </h3>
+              <p className="mt-1 mb-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] text-[#8a93b3] uppercase">{skills.usedInLabel}</p>
+              <ul className="flex flex-wrap gap-1.5">
+                {selected.usedIn.map((u) => (
+                  <li key={u.title + u.sub}>
+                    <RefLink to={u.ref} className="rounded-md border border-[var(--r-code-line)] px-2 py-0.5 text-[13px] text-white transition-colors hover:border-[var(--r-key)] hover:text-[var(--r-key)]">
+                      {u.title} <span className="text-[#8a93b3]">· {u.sub}</span>
+                    </RefLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <JsonView value={json ?? null} linker={linker} />
         </Response>
       }
@@ -61,27 +82,6 @@ export default function Skills({ deck, view }: SlideProps<ReferenceView>) {
           );
         })}
       </ul>
-      {selected ? (
-        <div className="mt-4 min-h-[7.5rem]">
-          <h3 className="text-lg font-semibold">
-            {selected.name}
-            <span className="ml-2 text-sm font-normal text-mute">
-              {selected.group}
-              {selected.since ? ` · ${skills.sinceLabel.toLowerCase()} ${selected.since}` : ""}
-            </span>
-          </h3>
-          <p className="mt-1 mb-1 font-mono text-[11px] font-semibold tracking-[0.08em] text-mute uppercase">{skills.usedInLabel}</p>
-          <ul className="flex flex-wrap gap-1.5">
-            {selected.usedIn.map((u) => (
-              <li key={u.title + u.sub}>
-                <RefLink to={u.ref} className="rounded-md border border-line bg-surface px-2 py-0.5 text-[13px] transition-colors hover:border-accent hover:text-accent">
-                  {u.title} <span className="text-mute">· {u.sub}</span>
-                </RefLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
     </DocPage>
   );
 }

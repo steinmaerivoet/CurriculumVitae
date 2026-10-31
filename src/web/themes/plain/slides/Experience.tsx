@@ -176,7 +176,7 @@ export default function Experience({ deck }: SlideProps) {
             </ul>
           )}
           {item.tech.length > 0 && (
-            <ul data-panel className="mt-5 flex flex-wrap gap-1.5 short:mt-4">
+            <ul data-panel className="mt-5 flex flex-wrap gap-1.5 short:mt-3 short:gap-1">
               {item.tech.map((c) => (
                 <li key={c.label}>
                   <Chip term={c} />
