@@ -1,5 +1,6 @@
 ---
 import { getCv } from "@/core";
+import { buildPageMeta, buildStructuredData } from "@/bff/seo";
 import { themeInfo, type ThemeId } from "@/web/themes/registry";
 import Downloads from "@/web/shared/Downloads.astro";
 
@@ -7,14 +8,19 @@ import Downloads from "@/web/shared/Downloads.astro";
  * The page around a theme's deck: <head>, the theme attribute that switches
  * the design tokens, and the download buttons. Every theme page uses it.
  */
-type Props = { theme: ThemeId };
-const { theme } = Astro.props;
+type Props = {
+  theme: ThemeId;
+  /** Font files the first slide needs: fetched with the HTML instead of after the CSS. */
+  preloadFonts?: string[];
+};
+const { theme, preloadFonts = [] } = Astro.props;
 
-const { meta, person } = getCv();
+const cv = getCv();
+const { meta, person } = cv;
 const info = themeInfo(theme);
-const title = `${person.firstName} ${person.lastName} · ${person.headline}`;
-// Every theme shows the same CV: search engines get one canonical page.
-const canonical = new URL("/", meta.url).toString();
+const { title, description, canonical, image } = buildPageMeta(cv);
+// The whole career as schema.org data: the slides only render the selected employer.
+const structuredData = JSON.stringify(buildStructuredData(cv)).replace(/</g, "\\u003c");
 ---
 
 <!doctype html>
@@ -23,9 +29,10 @@ const canonical = new URL("/", meta.url).toString();
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{theme === "plain" ? title : `${title} · ${info.label}`}</title>
-    <meta name="description" content={meta.description} />
+    <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {info.themeColor.map((c) => <meta name="theme-color" content={c.color} media={"media" in c ? c.media : undefined} />)}
+    {preloadFonts.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -33,12 +40,20 @@ const canonical = new URL("/", meta.url).toString();
     <link rel="alternate" type="application/json" href="/api/v1/cv.json" title="CV as JSON" />
 
     <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={meta.title} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={meta.description} />
+    <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image.url} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(image.width)} />
+    <meta property="og:image:height" content={String(image.height)} />
+    <meta property="og:image:alt" content={image.alt} />
     <meta property="profile:first_name" content={person.firstName} />
     <meta property="profile:last_name" content={person.lastName} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={image.url} />
+    <script type="application/ld+json" set:html={structuredData} />
 
     <script is:inline>
       document.documentElement.classList.add("js");

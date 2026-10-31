@@ -104,7 +104,7 @@ export default function Chrome({ deck, index, goTo, ready }: ChromeProps) {
                         }`}
                       >
                         {/* Same numbering as the slide eyebrows: the intro is 00. */}
-                        {pad(i)}
+                        {pad(i + 1)}
                       </span>
                       <span
                         className={`text-sm whitespace-nowrap transition-colors duration-500 ${

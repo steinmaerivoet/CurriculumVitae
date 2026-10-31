@@ -1,12 +1,18 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import PlainDeck from "@/web/themes/plain";
+import IconSprite from "@/web/shared/IconSprite.astro";
 import { getCv } from "@/core";
-import { buildDeckModel } from "@/bff/web/deck";
+import { buildDeckModel, buildIconSprite } from "@/bff/web/deck";
+// The intro slide's faces: the serif name (upright and italic) and the sans for the tagline.
+import serif from "@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url";
+import serifItalic from "@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url";
+import sans from "@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url";
 
-const deck = buildDeckModel(getCv());
+const cv = getCv();
 ---
 
-<Layout theme="plain">
-  <PlainDeck client:load deck={deck} view={undefined} />
+<Layout theme="plain" preloadFonts={[serif, serifItalic, sans]}>
+  <IconSprite icons={buildIconSprite(cv)} />
+  <PlainDeck client:load deck={buildDeckModel(cv)} view={undefined} />
 </Layout>

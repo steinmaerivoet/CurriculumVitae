@@ -1,5 +1,5 @@
 import type { Employer, Ref, SectionId, Skill, SkillGroup, Cv } from "@/core/model";
-import type { SkillIcon } from "../shared/icons";
+import type { files } from "../shared/files";
 
 /**
  * Web BFF: the view model every website theme renders.
@@ -19,7 +19,8 @@ export type UsageView = { title: string; sub: string; period: string; ref: Ref }
 export type SkillView = Omit<Skill, "icon" | "usedIn"> & {
   /** Unique within the CV: "Backend/Java". */
   key: string;
-  icon: SkillIcon | null;
+  /** Id of the skill's <symbol> in the page's icon sprite (see IconSprite.astro), or null for a monogram. */
+  icon: string | null;
   usedIn: UsageView[];
 };
 export type SkillGroupView = Omit<SkillGroup, "items"> & { items: SkillView[] };
@@ -30,7 +31,7 @@ export type DeckModel = Omit<Cv, "sections" | "experience" | "skills"> & {
   sections: Section[];
   experience: Omit<Cv["experience"], "items"> & { items: EmployerView[] };
   skills: Omit<Cv["skills"], "groups"> & { groups: SkillGroupView[] };
-  files: { pdf: string; qrPng: string; qrSvg: string; api: string };
+  files: ReturnType<typeof files>;
 };
 
 /** All skills in board order, flattened. */

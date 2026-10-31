@@ -12,16 +12,16 @@ hand each front end exactly the data it renders.
   core        │ schema → loader → linker    │  validate, link skills ↔ employers ↔ projects
   (backend)   │ getCv(): Cv                 │  one domain model, no presentation
               └──────────────┬──────────────┘
-          ┌──────────────────┼──────────────────┬───────────────────┐
-  bff     ▼                  ▼                  ▼                   ▼
-     web/deck.ts       web/themes/*.ts     pdf/document.ts     api/resources.ts
-     DeckModel         TerminalView,       PdfModel            JSON resources
-     (every theme)     ReferenceView,
-                       GitView
-          │                  │                  │                   │
-  front   ▼                  ▼                  ▼                   ▼
-  ends   web/themes/<id>  (slides + chrome)   pdf/CvDocument   pages/api/v1/*.json
-         on web/deck (engine) and web/headless (behaviour)
+          ┌──────────────────┼──────────────────┬───────────────────┬──────────────────┐
+  bff     ▼                  ▼                  ▼                   ▼                  ▼
+     web/deck.ts       web/themes/*.ts     pdf/document.ts     api/resources.ts    seo/index.ts
+     DeckModel,        TerminalView,       PdfModel            JSON resources      page meta, JSON-LD,
+     icon sprite       ReferenceView,                                              share card
+     (every theme)     GitView
+          │                  │                  │                   │                  │
+  front   ▼                  ▼                  ▼                   ▼                  ▼
+  ends   web/themes/<id>  (slides + chrome)   pdf/CvDocument   pages/api/v1/*.json  layouts/Layout (<head>),
+         on web/deck (engine) and web/headless (behaviour)                          og/shareCard (PNG)
 ```
 
 ## Layers
@@ -34,7 +34,7 @@ hand each front end exactly the data it renders.
 | Engine | `src/web/deck` | BFF types | The slideshow: track, snap, input, reveals, cross-link routing. Knows nothing about how a slide looks. |
 | Behaviour | `src/web/headless` | engine | Theme-agnostic state hooks: employer and skill selection, project spotlight, number keys, chrome intro. |
 | Front ends | `src/web/themes/<id>`, `src/pdf` | BFF, engine, headless | Layout and styling only. No content decisions, no copy. |
-| Pages | `src/pages` | all | Wire a BFF to a front end: one static page per theme, the PDF, the QR code and the JSON API. |
+| Pages | `src/pages` | all | Wire a BFF to a front end: one static page per theme, the PDF, the QR code, the share card, the JSON API, robots.txt and the sitemap. |
 
 Dependencies only point down this table. A theme never imports `src/core`
 runtime code (types are fine), and nothing in `src/core` knows that there is
@@ -45,8 +45,22 @@ a website, a PDF or an API.
 `bff/web/model.ts` (types and pure helpers) is browser-safe. `bff/web/deck.ts`
 and the theme presenters run at build time only: they resolve icons from the
 icon sets, which therefore never ship to the browser. The deck model crosses
-into the browser as island props, so it must stay plain JSON (a unit test
-guards this).
+into the browser as island props, so it must stay plain JSON and small (unit
+tests guard both).
+
+Island props are serialised into the page, so anything bulky that never
+changes on the client stays out of them. Skill icons are the example: the
+deck refers to an icon by id, the page renders every icon once as an SVG
+sprite (`web/shared/IconSprite.astro`) and `SkillIcon` draws it with `<use>`.
+
+### Search engines and link previews
+
+The slides only render the selected employer, so `bff/seo` gives crawlers the
+whole CV another way: `Layout.astro` puts the schema.org `ProfilePage` /
+`Person` (every role, its story, projects and skills) in a JSON-LD script, and
+the Open Graph tags point at a share card that `og/shareCard.ts` draws from
+cv.yaml and renders to PNG at build time (resvg, with the site's own fonts).
+`robots.txt` and `sitemap.xml` are generated from `meta.url`.
 
 ## Website themes
 

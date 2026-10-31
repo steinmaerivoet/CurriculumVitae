@@ -13,9 +13,13 @@ export const cvSlug = (cv: Pick<Cv, "person">): string => slug(`${cv.person.firs
 /** "Stein Maerivoet" → "stein-maerivoet-qr-code" */
 export const qrSlug = (cv: Pick<Cv, "person">): string => cvSlug(cv).replace(/-curriculum-vitae$/, "-qr-code");
 
+/** "Stein Maerivoet" → "stein-maerivoet-share-card": the Open Graph image. */
+export const shareSlug = (cv: Pick<Cv, "person">): string => cvSlug(cv).replace(/-curriculum-vitae$/, "-share-card");
+
 export const files = (cv: Pick<Cv, "person">) => ({
   pdf: `/${cvSlug(cv)}.pdf`,
   qrPng: `/${qrSlug(cv)}.png`,
   qrSvg: `/${qrSlug(cv)}.svg`,
+  shareImage: `/${shareSlug(cv)}.png`,
   api: apiPath("cv"),
 });
