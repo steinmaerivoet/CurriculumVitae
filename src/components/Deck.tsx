@@ -4,6 +4,7 @@ import type { CV, SlideId } from "@/lib/cv";
 import { prepareReveal, revealOnce } from "./deck/reveal";
 import { useDeckInput } from "./deck/useDeckInput";
 import { DeckContext } from "./deck/context";
+import { useFollowSlides } from "./deck/follow";
 import Chrome from "./deck/Chrome";
 import Hero from "./slides/Hero";
 import About from "./slides/About";
@@ -268,6 +269,9 @@ export default function Deck({ cv }: { cv: CV }) {
       root.removeEventListener("scroll", onScroll);
     };
   }, [ids, glideTo]);
+
+  // Links between slides (a skill's "Used in", technology chips, the graph).
+  useFollowSlides(goToId);
 
   const ctx = useMemo(() => ({ index, ids, goToId }), [index, ids, goToId]);
 

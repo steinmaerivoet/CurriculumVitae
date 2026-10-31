@@ -1,14 +1,21 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Fragment, lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
-import type { CV, Skill, SkillLevel } from "@/lib/cv";
+import { skillKinds, type CV, type Skill, type SkillKind, type SkillLevel } from "@/lib/cv";
 import SlideFrame from "@/components/ui/SlideFrame";
 import Eyebrow from "@/components/ui/Eyebrow";
+import { follow, useFollow } from "@/components/deck/follow";
+
+// The network view is an extra: loaded only when someone opens it.
+const SkillGraph = lazy(() => import("./SkillGraph"));
 
 const LEVEL_VALUE: Record<SkillLevel, number> = { familiar: 1, advanced: 2, expert: 3 };
-const ALL = "__all__";
 const canHover = () => window.matchMedia("(hover: hover) and (min-width: 1024px)").matches;
 
-type Entry = Skill & { group: string; key: string };
+type Entry = Skill & { group: string; kind: SkillKind; key: string };
+type Filter = { id: string; label: string; count: number; divider: boolean };
+
+/** A filter is either a whole kind ("kind:technology") or one group. */
+const shows = (filter: string, e: Entry) => (filter.startsWith("kind:") ? e.kind === filter.slice(5) : e.group === filter);
 
 function Logo({ skill, className = "" }: { skill: Skill; className?: string }) {
   if (skill.icon) {
@@ -116,14 +123,27 @@ function Detail({ entry, cv, onClose }: { entry: Entry; cv: CV; onClose?: () => 
       {entry.usedIn.length > 0 && (
         <div className="mt-5" data-detail>
           <p className="mb-2 text-xs text-mute">{skills.usedInLabel}</p>
-          <ul className="space-y-2">
-            {entry.usedIn.slice(0, 5).map((u) => (
-              <li key={u.title + u.sub + u.period} className="flex items-baseline justify-between gap-4 text-sm">
-                <span className="min-w-0">
-                  <span className="text-paper">{u.title}</span>
-                  {u.sub ? <span className="text-mute"> · {u.sub}</span> : null}
-                </span>
-                {u.period ? <span className="shrink-0 text-xs text-mute tabular-nums">{u.period}</span> : null}
+          <ul className="space-y-1.5">
+            {entry.usedIn.slice(0, 6).map((u) => (
+              <li key={u.title + u.sub + u.period}>
+                <button
+                  type="button"
+                  onClick={() => follow(u.target)}
+                  className="group/u flex w-full items-baseline justify-between gap-4 text-left text-sm"
+                >
+                  <span className="min-w-0">
+                    <span className="text-paper underline decoration-transparent underline-offset-4 transition-colors group-hover/u:decoration-accent">
+                      {u.title}
+                    </span>
+                    {u.sub ? <span className="text-mute"> · {u.sub}</span> : null}
+                  </span>
+                  <span className="shrink-0 text-xs text-mute tabular-nums">
+                    {u.period}
+                    <span className="ml-1.5 inline-block text-accent opacity-0 transition-opacity group-hover/u:opacity-100" aria-hidden="true">
+                      →
+                    </span>
+                  </span>
+                </button>
               </li>
             ))}
           </ul>
@@ -136,12 +156,28 @@ function Detail({ entry, cv, onClose }: { entry: Entry; cv: CV; onClose?: () => 
 export default function Skills({ cv }: { cv: CV }) {
   const { skills } = cv;
   const entries = useMemo<Entry[]>(
-    () => skills.groups.flatMap((g) => g.items.map((s) => ({ ...s, group: g.name, key: `${g.name}/${s.name}` }))),
+    () => skills.groups.flatMap((g) => g.items.map((s) => ({ ...s, group: g.name, kind: g.kind, key: `${g.name}/${s.name}` }))),
     [skills],
   );
-  const [filter, setFilter] = useState<string>(ALL);
+  // Technologies, ways of working and tools are never mixed on the board.
+  // A kind with several groups gets an "all of this kind" tab before them.
+  const filters = useMemo<Filter[]>(() => {
+    const out: Filter[] = [];
+    for (const kind of skillKinds) {
+      const groups = skills.groups.filter((g) => g.kind === kind);
+      if (!groups.length) continue;
+      const divider = out.length > 0;
+      if (groups.length > 1) {
+        out.push({ id: `kind:${kind}`, label: skills.kindLabels[kind], count: groups.reduce((n, g) => n + g.items.length, 0), divider });
+      }
+      groups.forEach((g, i) => out.push({ id: g.name, label: g.name, count: g.items.length, divider: divider && groups.length === 1 && i === 0 }));
+    }
+    return out;
+  }, [skills]);
+  const [filter, setFilter] = useState<string>(filters[0]?.id ?? "");
   const [selected, setSelected] = useState<string>(entries[0]?.key ?? "");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [graphOpen, setGraphOpen] = useState(false);
   const gridRef = useRef<HTMLUListElement>(null);
   const settling = useRef(false); // tiles are animating in: ignore hover
   const filtered = useRef(false);
@@ -158,7 +194,7 @@ export default function Skills({ cv }: { cv: CV }) {
     if (!grid) return;
     const fit = () => {
       const wide = window.matchMedia("(min-width: 1024px)").matches;
-      const largest = wide ? entries.length : Math.max(...skills.groups.map((g) => g.items.length));
+      const largest = Math.max(...filters.filter((f) => wide || !f.id.startsWith("kind:")).map((f) => f.count));
       const cols = getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
       const tile = grid.querySelector<HTMLElement>("[data-tile]:not([hidden])");
       const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
@@ -170,7 +206,7 @@ export default function Skills({ cv }: { cv: CV }) {
     const ro = new ResizeObserver(fit);
     ro.observe(grid);
     return () => ro.disconnect();
-  }, [entries.length, skills.groups]);
+  }, [filters]);
 
   const changeFilter = (next: string) => {
     if (next === filter) return;
@@ -178,8 +214,8 @@ export default function Skills({ cv }: { cv: CV }) {
     setFilter(next);
     // Keep a visible skill selected.
     const cur = entries.find((e) => e.key === selected);
-    if (cur && next !== ALL && cur.group !== next) {
-      const first = entries.find((e) => e.group === next);
+    if (cur && !shows(next, cur)) {
+      const first = entries.find((e) => shows(next, e));
       if (first) setSelected(first.key);
     }
   };
@@ -211,16 +247,29 @@ export default function Skills({ cv }: { cv: CV }) {
     );
   }, [filter]);
 
-  const visible = (e: Entry) => filter === ALL || e.group === filter;
+  // Linked from experience, a project card or the graph.
+  useFollow("skill", (t) => {
+    const entry = entries.find((e) => e.name === t.name);
+    if (!entry) return;
+    const wide = window.matchMedia("(min-width: 1024px)").matches;
+    const kindTab = `kind:${entry.kind}`;
+    const next = shows(filter, entry) ? filter : wide && filters.some((f) => f.id === kindTab) ? kindTab : entry.group;
+    if (next !== filter) {
+      filtered.current = true;
+      setFilter(next);
+    }
+    setSelected(entry.key);
+    if (!wide) setSheetOpen(true);
+  });
+
+  const visible = (e: Entry) => shows(filter, e);
   const current = entries.find((e) => e.key === selected) ?? entries[0];
-  const counts = useMemo(() => Object.fromEntries(skills.groups.map((g) => [g.name, g.items.length])), [skills.groups]);
 
   const select = (key: string, openSheet: boolean) => {
     setSelected(key);
     if (openSheet) setSheetOpen(true);
   };
 
-  const filters = [{ id: ALL, label: skills.allLabel, count: entries.length }, ...skills.groups.map((g) => ({ id: g.name, label: g.name, count: counts[g.name] ?? 0 }))];
 
   return (
     <SlideFrame
@@ -249,8 +298,9 @@ export default function Skills({ cv }: { cv: CV }) {
             {filters.map((f) => {
               const on = f.id === filter;
               return (
+                <Fragment key={f.id}>
+                {f.divider ? <span className="mx-1 h-5 w-px shrink-0 self-center bg-line" aria-hidden="true" /> : null}
                 <button
-                  key={f.id}
                   type="button"
                   role="tab"
                   aria-selected={on}
@@ -262,6 +312,7 @@ export default function Skills({ cv }: { cv: CV }) {
                   {f.label}
                   <span className={`text-xs tabular-nums ${on ? "text-ink/60" : "text-mute"}`}>{f.count}</span>
                 </button>
+                </Fragment>
               );
             })}
           </div>
@@ -306,6 +357,20 @@ export default function Skills({ cv }: { cv: CV }) {
               </span>
             ))}
             <span className="hidden lg:inline">· {skills.hint}</span>
+            <button
+              type="button"
+              onClick={() => setGraphOpen(true)}
+              className="ml-auto flex items-center gap-1.5 rounded-full px-2 py-1 text-mute/80 transition-colors hover:text-accent"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+                <circle cx="5" cy="6" r="2.2" />
+                <circle cx="19" cy="5" r="2.2" />
+                <circle cx="12" cy="18" r="2.2" />
+                <circle cx="17" cy="14" r="1.6" />
+                <path d="M7 7l3.8 9M17 6.8 12.9 16M7.2 6l9.6-.8M17 15.5l-3.4 1.6" />
+              </svg>
+              {skills.graphButton}
+            </button>
           </p>
         </div>
 
@@ -323,6 +388,15 @@ export default function Skills({ cv }: { cv: CV }) {
             <Detail entry={current} cv={cv} onClose={() => setSheetOpen(false)} />
           </div>
         </div>
+      ) : null}
+      {graphOpen ? (
+        <Suspense fallback={null}>
+          <SkillGraph
+            graph={cv.graph}
+            onClose={() => setGraphOpen(false)}
+            labels={{ title: skills.graphTitle, hint: skills.graphHint, close: "Close" }}
+          />
+        </Suspense>
       ) : null}
     </SlideFrame>
   );

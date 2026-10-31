@@ -29,7 +29,7 @@ export function revealOnce(slide: HTMLElement, reduced: boolean) {
       delay: 0.35,
       ease: "power3.out",
       onUpdate: () => {
-        el.textContent = String(Math.round(counter.v));
+        el.textContent = Math.round(counter.v).toLocaleString("en");
       },
     });
   });

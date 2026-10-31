@@ -43,7 +43,7 @@ person:
   tagline: >-
     A passionate engineer on a continuous quest to improve the efficiency of
     everything around me.
-  location: Antwerp, Belgium
+  location: Mechelen, Belgium
   # TODO: dit adres wordt publiek. Liever hello@steinmaerivoet.dev? Dat kan
   # gratis via Cloudflare Email Routing (zie CLOUDFLARE.md).
   email: steinmaerivoet@hotmail.com
@@ -58,9 +58,7 @@ person:
 
 about:
   label: About
-  statement: >-
-    Software engineering is becoming less about knowing how to write code, and
-    more about knowing what to build.
+  statement: Less about writing code. More about knowing what to build.
   paragraphs:
     - >-
       I'm a passionate engineer in a continuous quest for improving the
@@ -77,8 +75,9 @@ about:
     - value: 1
       suffix: "st"
       label: Prize at the Belfius hackathon
-    - value: 4
-      label: Languages spoken
+    # value: een getal, of `technologies` / `skills` / `projects` om het te laten tellen
+    - value: technologies
+      label: Technologies on my skill board
 
 experience:
   label: Experience
@@ -86,10 +85,10 @@ experience:
   projectsLabel: Projects
   # Eén blok per werkgever, zoals op LinkedIn.
   #   roles      functies bij die werkgever, nieuwste eerst (end: null = heden)
-  #   projects   projecten bij die werkgever, los van de functietitels
-  #              (de eerste staat open; period en url zijn optioneel)
   #   highlights korte extra punten (optioneel)
-  #   tech       technologieën; voedt ook "Used in" op de skills-slide
+  #   tech       technologieën. Namen die overeenkomen met een skill worden
+  #              klikbaar en tellen mee in "Used in" op de skills-slide.
+  # Projecten staan onder `projects:` met `employer:` naar het bedrijf hier.
   items:
     - company: Belfius
       location: Brussels, Belgium
@@ -100,27 +99,7 @@ experience:
         Engineering in Belfius Technology, one of Belgium's largest banks:
         modernising how critical banking systems, cloud applications and
         external services talk to each other.
-      projects:
-        - name: Cloud-native integration platform
-          description:
-            - >-
-              Architected and developed a cloud-native integration platform
-              modernizing communication between critical banking systems, cloud
-              applications, and external services. Designed a scalable,
-              distributed architecture leveraging Java, Spring Boot, and
-              Kubernetes.
-            - >-
-              Applied platform engineering principles by developing a custom
-              Kubernetes Operator, enabling declarative configuration, automated
-              lifecycle management, and developer self-service. Leveraged Helm
-              and Kubernetes-native automation to simplify enterprise
-              integrations and streamline software delivery.
-        - name: Belfius Hackathon
-          period: First prize
-          description: >-
-            Pitched an idea, built a working prototype in 48 hours and presented
-            it to a jury from Belfius management and Mistral AI.
-      tech: [Java 25, Spring Boot, Azure, Azure DevOps, Kubernetes, Operator pattern, Helm, Istio, Backstage, Elastic, Agentic AI, GitHub Copilot CLI, Spec-driven development]
+      tech: [Java 25, Spring Boot, Azure, Azure DevOps, Kubernetes, Operator pattern, Helm, Docker, Istio, Backstage, Elastic, Playwright, BDD, Gherkin, Agentic AI, GitHub Copilot CLI, Spec-driven development, Jira, Confluence]
 
     - company: Ixor
       location: Mechelen, Belgium
@@ -129,34 +108,7 @@ experience:
       summary: >-
         Backend development of web applications for a range of clients, with
         cloud-native microservices, event-driven architecture and AWS.
-      projects:
-        - name: Verkeerscentrum
-          period: 2022 – 2023
-          description: >-
-            Application for operators to control the traffic in Flanders: an
-            event-driven microservice architecture integrating Waze, DATEX,
-            video walls, traffic signs and vehicle detection loops.
-        - name: myVandelanotte
-          period: 2021 – 2022
-          url: https://www.vandelanotte.be/en/myvandelanotte
-          description: >-
-            Client portal built from scratch that connects accountancy tools
-            through Azure AD single sign-on, so clients find their statements,
-            reports and documents to sign in one place.
-        - name: E-invoicing for Belfius
-          period: 2020 – 2021
-          url: https://www.youtube.com/watch?v=x5VHU6d7-I0
-          description: >-
-            New e-invoicing platform: upload a PDF invoice, have it recognised,
-            and send it in a structured way over the PEPPOL network.
-        - name: IxorDocs
-          period: 2019 – 2020
-          url: https://www.ixordocs.be/
-          description: >-
-            Portal connecting companies to Doccle (document platform) and PEPPOL
-            (e-invoicing). Reworked the preprocessor engine that turns XML, PDF
-            and CSV into output formats like PEPPOL BIS3.
-      tech: [Java, Spring Boot, Kafka, GraphQL, REST, AWS, CloudFormation, Datadog, DDD, BDD, Automated testing]
+      tech: [Java, Spring Boot, Kafka, GraphQL, REST, Microservices, Event-driven, AWS, CloudFormation, Docker, Bitbucket Pipelines, Datadog, DDD, BDD, Gherkin, Selenium, Automated testing, GitHub Copilot, Jira, Confluence]
 
     - company: Objective International
       location: Wichelen, Belgium
@@ -169,8 +121,6 @@ experience:
         Later turned customer needs into technical designs, and owned the
         codebase and the releases.
       highlights:
-        - Introduced Jenkins, which became the standard for building and shipping releases
-        - Built a cloud-based tool that pushes new releases to customers automatically
         - On-site key-user training, fixes and installations during test phases
       tech: [Java, SQL, Jenkins, CI/CD, MES, WMS, VBA]
 
@@ -181,12 +131,6 @@ experience:
       summary: >-
         Someone pitched me the idea of an online freecycle platform. I joined
         as co-entrepreneur and developer to turn it into a real company.
-      projects:
-        - name: Winfri platform
-          period: "2015"
-          description: >-
-            Built the freecycle platform on Scala and the Play Framework with
-            MongoDB. It grew to more than a thousand users.
       highlights:
         - Startup Weekend Leuven, Durf Ondernemen (Ghent University) and Start it @KBC
       tech: [Scala, Play Framework, MongoDB]
@@ -207,8 +151,16 @@ skills:
   title: The stack I build with
   # Teksten in de skills-slide
   allLabel: All
+  kindLabels:
+    technology: Technologies
+    practice: Ways of working
+    tool: Tools
   hint: Select a skill to see where I used it.
   usedInLabel: Used in
+  # Verborgen extraatje: netwerkweergave van skills, ervaring en projecten
+  graphButton: Network
+  graphTitle: How it all connects
+  graphHint: Hover or tap to see the connections; click or tap again to go there.
   sinceLabel: Since
   yearsLabel: years
   levelLabels:
@@ -224,16 +176,19 @@ skills:
   #           devicon:<naam> voor logo's die Simple Icons niet heeft (bv. devicon:azure)
   #   match   extra namen om het te herkennen in `tech` en `tags` van ervaring en projecten
   # "Used in" wordt automatisch opgebouwd uit `tech` (ervaring) en `tags` (projecten).
+  # Elke groep heeft een soort (kind):
+  #   technology  talen, frameworks, platformen (telt mee in "technologies" op About)
+  #   practice    manieren van werken en architectuur
+  #   tool        producten en tools
+  # Op het bord staan de soorten nooit door elkaar.
   groups:
     - name: Backend
       items:
         - { name: Java, level: expert, since: 2016, icon: devicon:java }
         - { name: Spring Boot, level: expert, since: 2019, icon: springboot }
-        - { name: Microservices, level: expert, since: 2019, icon: lucide:boxes, match: [Event-driven] }
         - { name: Kafka, level: advanced, since: 2019, icon: apachekafka }
         - { name: REST, level: expert, since: 2016, icon: openapiinitiative }
         - { name: GraphQL, level: advanced, since: 2019, icon: graphql }
-        - { name: Domain-Driven Design, level: advanced, since: 2019, icon: lucide:shapes, match: [DDD] }
         - { name: SQL, level: advanced, since: 2016, icon: lucide:database }
         - { name: Scala, level: familiar, since: 2015, icon: scala }
     - name: Cloud & platform
@@ -241,39 +196,80 @@ skills:
         - { name: Azure, level: advanced, since: 2023, icon: devicon:azure }
         - { name: AWS, level: advanced, since: 2019, icon: devicon:amazonwebservices, match: [CloudFormation] }
         - { name: Kubernetes, level: advanced, since: 2023, icon: kubernetes }
-        - { name: Operator pattern, level: advanced, since: 2026, icon: lucide:refresh-cw }
         - { name: Helm, level: advanced, since: 2026, icon: helm }
+        - { name: Docker, level: advanced, since: 2019, icon: docker }
         - { name: Istio, level: advanced, since: 2026, icon: istio }
-        - { name: Backstage, level: familiar, since: 2026, icon: backstage }
-        - { name: CI/CD, level: expert, since: 2018, icon: lucide:infinity, match: [Jenkins] }
-        - { name: Datadog, level: advanced, since: 2019, icon: datadog }
         - { name: Elastic, level: advanced, since: 2026, icon: elastic }
-    - name: Ways of working
+        - { name: Datadog, level: advanced, since: 2019, icon: datadog }
+    - name: Testing
       items:
-        - { name: Agentic AI, level: advanced, since: 2025, icon: lucide:sparkles, match: [AI] }
-        - { name: GitHub Copilot CLI, level: advanced, since: 2025, icon: githubcopilot }
-        - { name: Spec-driven development, level: advanced, since: 2025, icon: lucide:clipboard-check }
-        - { name: BDD, level: advanced, since: 2019, icon: cucumber }
-        - { name: Automated testing, level: expert, since: 2016, icon: junit5 }
-    - name: IoT & home automation
+        - { name: Playwright, level: advanced, since: 2026, icon: devicon:playwright }
+        - { name: Selenium, level: advanced, since: 2019, icon: selenium }
+        - { name: Gherkin, level: advanced, since: 2019, icon: cucumber }
+    - name: IoT
       items:
         - { name: Home Assistant, level: expert, since: 2017, icon: homeassistant }
         - { name: Raspberry Pi, level: advanced, since: 2017, icon: raspberrypi }
         - { name: ESP8266, level: advanced, since: 2017, icon: espressif }
         - { name: Sensors, level: advanced, since: 2014, icon: lucide:radar, match: [Embedded] }
+    - name: Ways of working
+      kind: practice
+      items:
+        - { name: Microservices, level: expert, since: 2019, icon: lucide:boxes, match: [Event-driven] }
+        - { name: Domain-Driven Design, level: advanced, since: 2019, icon: lucide:shapes, match: [DDD] }
+        - { name: Operator pattern, level: advanced, since: 2026, icon: lucide:refresh-cw }
+        - { name: CI/CD, level: expert, since: 2018, icon: lucide:infinity, match: [Jenkins] }
+        - { name: Automated testing, level: expert, since: 2016, icon: junit5 }
+        - { name: BDD, level: advanced, since: 2019, icon: lucide:list-checks }
+        - { name: Spec-driven development, level: advanced, since: 2025, icon: lucide:clipboard-check }
+        - { name: Agentic AI, level: advanced, since: 2025, icon: lucide:sparkles, match: [AI] }
+        - { name: Automation, level: expert, since: 2011, icon: lucide:workflow, match: [VBA] }
+    - name: Tools
+      kind: tool
+      items:
+        - { name: Azure DevOps, level: advanced, since: 2023, icon: devicon:azuredevops }
+        - { name: GitHub Copilot, level: advanced, since: 2022, icon: githubcopilot }
+        - { name: Backstage, level: familiar, since: 2026, icon: backstage }
+        # TODO: Jira en Confluence zijn gekoppeld aan Belfius en Ixor; pas `tech` aan als dat niet klopt.
+        - { name: Jira, level: advanced, since: 2019, icon: jira }
+        - { name: Confluence, level: advanced, since: 2019, icon: confluence }
+        - { name: Bitbucket, level: advanced, since: 2019, icon: bitbucket, match: [Bitbucket Pipelines] }
 
 projects:
   label: Projects
+  # Alle projecten, één keer. Ze worden aan de rest gekoppeld:
+  #   employer  bedrijfsnaam zoals onder `experience` (fout = build faalt)
+  #   tags      namen die overeenkomen met een skill worden links naar die skill
+  #   featured  true = kaart op de projects-slide (hou het op 6)
+  # Op de experience-slide staan de projecten van elke werkgever, in deze volgorde.
+  # summary is de korte tekst op de kaart; description de volledige uitleg.
   items:
-    - name: Integration platform
+    - name: Cloud-native integration platform
+      employer: Belfius
+      period: 2023 – Present
+      featured: true
       meta: Belfius · Kubernetes Operator
-      description: >-
+      summary: >-
         Cloud-native platform modernising communication between critical
         banking systems, cloud applications and external services, with a custom
         Kubernetes Operator for declarative, self-service integrations.
-      tags: [Java, Kubernetes, Helm]
+      description:
+        - >-
+          Architected and developed a cloud-native integration platform
+          modernizing communication between critical banking systems, cloud
+          applications, and external services. Designed a scalable, distributed
+          architecture leveraging Java, Spring Boot, and Kubernetes.
+        - >-
+          Applied platform engineering principles by developing a custom
+          Kubernetes Operator, enabling declarative configuration, automated
+          lifecycle management, and developer self-service. Leveraged Helm and
+          Kubernetes-native automation to simplify enterprise integrations and
+          streamline software delivery.
+      tags: [Java, Spring Boot, Kubernetes, Operator pattern, Helm, Istio, Azure]
 
     - name: Belfius Hackathon
+      employer: Belfius
+      featured: true
       meta: First prize · 48 hours
       description: >-
         Pitched an idea, built a working prototype through the night and
@@ -281,29 +277,76 @@ projects:
       tags: [AI, Prototype, Pitch]
 
     - name: Verkeerscentrum
-      meta: Ixor · 2022 – 2023
-      description: >-
+      employer: Ixor
+      period: 2022 – 2023
+      featured: true
+      summary: >-
         Application for operators to control the traffic in Flanders, integrating
         Waze, DATEX, video walls, traffic signs and vehicle detection loops.
-      tags: [Event-driven, Kafka, Microservices]
+      description: >-
+        Application for operators to control the traffic in Flanders: an
+        event-driven microservice architecture integrating Waze, DATEX, video
+        walls, traffic signs and vehicle detection loops.
+      tags: [Event-driven, Kafka, Microservices, Spring Boot]
+
+    - name: myVandelanotte
+      employer: Ixor
+      period: 2021 – 2022
+      url: https://www.vandelanotte.be/en/myvandelanotte
+      description: >-
+        Client portal built from scratch that connects accountancy tools through
+        Azure AD single sign-on, so clients find their statements, reports and
+        documents to sign in one place.
+      tags: [Spring Boot, Azure AD, SSO, GraphQL]
 
     - name: E-invoicing for Belfius
-      meta: Ixor · 2020 – 2021
-      description: >-
-        Upload a PDF invoice, have it recognised, and send it in a structured
-        way over the PEPPOL network.
+      employer: Ixor
+      period: 2020 – 2021
+      featured: true
       url: https://www.youtube.com/watch?v=x5VHU6d7-I0
+      description: >-
+        New e-invoicing platform: upload a PDF invoice, have it recognised, and
+        send it in a structured way over the PEPPOL network.
       tags: [PEPPOL, AWS, Document recognition]
 
+    - name: IxorDocs
+      employer: Ixor
+      period: 2019 – 2020
+      url: https://www.ixordocs.be/
+      description: >-
+        Portal connecting companies to Doccle (document platform) and PEPPOL
+        (e-invoicing). Reworked the preprocessor engine that turns XML, PDF and
+        CSV into output formats like PEPPOL BIS3.
+      tags: [PEPPOL, Doccle, Java, AWS]
+
+    - name: Release automation
+      employer: Objective International
+      period: 2018 – 2019
+      description: >-
+        Introduced Jenkins, which became the standard for building and shipping
+        releases, and built a cloud-based tool that pushes new releases to
+        customers automatically.
+      tags: [Jenkins, CI/CD, Automation]
+
+    - name: Winfri platform
+      employer: Winfri
+      period: "2015"
+      description: >-
+        Online freecycle platform built on Scala and the Play Framework with
+        MongoDB. It grew to more than a thousand users.
+      tags: [Scala, Play Framework, MongoDB]
+
     - name: Home automation
+      featured: true
       meta: Since 2017
       description: >-
         It started with a Raspberry Pi, a temperature sensor and a flashed smart
         socket. Today my mission is to automate every repetitive task at home.
       url: https://github.com/steinmaerivoet/home-assistant-config
-      tags: [Home Assistant, ESP8266, Raspberry Pi]
+      tags: [Home Assistant, ESP8266, Raspberry Pi, Sensors, Automation]
 
     - name: Multicopter safety system
+      featured: true
       meta: Master thesis · Cum laude
       description: >-
         Obstacle detection for a multicopter with a ring of eight ultrasonic

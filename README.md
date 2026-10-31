@@ -11,6 +11,7 @@ npm install
 npm run dev       # http://localhost:4321
 npm run build     # type-check + productie-build naar dist/
 npm run preview   # bekijk de productie-build
+npm run test:e2e  # Playwright-tests op desktop, laptop en twee telefoons
 ```
 
 Node 22 of hoger.
@@ -24,7 +25,9 @@ Node 22 of hoger.
 - slides te herschikken of te verbergen via de lijst `slides`;
 - labels in de navigatie en knoppen te wijzigen (`ui`, en `label` per sectie).
 
-Het bestand wordt bij elke build gevalideerd met een schema ([`src/lib/cv.ts`](src/lib/cv.ts)). Een vergeten veld of een ongeldige URL geeft een duidelijke fout met het pad, bv. `experience.items.0.role: Required`.
+Skills, ervaring en projecten zijn aan elkaar gekoppeld: een project verwijst met `employer` naar een werkgever, en `tech`/`tags` verwijzen naar skills via hun naam. Daaruit volgen automatisch "Used in", de klikbare links tussen de slides en de netwerkweergave (knop "Network" op de skills-slide). Zie [CLAUDE.md](CLAUDE.md) voor de regels.
+
+Het bestand wordt bij elke build gevalideerd met een schema ([`src/lib/cv.ts`](src/lib/cv.ts)). Een vergeten veld of een ongeldige URL geeft een duidelijke fout met het pad, bv. `experience.items.0.roles: Required`.
 
 ## Structuur
 
@@ -32,11 +35,13 @@ Het bestand wordt bij elke build gevalideerd met een schema ([`src/lib/cv.ts`](s
 src/
   content/cv.yaml           alle inhoud
   lib/cv.ts                 laadt en valideert cv.yaml (zod)
+  lib/links.ts              koppelt skills, ervaring en projecten (Used in, links, netwerk)
   pages/index.astro         rendert de deck server-side, hydrateert als React-island
   components/
     Deck.tsx                slideshow: state, transities, hash-routing
     deck/useDeckInput.ts    wiel, trackpad (met inertie-filter), touch en toetsenbord
-    deck/transitions.ts     GSAP-transities en content-reveals
+    deck/reveal.ts          content-reveals (eenmalig per slide)
+    deck/follow.ts          links tussen slides (follow / useFollow)
     deck/Chrome.tsx         vaste UI: navigatie, teller, voortgang
     slides/*.tsx            één component per slide
     ui/*.tsx                kleine bouwstenen (SplitText, Magnetic, ...)

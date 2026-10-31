@@ -4,6 +4,8 @@ import type { CV } from "@/lib/cv";
 import { range } from "@/lib/format";
 import SlideFrame from "@/components/ui/SlideFrame";
 import Eyebrow from "@/components/ui/Eyebrow";
+import LinkChip from "@/components/ui/LinkChip";
+import { useFollow } from "@/components/deck/follow";
 
 export default function Experience({ cv }: { cv: CV }) {
   const { experience } = cv;
@@ -27,6 +29,15 @@ export default function Experience({ cv }: { cv: CV }) {
       { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.05 },
     );
   }, [active]);
+
+  // Linked from a skill, a project card or the graph.
+  useFollow("employer", (t) => {
+    const i = experience.items.findIndex((e) => e.company === t.company);
+    if (i === -1) return;
+    setActive(i);
+    const p = t.project ? experience.items[i]!.projects.findIndex((p) => p.id === t.project) : 0;
+    setOpenProject(Math.max(0, p));
+  });
 
   if (!item) return null;
 
@@ -116,7 +127,7 @@ export default function Experience({ cv }: { cv: CV }) {
                 {item.projects.map((p, i) => {
                   const open = i === openProject;
                   return (
-                    <li key={p.name} className="border-b border-line">
+                    <li key={p.id} className="border-b border-line">
                       <button
                         type="button"
                         aria-expanded={open}
@@ -178,11 +189,11 @@ export default function Experience({ cv }: { cv: CV }) {
               ))}
             </ul>
           )}
-          {item.tech.length > 0 && (
+          {item.techChips.length > 0 && (
             <ul data-panel className="mt-5 flex flex-wrap gap-1.5 short:mt-4">
-              {item.tech.map((t) => (
-                <li key={t} className="rounded-full border border-line px-2.5 py-0.5 text-xs text-paper/80">
-                  {t}
+              {item.techChips.map((c) => (
+                <li key={c.label}>
+                  <LinkChip chip={c} />
                 </li>
               ))}
             </ul>

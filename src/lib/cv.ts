@@ -1,13 +1,16 @@
 import { parse } from "yaml";
 import { z } from "astro/zod";
 import raw from "../content/cv.yaml?raw";
-import { enrichSkills } from "./skills";
+import { link } from "./links";
 
 const year = z.union([z.string(), z.number()]).transform(String);
-const link = z.object({ label: z.string(), url: z.url() });
+const linkItem = z.object({ label: z.string(), url: z.url() });
 
 export const skillLevels = ["expert", "advanced", "familiar"] as const;
 export type SkillLevel = (typeof skillLevels)[number];
+
+export const skillKinds = ["technology", "practice", "tool"] as const;
+export type SkillKind = (typeof skillKinds)[number];
 
 export const slideIds = ["hero", "about", "experience", "skills", "projects", "education", "contact"] as const;
 export type SlideId = (typeof slideIds)[number];
@@ -38,14 +41,21 @@ const schema = z.object({
     email: z.email(),
     available: z.boolean().default(false),
     availabilityText: z.string().optional(),
-    socials: z.array(link).default([]),
+    socials: z.array(linkItem).default([]),
   }),
   about: z.object({
     label: z.string().default("About"),
     statement: z.string(),
     paragraphs: z.array(z.string()).default([]),
     stats: z
-      .array(z.object({ value: z.number(), suffix: z.string().optional(), label: z.string() }))
+      .array(
+        z.object({
+          // A number, or something to count from the rest of the CV.
+          value: z.union([z.number(), z.enum(["technologies", "skills", "projects"])]),
+          suffix: z.string().optional(),
+          label: z.string(),
+        }),
+      )
       .default([]),
   }),
   experience: z.object({
@@ -64,17 +74,6 @@ const schema = z.object({
             .array(z.object({ title: z.string(), start: year, end: year.nullable().default(null) }))
             .min(1),
           summary: z.string(),
-          projects: z
-            .array(
-              z.object({
-                name: z.string(),
-                period: year.optional(),
-                url: z.url().optional(),
-                // One paragraph, or a list of paragraphs.
-                description: z.union([z.string(), z.array(z.string())]).transform((d) => (Array.isArray(d) ? d : [d])),
-              }),
-            )
-            .default([]),
           highlights: z.array(z.string()).default([]),
           tech: z.array(z.string()).default([]),
         })
@@ -94,7 +93,17 @@ const schema = z.object({
     label: z.string().default("Skills"),
     title: z.string().optional(),
     allLabel: z.string().default("All"),
+    kindLabels: z
+      .object({
+        technology: z.string().default("Technologies"),
+        practice: z.string().default("Ways of working"),
+        tool: z.string().default("Tools"),
+      })
+      .prefault({}),
     hint: z.string().default("Select a skill to see where I used it."),
+    graphButton: z.string().default("Network"),
+    graphTitle: z.string().default("How it all connects"),
+    graphHint: z.string().default("Hover to see the connections, click to go there."),
     usedInLabel: z.string().default("Used in"),
     sinceLabel: z.string().default("Since"),
     yearsLabel: z.string().default("years"),
@@ -108,6 +117,7 @@ const schema = z.object({
     groups: z.array(
       z.object({
         name: z.string(),
+        kind: z.enum(skillKinds).default("technology"),
         items: z.array(
           z.union([
             z.string().transform((name) => ({ name })),
@@ -125,11 +135,19 @@ const schema = z.object({
   }),
   projects: z.object({
     label: z.string().default("Projects"),
+    // Every project lives here once. `employer` links it to an experience
+    // item; `tags` link it to skills (see src/lib/links.ts).
     items: z.array(
       z.object({
+        id: z.string().optional(),
         name: z.string(),
+        employer: z.string().optional(),
+        period: year.optional(),
+        featured: z.boolean().default(false),
         meta: z.string().optional(),
-        description: z.string(),
+        summary: z.string().optional(),
+        // One paragraph, or a list of paragraphs.
+        description: z.union([z.string(), z.array(z.string())]).transform((d) => (Array.isArray(d) ? d : [d])),
         url: z.url().optional(),
         tags: z.array(z.string()).default([]),
       }),
@@ -171,7 +189,7 @@ const schema = z.object({
 });
 
 export type CVData = z.infer<typeof schema>;
-export type CV = ReturnType<typeof enrichSkills>;
+export type CV = ReturnType<typeof link>;
 export type Skill = CV["skills"]["groups"][number]["items"][number];
 
 function load(): CV {
@@ -182,7 +200,7 @@ function load(): CV {
       .join("\n");
     throw new Error(`src/content/cv.yaml is invalid:\n${issues}`);
   }
-  return enrichSkills(result.data);
+  return link(result.data);
 }
 
 export const cv = load();
