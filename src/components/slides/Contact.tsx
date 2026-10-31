@@ -19,11 +19,11 @@ export default function Contact({ cv }: { cv: CV }) {
       <h2 className="max-w-5xl font-serif text-[clamp(3rem,min(9vw,14vh),8.5rem)] leading-[0.92] tracking-[-0.03em]">
         <SplitText text={contact.heading} />
       </h2>
-      <p className="mt-6 max-w-xl text-base leading-relaxed text-mute sm:mt-8 sm:text-lg" data-anim>
+      <p className="mt-6 max-w-xl text-base leading-relaxed text-mute sm:mt-8 sm:text-lg" data-reveal>
         {contact.text}
       </p>
 
-      <div className="mt-10 flex flex-col gap-8 sm:mt-14 sm:flex-row sm:items-center sm:gap-12" data-anim>
+      <div className="mt-10 flex flex-col gap-8 sm:mt-14 sm:flex-row sm:items-center sm:gap-12" data-reveal>
         <Magnetic>
           <a
             href={`mailto:${person.email}`}
@@ -41,7 +41,7 @@ export default function Contact({ cv }: { cv: CV }) {
         </a>
       </div>
 
-      <div className="mt-14 flex flex-wrap short:mt-10 items-center justify-between gap-6 border-t border-line pt-6 text-sm text-mute sm:mt-20" data-anim>
+      <div className="mt-14 flex flex-wrap short:mt-10 items-center justify-between gap-6 border-t border-line pt-6 text-sm text-mute sm:mt-20" data-reveal>
         <ul className="flex flex-wrap gap-x-8 gap-y-2">
           {person.socials.map((s) => (
             <li key={s.url}>

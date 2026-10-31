@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { createRequire } from "node:module";
 import { Document, Font, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { CV } from "@/lib/cv";
+import type { Style } from "@react-pdf/types";
+import { skillLevels, type CV, type SkillLevel } from "@/lib/cv";
 import { range } from "@/lib/format";
 
 /* ── Fonts ────────────────────────────────────────────────────────────────
@@ -80,6 +81,9 @@ const s = StyleSheet.create({
   contactValue: { fontSize: 8.2, color: c.ink, marginBottom: 6, textDecoration: "none" },
   skillGroup: { marginBottom: 9 },
   skillGroupName: { fontSize: 8.2, fontWeight: 600, color: c.ink, marginBottom: 2 },
+  legend: { flexDirection: "row", marginTop: -2, marginBottom: 8 },
+  legendItem: { flexDirection: "row", alignItems: "center", marginRight: 8, fontSize: 6.8, color: c.mute },
+  legendSwatch: { width: 7, height: 7, borderRadius: 2, borderWidth: 0.5, borderColor: c.mute, marginRight: 3 },
   chips: { flexDirection: "row", flexWrap: "wrap", marginTop: 1 },
   chip: { fontSize: 7.6, color: c.ink, backgroundColor: "#ffffff", borderWidth: 0.5, borderColor: c.line, borderRadius: 3, paddingVertical: 1.5, paddingHorizontal: 4, marginRight: 3, marginBottom: 3, lineHeight: 1.2 },
   sideItem: { marginBottom: 8 },
@@ -130,6 +134,18 @@ const s = StyleSheet.create({
   },
 });
 
+/* Skill levels: expert is filled, advanced outlined, familiar quiet. */
+const chipLevel: Record<SkillLevel, Style> = {
+  expert: { backgroundColor: c.ink, borderColor: c.ink, color: "#ffffff" },
+  advanced: {},
+  familiar: { backgroundColor: "transparent", color: c.mute },
+};
+const legendSwatch: Record<SkillLevel, Style> = {
+  expert: { backgroundColor: c.ink, borderColor: c.ink },
+  advanced: { backgroundColor: "#ffffff" },
+  familiar: { backgroundColor: "transparent", borderColor: c.line },
+};
+
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 const clean = (t: string) => t.replace(/\s+/g, " ").trim();
 const bareUrl = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
@@ -172,7 +188,7 @@ export default function CvDocument({ cv }: { cv: CV }) {
       title={`${fullName} · Curriculum Vitae`}
       author={fullName}
       subject={person.headline}
-      keywords={skills.groups.flatMap((g) => g.items).join(", ")}
+      keywords={skills.groups.flatMap((g) => g.items.map((i) => i.name)).join(", ")}
       creator={cv.meta.url}
       producer={cv.meta.url}
       language={cv.meta.lang}
@@ -232,13 +248,24 @@ export default function CvDocument({ cv }: { cv: CV }) {
 
             {show("skills") && (
               <Section title={skills.label}>
+                {/* Legend for the chip styles, only for levels that are actually used. */}
+                <View style={s.legend}>
+                  {skillLevels
+                    .filter((level) => skills.groups.some((g) => g.items.some((i) => i.level === level)))
+                    .map((level) => (
+                      <View key={level} style={s.legendItem}>
+                        <View style={[s.legendSwatch, legendSwatch[level]]} />
+                        <Text>{skills.levelLabels[level]}</Text>
+                      </View>
+                    ))}
+                </View>
                 {skills.groups.map((group) => (
                   <View key={group.name} style={s.skillGroup} wrap={false}>
                     <Text style={s.skillGroupName}>{group.name}</Text>
                     <View style={s.chips}>
                       {group.items.map((item) => (
-                        <Text key={item} style={s.chip}>
-                          {item}
+                        <Text key={item.name} style={[s.chip, ...(item.level ? [chipLevel[item.level]] : [])]}>
+                          {item.name}
                         </Text>
                       ))}
                     </View>

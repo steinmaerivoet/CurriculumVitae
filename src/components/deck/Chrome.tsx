@@ -15,8 +15,6 @@ type Props = {
 export default function Chrome({ cv, labels, index, goTo, ready }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
-  const labelRef = useRef<HTMLSpanElement>(null);
   const total = labels.length;
   const contactIndex = cv.slides.indexOf("contact");
   const fullName = `${cv.person.firstName} ${cv.person.lastName}`;
@@ -31,15 +29,13 @@ export default function Chrome({ cv, labels, index, goTo, ready }: Props) {
     );
   }, [ready]);
 
-  // Progress bar and rolling counter.
+  // Progress line follows the glide.
   useEffect(() => {
     gsap.to(progressRef.current, {
       scaleY: total > 1 ? index / (total - 1) : 1,
-      duration: 1,
-      ease: "power4.inOut",
+      duration: 0.95,
+      ease: "power3.inOut",
     });
-    const roll = [counterRef.current, labelRef.current];
-    gsap.fromTo(roll, { yPercent: 100, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.7, ease: "expo.out", delay: 0.35, stagger: 0.05 });
   }, [index, total]);
 
   return (
@@ -115,14 +111,14 @@ export default function Chrome({ cv, labels, index, goTo, ready }: Props) {
         aria-hidden="true"
       >
         <span className="flex overflow-hidden font-medium tabular-nums">
-          <span ref={counterRef} className="inline-block text-paper">
+          <span className="inline-block text-paper">
             {pad(index + 1)}
           </span>
           <span className="mx-1.5 opacity-50">/</span>
           <span>{pad(total)}</span>
         </span>
         <span className="hidden overflow-hidden xs:inline-flex">
-          <span ref={labelRef} className="inline-block">
+          <span className="inline-block">
             {labels[index]}
           </span>
         </span>

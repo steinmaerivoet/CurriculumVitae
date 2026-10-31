@@ -59,7 +59,7 @@ function Card({ project, n }: { project: Project; n: number }) {
     "before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(600px_circle_at_var(--mx,50%)_var(--my,0%),rgb(212_255_90/0.09),transparent_40%)] before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100";
 
   return (
-    <li className="w-[78vw] max-w-sm shrink-0 snap-center [perspective:1000px] sm:w-auto sm:max-w-none" data-anim>
+    <li className="w-[78vw] max-w-sm shrink-0 snap-center [perspective:1000px] sm:w-auto sm:max-w-none" data-reveal>
       {project.url ? (
         <a
           ref={(el) => {
@@ -90,7 +90,7 @@ export default function Projects({ cv }: { cv: CV }) {
     <SlideFrame>
       <Eyebrow id="projects" label={projects.label} />
       {/* Swipeable carousel on mobile, grid from tablet up. */}
-      <ul className="-mr-11 -ml-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto pr-11 pb-2 pl-6 [scrollbar-width:none] [touch-action:pan-x] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:[touch-action:auto] lg:grid-cols-3 lg:gap-6">
+      <ul data-carousel className="-mr-11 -ml-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto pr-11 pb-2 pl-6 [scrollbar-width:none] [touch-action:pan-x] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:[touch-action:auto] lg:grid-cols-3 lg:gap-6">
         {projects.items.map((p, i) => (
           <Card key={p.name} project={p} n={i + 1} />
         ))}

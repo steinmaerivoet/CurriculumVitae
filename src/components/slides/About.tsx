@@ -15,7 +15,7 @@ export default function About({ cv }: { cv: CV }) {
 
       <h2
         className="max-w-5xl font-serif text-[clamp(1.9rem,5.6vw,5rem)] leading-[1.02] tracking-[-0.02em]"
-        data-anim-words
+        data-reveal-words
         aria-label={about.statement}
       >
         {about.statement.split(" ").map((w, i) => (
@@ -28,7 +28,7 @@ export default function About({ cv }: { cv: CV }) {
       <div className="mt-8 grid gap-8 sm:mt-14 sm:gap-10 lg:grid-cols-[1.3fr_1fr] lg:gap-20">
         <div className="space-y-4 text-[15px] leading-relaxed text-mute sm:text-lg">
           {about.paragraphs.map((p, i) => (
-            <p key={i} data-anim>
+            <p key={i} data-reveal>
               {p}
             </p>
           ))}
@@ -37,7 +37,7 @@ export default function About({ cv }: { cv: CV }) {
         {about.stats.length > 0 && (
           <dl className="grid grid-cols-3 gap-4 border-t border-line pt-6 sm:gap-8">
             {about.stats.map((s) => (
-              <div key={s.label} className="flex flex-col-reverse" data-anim>
+              <div key={s.label} className="flex flex-col-reverse" data-reveal>
                 <dt className="mt-3 text-xs leading-snug text-mute sm:text-sm">{s.label}</dt>
                 <dd className="font-serif text-[clamp(2.5rem,6vw,4.5rem)] leading-none tracking-tight">
                   <span data-count={s.value}>{s.value}</span>

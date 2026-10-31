@@ -98,7 +98,7 @@ experience:
         - Greenfield, cloud-native successor for a business-critical service bus
         - Kubernetes operator pattern and an Istio service mesh on Azure
         - Agentic workflows with custom skills and agents, and spec-driven development
-      tech: [Java 25, Spring Boot, Azure, Kubernetes, Istio, Backstage, Elastic, Agentic AI]
+      tech: [Java 25, Spring Boot, Azure, Azure DevOps, Kubernetes, Operator pattern, Istio, Backstage, Elastic, Agentic AI, GitHub Copilot CLI, Spec-driven development]
 
     - company: Belfius
       role: Senior Engineer
@@ -126,7 +126,7 @@ experience:
         - "myVandelanotte: client portal with Azure AD single sign-on across accountancy tools"
         - "E-invoicing for Belfius: upload, recognise and send PDF invoices via PEPPOL"
         - "IxorDocs: reworked the engine that turns XML, PDF and CSV into PEPPOL BIS3"
-      tech: [Spring Boot, Kafka, GraphQL, REST, AWS, CloudFormation, Datadog, DDD, BDD]
+      tech: [Java, Spring Boot, Kafka, GraphQL, REST, AWS, CloudFormation, Datadog, DDD, BDD, Automated testing]
 
     - company: Objective International
       role: Software Engineer
@@ -140,7 +140,7 @@ experience:
       highlights:
         - Introduced Jenkins, which became the standard for building and shipping releases
         - Built a cloud-based tool that pushes new releases to customers automatically
-      tech: [Java, SQL, Jenkins, MES, WMS]
+      tech: [Java, SQL, Jenkins, CI/CD, MES, WMS]
 
     - company: Objective International
       role: Junior Software Engineer
@@ -182,15 +182,60 @@ experience:
 
 skills:
   label: Skills
+  title: The stack I build with
+  # Teksten in de skills-slide
+  allLabel: All
+  hint: Select a skill to see where I used it.
+  usedInLabel: Used in
+  sinceLabel: Since
+  yearsLabel: years
+  levelLabels:
+    expert: Expert
+    advanced: Advanced
+    familiar: Familiar
+  # Per skill:
+  #   name    naam (verplicht)
+  #   level   expert | advanced | familiar            TODO: nakijken
+  #   since   jaar sinds wanneer je het gebruikt (anders afgeleid uit je ervaring)
+  #   icon    slug van https://simpleicons.org (optioneel; anders initialen)
+  #   match   extra namen om het te herkennen in `tech` en `tags` van ervaring en projecten
+  # "Used in" wordt automatisch opgebouwd uit `tech` (ervaring) en `tags` (projecten).
   groups:
     - name: Backend
-      items: [Java, Spring Boot, Microservices, Kafka, REST, GraphQL, Domain-Driven Design, Scala]
+      items:
+        - { name: Java, level: expert, since: 2016, icon: openjdk }
+        - { name: Spring Boot, level: expert, since: 2019, icon: springboot }
+        - { name: Microservices, level: expert, since: 2019, match: [Event-driven] }
+        - { name: Kafka, level: advanced, since: 2019, icon: apachekafka }
+        - { name: REST, level: expert, since: 2016, icon: openapiinitiative }
+        - { name: GraphQL, level: advanced, since: 2019, icon: graphql }
+        - { name: Domain-Driven Design, level: advanced, since: 2019, match: [DDD] }
+        - { name: SQL, level: advanced, since: 2016, icon: postgresql }
+        - { name: Scala, level: familiar, since: 2015, icon: scala }
     - name: Cloud & platform
-      items: [Azure, AWS, Kubernetes, Operator pattern, Istio, Backstage, CI/CD, Datadog, Elastic & Kibana]
+      items:
+        - { name: Azure, level: advanced, since: 2023 }
+        - { name: AWS, level: advanced, since: 2019, match: [CloudFormation] }
+        - { name: Kubernetes, level: advanced, since: 2023, icon: kubernetes }
+        - { name: Operator pattern, level: advanced, since: 2026 }
+        - { name: Istio, level: advanced, since: 2026, icon: istio }
+        - { name: Backstage, level: familiar, since: 2026, icon: backstage }
+        - { name: CI/CD, level: expert, since: 2018, icon: jenkins, match: [Jenkins] }
+        - { name: Datadog, level: advanced, since: 2019, icon: datadog }
+        - { name: Elastic, level: advanced, since: 2026, icon: elastic }
     - name: Ways of working
-      items: [Agentic AI, GitHub Copilot CLI, Spec-driven development, BDD, Automated testing]
+      items:
+        - { name: Agentic AI, level: advanced, since: 2025, icon: claude, match: [AI] }
+        - { name: GitHub Copilot CLI, level: advanced, since: 2025, icon: githubcopilot }
+        - { name: Spec-driven development, level: advanced, since: 2025 }
+        - { name: BDD, level: advanced, since: 2019, icon: cucumber }
+        - { name: Automated testing, level: expert, since: 2016, icon: junit5 }
     - name: IoT & home automation
-      items: [Home Assistant, Raspberry Pi, ESP8266, Sensors]
+      items:
+        - { name: Home Assistant, level: expert, since: 2017, icon: homeassistant }
+        - { name: Raspberry Pi, level: advanced, since: 2017, icon: raspberrypi }
+        - { name: ESP8266, level: advanced, since: 2017, icon: espressif }
+        - { name: Sensors, level: advanced, since: 2014, match: [Embedded] }
 
 projects:
   label: Projects

@@ -37,9 +37,10 @@ export default function Experience({ cv }: { cv: CV }) {
         {/* Role list: a horizontal strip on mobile, a vertical list on desktop. */}
         <div
           role="tablist"
+          data-carousel
           aria-label={experience.label}
           className="-mr-11 -ml-6 flex snap-x scroll-px-6 gap-2 overflow-x-auto pr-11 pl-6 [scrollbar-width:none] [touch-action:pan-x] sm:-mr-20 sm:-ml-10 sm:pr-20 sm:pl-10 lg:mx-0 lg:flex-col lg:gap-0 lg:overflow-visible lg:border-t lg:border-line lg:px-0"
-          data-anim
+          data-reveal
         >
           {experience.items.map((it, i) => {
             const selected = i === active;
@@ -78,7 +79,7 @@ export default function Experience({ cv }: { cv: CV }) {
         </div>
 
         {/* Details of the selected role */}
-        <div ref={panelRef} id="experience-panel" role="tabpanel" className="min-w-0" data-anim>
+        <div ref={panelRef} id="experience-panel" role="tabpanel" className="min-w-0" data-reveal>
           <p data-panel className="text-sm text-mute tabular-nums">
             {range(item.start, item.end, experience.presentLabel)}
             {item.location ? <span> · {item.location}</span> : null}
