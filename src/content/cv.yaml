@@ -37,6 +37,8 @@ ui:
   footer: Built with Astro, React & GSAP
   # Knop rechtsonder die de PDF-versie van dit CV downloadt (gegenereerd bij de build).
   downloadCv: Download CV
+  # Knop rechtsonder die een QR-code naar deze site downloadt (PNG, gegenereerd bij de build).
+  downloadQr: Download QR code
 
 person:
   firstName: Stein

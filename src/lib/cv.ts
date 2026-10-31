@@ -28,6 +28,7 @@ const schema = z.object({
       contentsLabel: z.string().default("Contents"),
       footer: z.string().default(""),
       downloadCv: z.string().default("Download CV"),
+      downloadQr: z.string().default("Download QR code"),
     })
     .prefault({}),
   person: z.object({
