@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { createRequire } from "node:module";
 import { Document, Font, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
-import { skillLevels, type CV, type SkillLevel } from "@/lib/cv";
+import { skillKinds, skillLevels, type CV, type SkillLevel } from "@/lib/cv";
 import { range } from "@/lib/format";
 
 /* ── Fonts ────────────────────────────────────────────────────────────────
@@ -102,6 +102,9 @@ const s = StyleSheet.create({
   companyName: { fontSize: 11, fontWeight: 700, color: c.ink },
   companyMeta: { fontSize: 7.8, color: c.mute },
   role: { marginTop: 4, paddingLeft: 9, borderLeftWidth: 1, borderLeftColor: c.line },
+  roleBody: { paddingLeft: 9, borderLeftWidth: 1, borderLeftColor: c.line },
+  jobProject: { marginTop: 4, paddingLeft: 7, borderLeftWidth: 2, borderLeftColor: c.accent },
+  jobProjectName: { fontSize: 8.8, fontWeight: 600, color: c.ink, textDecoration: "none" },
   roleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" },
   roleTitle: { fontSize: 9.4, fontWeight: 600, color: c.ink },
   roleDates: { fontSize: 7.8, fontWeight: 500, color: c.mute },
@@ -163,17 +166,17 @@ function Section({ title, children, wrap = true }: { title: string; children: Re
   );
 }
 
-type Role = CV["experience"]["items"][number];
+type Project = CV["projects"]["items"][number];
+const projectText = (p: Project) => clean(p.summary ?? p.description[0] ?? "");
 
-/** Consecutive roles at the same company are shown as one employer with a career path. */
-function groupByCompany(items: Role[]) {
-  const groups: { company: string; location?: string | undefined; roles: Role[] }[] = [];
-  for (const item of items) {
-    const last = groups.at(-1);
-    if (last && last.company === item.company) last.roles.push(item);
-    else groups.push({ company: item.company, location: item.location, roles: [item] });
-  }
-  return groups;
+function ProjectName({ project, style }: { project: Project; style: Style }) {
+  return project.url ? (
+    <Link src={project.url} style={style}>
+      {project.name}
+    </Link>
+  ) : (
+    <Text style={style}>{project.name}</Text>
+  );
 }
 
 /* ── Document ───────────────────────────────────────────────────────────── */
@@ -246,33 +249,42 @@ export default function CvDocument({ cv }: { cv: CV }) {
               ))}
             </Section>
 
-            {show("skills") && (
-              <Section title={skills.label}>
-                {/* Legend for the chip styles, only for levels that are actually used. */}
-                <View style={s.legend}>
-                  {skillLevels
-                    .filter((level) => skills.groups.some((g) => g.items.some((i) => i.level === level)))
-                    .map((level) => (
-                      <View key={level} style={s.legendItem}>
-                        <View style={[s.legendSwatch, legendSwatch[level]]} />
-                        <Text>{skills.levelLabels[level]}</Text>
+            {/* One block per skill kind (technologies, ways of working, tools). */}
+            {show("skills") &&
+              skillKinds.map((kind, ki) => {
+                const groups = skills.groups.filter((g) => g.kind === kind && g.items.length > 0);
+                if (groups.length === 0) return null;
+                const title = skills.kindLabels[kind];
+                return (
+                  <Section key={kind} title={title} wrap={groups.length > 1}>
+                    {ki === 0 && (
+                      // Legend for the chip styles, only for levels that are actually used.
+                      <View style={s.legend}>
+                        {skillLevels
+                          .filter((level) => skills.groups.some((g) => g.items.some((i) => i.level === level)))
+                          .map((level) => (
+                            <View key={level} style={s.legendItem}>
+                              <View style={[s.legendSwatch, legendSwatch[level]]} />
+                              <Text>{skills.levelLabels[level]}</Text>
+                            </View>
+                          ))}
+                      </View>
+                    )}
+                    {groups.map((group) => (
+                      <View key={group.name} style={s.skillGroup} wrap={false}>
+                        {groups.length > 1 && <Text style={s.skillGroupName}>{group.name}</Text>}
+                        <View style={s.chips}>
+                          {group.items.map((item) => (
+                            <Text key={item.name} style={[s.chip, ...(item.level ? [chipLevel[item.level]] : [])]}>
+                              {item.name}
+                            </Text>
+                          ))}
+                        </View>
                       </View>
                     ))}
-                </View>
-                {skills.groups.map((group) => (
-                  <View key={group.name} style={s.skillGroup} wrap={false}>
-                    <Text style={s.skillGroupName}>{group.name}</Text>
-                    <View style={s.chips}>
-                      {group.items.map((item) => (
-                        <Text key={item.name} style={[s.chip, ...(item.level ? [chipLevel[item.level]] : [])]}>
-                          {item.name}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                ))}
-              </Section>
-            )}
+                  </Section>
+                );
+              })}
 
             {show("education") && education.items.length > 0 && (
               <Section title={education.label}>
@@ -325,26 +337,25 @@ export default function CvDocument({ cv }: { cv: CV }) {
 
             {show("experience") && (
               <Section title={experience.label}>
-                {groupByCompany(experience.items).map((group, gi) => (
-                  <View key={group.company + gi} style={s.company}>
-                    {group.roles.map((role, ri) => (
-                      <View key={role.role + role.start} wrap={false}>
-                        {/* The employer name always travels with its first role. */}
-                        {ri === 0 && (
-                          <View style={s.companyRow}>
-                            <Text style={s.companyName}>{group.company}</Text>
-                            {group.location && <Text style={s.companyMeta}>{group.location}</Text>}
+                {experience.items.map((job) => (
+                  <View key={job.company} style={s.company}>
+                    {/* Employer, career path and summary stay together on one page. */}
+                    <View wrap={false}>
+                      <View style={s.companyRow}>
+                        <Text style={s.companyName}>{job.company}</Text>
+                        {job.location && <Text style={s.companyMeta}>{job.location}</Text>}
+                      </View>
+                      <View style={s.role}>
+                        {job.roles.map((role) => (
+                          <View key={role.title + role.start} style={s.roleRow}>
+                            <Text style={s.roleTitle}>{role.title}</Text>
+                            <Text style={s.roleDates}>{range(role.start, role.end, present)}</Text>
                           </View>
-                        )}
-                        <View style={s.role}>
-                        <View style={s.roleRow}>
-                          <Text style={s.roleTitle}>{role.role}</Text>
-                          <Text style={s.roleDates}>{range(role.start, role.end, present)}</Text>
-                        </View>
-                        <Text style={s.summary}>{clean(role.summary)}</Text>
-                        {role.highlights.length > 0 && (
+                        ))}
+                        <Text style={s.summary}>{clean(job.summary)}</Text>
+                        {job.highlights.length > 0 && (
                           <View style={s.bullets}>
-                            {role.highlights.map((h) => (
+                            {job.highlights.map((h) => (
                               <View key={h} style={s.bullet}>
                                 <Text style={s.bulletDot}>•</Text>
                                 <Text style={s.bulletText}>{clean(h)}</Text>
@@ -352,39 +363,54 @@ export default function CvDocument({ cv }: { cv: CV }) {
                             ))}
                           </View>
                         )}
-                        {role.tech.length > 0 && (
-                          <Text style={s.tech}>
-                            <Text style={s.techLabel}>Tech </Text>
-                            {role.tech.join(", ")}
-                          </Text>
-                        )}
-                        </View>
                       </View>
-                    ))}
+                    </View>
+                    <View style={s.roleBody}>
+                      {show("projects") &&
+                        job.projects.map((project) => (
+                          <View key={project.id} style={s.jobProject} wrap={false}>
+                            <View style={s.projectRow}>
+                              <ProjectName project={project} style={s.jobProjectName} />
+                              {project.period && <Text style={s.projectMeta}>{project.period}</Text>}
+                            </View>
+                            <Text>{projectText(project)}</Text>
+                          </View>
+                        ))}
+                      {job.tech.length > 0 && (
+                        <Text style={s.tech} wrap={false}>
+                          <Text style={s.techLabel}>Tech </Text>
+                          {job.tech.join(", ")}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                 ))}
               </Section>
             )}
 
-            {show("projects") && projects.items.length > 0 && (
-              <Section title={projects.label}>
-                {projects.items.map((project) => (
-                  <View key={project.name} style={s.project} wrap={false}>
-                    <View style={s.projectRow}>
-                      {project.url ? (
-                        <Link src={project.url} style={s.projectName}>
-                          {project.name}
-                        </Link>
-                      ) : (
-                        <Text style={s.projectName}>{project.name}</Text>
-                      )}
-                      {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
-                    </View>
-                    <Text style={s.summary}>{clean(project.description)}</Text>
-                  </View>
-                ))}
-              </Section>
-            )}
+            {/* Projects without an employer (personal, academic). The rest sit under their employer above. */}
+            {show("projects") &&
+              (() => {
+                const own = projects.items.filter((p) => !p.employer || !show("experience"));
+                if (own.length === 0) return null;
+                return (
+                  <Section title={projects.label}>
+                    {own.map((project) => (
+                      <View key={project.id} style={s.project} wrap={false}>
+                        <View style={s.projectRow}>
+                          <ProjectName project={project} style={s.projectName} />
+                          {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
+                        </View>
+                        {project.description.map((para, pi) => (
+                          <Text key={pi} style={s.summary}>
+                            {clean(para)}
+                          </Text>
+                        ))}
+                      </View>
+                    ))}
+                  </Section>
+                );
+              })()}
           </View>
         </View>
 

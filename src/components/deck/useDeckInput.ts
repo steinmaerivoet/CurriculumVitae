@@ -76,8 +76,11 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
       lastAbs = 0;
     };
 
+    // Overlays (the skills network) handle their own input.
+    const ignored = (e: Event) => !!(e.target as Element | null)?.closest?.("[data-deck-ignore]");
+
     const onWheel = (e: WheelEvent) => {
-      if (e.ctrlKey) return; // pinch zoom
+      if (e.ctrlKey || ignored(e)) return; // pinch zoom, overlays
       let dy = e.deltaY;
       if (e.deltaMode === 1) dy *= 16;
       else if (e.deltaMode === 2) dy *= window.innerHeight;
@@ -140,7 +143,7 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
 
     const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0];
-      if (e.touches.length !== 1 || !t) {
+      if (e.touches.length !== 1 || !t || ignored(e)) {
         mode = "idle";
         return;
       }
@@ -199,7 +202,7 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
 
     // ---------- Keyboard ----------
     const onKey = (e: KeyboardEvent) => {
-      if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented || ignored(e)) return;
       const el = e.target as HTMLElement;
       const tag = el.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable) return;

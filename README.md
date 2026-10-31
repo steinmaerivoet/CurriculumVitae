@@ -11,6 +11,7 @@ npm install
 npm run dev       # http://localhost:4321
 npm run build     # type-check + productie-build naar dist/
 npm run preview   # bekijk de productie-build
+npm run test:e2e  # Playwright-tests op desktop, laptop en twee telefoons
 ```
 
 Node 22 of hoger.
@@ -24,7 +25,9 @@ Node 22 of hoger.
 - slides te herschikken of te verbergen via de lijst `slides`;
 - labels in de navigatie en knoppen te wijzigen (`ui`, en `label` per sectie).
 
-Het bestand wordt bij elke build gevalideerd met een schema ([`src/lib/cv.ts`](src/lib/cv.ts)). Een vergeten veld of een ongeldige URL geeft een duidelijke fout met het pad, bv. `experience.items.0.role: Required`.
+Skills, ervaring en projecten zijn aan elkaar gekoppeld: een project verwijst met `employer` naar een werkgever, en `tech`/`tags` verwijzen naar skills via hun naam. Daaruit volgen automatisch "Used in", de klikbare links tussen de slides en de netwerkweergave (knop "Network" op de skills-slide). Zie [CLAUDE.md](CLAUDE.md) voor de regels.
+
+Het bestand wordt bij elke build gevalideerd met een schema ([`src/lib/cv.ts`](src/lib/cv.ts)). Een vergeten veld of een ongeldige URL geeft een duidelijke fout met het pad, bv. `experience.items.0.roles: Required`.
 
 ## PDF-versie van het CV
 
@@ -41,13 +44,15 @@ Bij elke build wordt uit dezelfde `cv.yaml` een A4-PDF gegenereerd: `/stein-maer
 src/
   content/cv.yaml           alle inhoud
   lib/cv.ts                 laadt en valideert cv.yaml (zod)
+  lib/links.ts              koppelt skills, ervaring en projecten (Used in, links, netwerk)
   pages/index.astro         rendert de deck server-side, hydrateert als React-island
   pages/[file].pdf.ts       genereert de PDF-versie bij de build
   pdf/CvDocument.tsx        layout van de PDF (react-pdf)
   components/
     Deck.tsx                slideshow: state, transities, hash-routing
     deck/useDeckInput.ts    wiel, trackpad (met inertie-filter), touch en toetsenbord
-    deck/transitions.ts     GSAP-transities en content-reveals
+    deck/reveal.ts          content-reveals (eenmalig per slide)
+    deck/follow.ts          links tussen slides (follow / useFollow)
     deck/Chrome.tsx         vaste UI: navigatie, teller, voortgang
     DownloadCv.astro        vaste knop rechtsonder: download het CV als PDF
     slides/*.tsx            één component per slide
