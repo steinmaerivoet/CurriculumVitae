@@ -1,18 +1,10 @@
 import type { APIRoute, GetStaticPaths } from "astro";
 import { getCv } from "@/core";
 import { cvSlug } from "@/bff/shared/files";
-import { buildPdfModel } from "@/bff/pdf/document";
-import { styledQrPng } from "@/qr/styledQr";
-import { renderCvPdf } from "@/pdf/render";
+import { cvPdf } from "@/pdf/build";
 
-// Rendered once at build time from the same content as the site, with the
-// site's own QR code (light colours, best for print) in the header.
+// Rendered once at build time from the same content as the site (see src/pdf/build.ts).
 export const getStaticPaths: GetStaticPaths = () => [{ params: { file: cvSlug(getCv()) } }];
 
-export const GET: APIRoute = async () => {
-  const model = buildPdfModel(getCv());
-  const qrPng = styledQrPng(model.website.url, 600);
-  return new Response(new Uint8Array(await renderCvPdf(model, { qrPng })), {
-    headers: { "Content-Type": "application/pdf" },
-  });
-};
+export const GET: APIRoute = async () =>
+  new Response(new Uint8Array(await cvPdf(getCv())), { headers: { "Content-Type": "application/pdf" } });

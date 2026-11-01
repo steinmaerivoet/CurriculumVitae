@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { expect, test } from "@playwright/test";
 import { prepareZXingModule, readBarcodes } from "zxing-wasm/reader";
+import { downloadViaPreview } from "./downloads";
 
 // Load the decoder from node_modules instead of a CDN.
 const wasm = readFileSync(createRequire(import.meta.url).resolve("zxing-wasm/reader/zxing_reader.wasm"));
@@ -15,12 +16,9 @@ const decode = async (bytes: Buffer, type: string) => {
   return result;
 };
 
-test("corner button downloads a QR code that scans to the site", async ({ page }) => {
+test("corner button previews and downloads a QR code that scans to the site", async ({ page }) => {
   await page.goto("/");
-  const button = page.getByRole("link", { name: /Download QR code/ });
-  await expect(button).toBeVisible();
-
-  const [download] = await Promise.all([page.waitForEvent("download"), button.click()]);
+  const download = await downloadViaPreview(page, /Download QR code/);
   expect(download.suggestedFilename()).toBe("stein-maerivoet-qr-code.png");
 
   const response = await page.request.get("/stein-maerivoet-qr-code.png");
@@ -40,12 +38,9 @@ test("QR code also ships as SVG", async ({ page }) => {
   expect((await response.text()).startsWith("<svg")).toBe(true);
 });
 
-test("corner button downloads the share card, and its QR code scans to the site", async ({ page }) => {
+test("corner button previews and downloads the share card, and its QR code scans to the site", async ({ page }) => {
   await page.goto("/");
-  const button = page.getByRole("link", { name: /Download share card/ });
-  await expect(button).toBeVisible();
-
-  const [download] = await Promise.all([page.waitForEvent("download"), button.click()]);
+  const download = await downloadViaPreview(page, /Download share card/);
   expect(download.suggestedFilename()).toBe("stein-maerivoet-share-card.png");
 
   const response = await page.request.get("/stein-maerivoet-share-card.png");
@@ -54,7 +49,7 @@ test("corner button downloads the share card, and its QR code scans to the site"
   expect(result?.text).toBe("https://steinmaerivoet.dev");
 });
 
-test("the three downloads are small, stacked CV, QR code, share card, and grow with a preview on hover", async ({ page }, info) => {
+test("the three downloads are small, stacked CV, QR code, share card, and grow on hover", async ({ page }, info) => {
   await page.goto("/#contact");
   const buttons = [/Download CV/, /Download QR code/, /Download share card/].map((name) => page.getByRole("link", { name }));
   const boxes = [];
@@ -67,19 +62,16 @@ test("the three downloads are small, stacked CV, QR code, share card, and grow w
   // At rest they are logos only.
   for (const box of boxes) expect(box.width).toBeLessThan(44);
 
-  // Where a pointer can hover, a button grows to show its label, a preview of the file appears, and its neighbours stay put.
+  // Where a pointer can hover, a button grows to show its label, and its neighbours stay put.
   if (info.project.name !== "desktop" && info.project.name !== "laptop") return;
   await buttons[0]!.hover();
   await expect(async () => expect((await buttons[0]!.boundingBox())!.width).toBeGreaterThan(200)).toPass();
   await expect(page.locator(".dl-cv .dl-label")).toHaveCSS("opacity", "1");
-  const preview = page.locator(".dl-cv .dl-preview img");
-  await expect(preview).toBeVisible();
-  await expect.poll(() => preview.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   expect(await buttons[1]!.boundingBox()).toEqual(boxes[1]);
 });
 
-test("the previews are images of the files", async ({ page }) => {
-  for (const path of ["/stein-maerivoet-curriculum-vitae-preview.png", "/stein-maerivoet-share-card-preview.png"]) {
+test("the PDF preview pages are images", async ({ page }) => {
+  for (const path of ["/stein-maerivoet-curriculum-vitae-page-1.png", "/stein-maerivoet-curriculum-vitae-page-2.png"]) {
     const response = await page.request.get(path);
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain("image/png");

@@ -42,6 +42,11 @@ ui:
   downloadQr: Download QR code
   # Bottom-right button that downloads the share card (the image link previews show, with the QR code).
   downloadShareCard: Download share card
+  # Clicking a download button first shows a preview of the file, with these buttons.
+  downloadAction: Download
+  closeAction: Close
+  # Caption under each page of the PDF preview; {page} and {pages} are filled in.
+  previewPage: "Page {page} of {pages}"
   # Caption next to the QR code at the top of the PDF, so someone with only the PDF finds the site.
   pdfQrCaption: Scan or click for the interactive CV
   # Caption next to the QR code on the share card.

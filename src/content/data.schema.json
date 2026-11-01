@@ -81,6 +81,19 @@
           "default": "Download share card",
           "type": "string"
         },
+        "downloadAction": {
+          "default": "Download",
+          "type": "string"
+        },
+        "closeAction": {
+          "default": "Close",
+          "type": "string"
+        },
+        "previewPage": {
+          "default": "Page {page} of {pages}",
+          "description": "Caption under each page of the PDF preview. {page} and {pages} are filled in.",
+          "type": "string"
+        },
         "pdfQrCaption": {
           "default": "Scan or click for the interactive CV",
           "type": "string"

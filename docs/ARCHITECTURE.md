@@ -412,12 +412,15 @@ figures on the left, and the site's QR code on an ink panel on the right.
 **Download buttons.** `web/shared/Downloads.astro` puts three buttons in the
 bottom-right corner of every theme, top to bottom: the PDF CV, the QR code and
 the share card. `bff/web/downloads.ts` gives each its label (data.yaml `ui`),
-format line, file name and preview. At rest they are a quiet column of small
-logos. The one under the pointer, or in keyboard focus, grows into a pill with
-its label and format, and a preview of the file appears beside it: the PDF's
-first page (rasterised with pdf.js in `pdf/preview.ts`), the QR code's SVG and
-a small share card, all generated at build time and fetched on the first
-interaction. Touch screens keep the logos and download on tap. A theme can set
+format line, file name and preview images. At rest they are a quiet column of
+small logos; the one under the pointer, or in keyboard focus, grows into a pill
+with its label and format. A click opens a dialog that previews the file
+before it is saved, with Download and Close buttons: every page of the PDF
+(scrollable), the QR code or the share card. The PDF pages are rasterised with
+pdf.js at build time (`pdf/build.ts` renders the PDF once and shares the bytes
+with the download, so the preview always matches it). Images load on the first
+open. The dialog carries `data-deck-ignore`, so scrolling it never moves the
+slideshow. Without JavaScript the buttons download directly. A theme can set
 `--dl-radius` and `--dl-label-font`.
 
 ## Hosting and delivery
@@ -492,7 +495,7 @@ npm test            # both
 | E2E | `layout` | Every slide fits on desktop and laptop, in every state. |
 | E2E | `experience`, `skills`, `links` | Selections, filters and cross-links between slides. |
 | E2E | `themes` | The shared conventions, for every theme in the registry. |
-| E2E | `download`, `qr` | The PDF, QR and share card downloads, their order and hover previews, and that both QR codes scan. |
+| E2E | `download`, `qr` | The PDF, QR and share card downloads, the preview dialog (every PDF page, scrolling without moving the deck), and that both QR codes scan. |
 
 The Playwright config builds the site, serves the production build and runs
 on four devices: desktop (1440×900), laptop (1366×768), Pixel 7 and a small

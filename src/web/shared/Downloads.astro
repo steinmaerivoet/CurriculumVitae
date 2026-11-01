@@ -1,13 +1,17 @@
 ---
 import { getCv } from "@/core";
 import { buildDownloads, type DownloadId } from "@/bff/web/downloads";
+import { cvPdfPages } from "@/pdf/build";
 
 // The download buttons in the bottom-right corner, top to bottom: CV (PDF),
 // QR code and share card (both PNG, see src/pages/[file].*.ts). At rest they
-// are a quiet column of small logos. The one under the pointer (or in keyboard
-// focus) grows into a pill with its label and format, and a preview of the
-// file appears beside it. Previews load on the first interaction only.
-const downloads = buildDownloads(getCv());
+// are a quiet column of small logos; the one under the pointer (or in keyboard
+// focus) grows into a pill with its label and format. A click opens a dialog
+// with a preview of the file (every page of the PDF, scrollable) and the
+// download starts from there. Without JavaScript the buttons download directly.
+const cv = getCv();
+const model = buildDownloads(cv, { pdfPages: (await cvPdfPages(cv)).length });
+const downloads = model.items;
 
 const icons: Record<DownloadId, string> = {
   cv: '<path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M9 12.5h6M9 16h4"/>',
@@ -16,11 +20,19 @@ const icons: Record<DownloadId, string> = {
 };
 ---
 
-<div class="downloads pointer-events-none fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex flex-col items-end gap-2 sm:right-4 lg:right-7" data-downloads>
+<div class="downloads pointer-events-none fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex flex-col items-end gap-2 sm:right-4 lg:right-7">
   {
     downloads.map((d) => (
-      <div class={`dl-slot dl-${d.id}`} style={`--dl-ratio: ${d.preview.width} / ${d.preview.height}`}>
-        <a href={d.href} download={d.filename} aria-label={`${d.label} (${d.detail})`} title={`${d.label} (${d.detail})`} class="dl">
+      <div class={`dl-slot dl-${d.id}`}>
+        <a
+          href={d.href}
+          download={d.filename}
+          aria-label={`${d.label} (${d.detail})`}
+          aria-haspopup="dialog"
+          title={`${d.label} (${d.detail})`}
+          class="dl"
+          data-dialog={`dl-dialog-${d.id}`}
+        >
           <span class="dl-logo" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={icons[d.id]} />
           </span>
@@ -34,31 +46,88 @@ const icons: Record<DownloadId, string> = {
             </svg>
           </span>
         </a>
-        <span class="dl-preview" aria-hidden="true">
-          <img data-src={d.preview.src} alt="" width={d.preview.width} height={d.preview.height} decoding="async" />
-        </span>
       </div>
     ))
   }
 </div>
 
+{
+  downloads.map((d) => (
+    <dialog id={`dl-dialog-${d.id}`} class={`dlm dlm-${d.id}`} aria-labelledby={`dl-title-${d.id}`} data-deck-ignore>
+      <div class="dlm-panel">
+        <header class="dlm-head">
+          <span class="dlm-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={icons[d.id]} />
+          </span>
+          <div class="dlm-titles">
+            <h2 id={`dl-title-${d.id}`}>{d.label}</h2>
+            <p>
+              <span class="dlm-file">{d.filename}</span> · {d.detail}
+            </p>
+          </div>
+          <button type="button" class="dlm-close" aria-label={model.closeAction} title={model.closeAction} data-close>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+              <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+            </svg>
+          </button>
+        </header>
+        <div class="dlm-body" tabindex="0">
+          {d.preview.map((img) => (
+            <figure>
+              <img data-src={img.src} alt={img.caption ?? d.label} width={img.width} height={img.height} decoding="async" />
+              {img.caption ? <figcaption>{img.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <footer class="dlm-foot">
+          <button type="button" class="dlm-btn dlm-btn-quiet" data-close>
+            {model.closeAction}
+          </button>
+          <a href={d.href} download={d.filename} class="dlm-btn dlm-btn-primary" data-download autofocus>
+            {model.downloadAction}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 5v10m0 0-4-4m4 4 4-4M6.5 19h11" />
+            </svg>
+          </a>
+        </footer>
+      </div>
+    </dialog>
+  ))
+}
+
 <script>
-  // Fetch the preview images on the first hover or focus, not with the page.
-  const root = document.querySelector<HTMLElement>("[data-downloads]");
-  const load = () => {
-    root?.querySelectorAll<HTMLImageElement>("img[data-src]").forEach((img) => {
-      img.src = img.dataset["src"] ?? "";
-      img.removeAttribute("data-src");
+  // A corner button opens its preview dialog instead of downloading at once.
+  // Modified clicks (new tab, save link) keep the browser's own behaviour.
+  document.querySelectorAll<HTMLAnchorElement>("a.dl[data-dialog]").forEach((button) => {
+    const dialog = document.getElementById(button.dataset["dialog"] ?? "");
+    if (!(dialog instanceof HTMLDialogElement)) return;
+
+    button.addEventListener("click", (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      // Images load on the first open, not with the page.
+      dialog.querySelectorAll<HTMLImageElement>("img[data-src]").forEach((img) => {
+        img.src = img.dataset["src"] ?? "";
+        img.removeAttribute("data-src");
+      });
+      dialog.showModal();
+      dialog.querySelector(".dlm-body")?.scrollTo({ top: 0 });
     });
-  };
-  root?.addEventListener("pointerover", load, { once: true });
-  root?.addEventListener("focusin", load, { once: true });
+
+    dialog.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => dialog.close()));
+    // A click on the backdrop (the dialog itself, outside the panel) closes it.
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    // The download starts from the dialog; close it once the browser has the link.
+    dialog.querySelector("[data-download]")?.addEventListener("click", () => setTimeout(() => dialog.close(), 150));
+  });
 </script>
 
 <style>
   .downloads {
     /* Resting size of a button, and its size when it grows. A theme can set
-       --dl-radius (corners) and --dl-label-font. */
+       --dl-radius (corners, also of the preview dialog) and --dl-label-font. */
     --dl-size: 2.5rem;
     --dl-open: 13.5rem;
     --dl-open-h: 2.75rem;
@@ -168,48 +237,6 @@ const icons: Record<DownloadId, string> = {
     height: 16px;
   }
 
-  /* The preview: a small image of the file, beside the grown button and
-     aligned with its bottom edge. Shown where a pointer can hover. */
-  .dl-preview {
-    pointer-events: none;
-    position: absolute;
-    right: calc(var(--dl-open) + 0.625rem);
-    bottom: calc((var(--dl-size) - var(--dl-open-h)) / 2);
-    width: var(--dl-preview-w, 9.5rem);
-    padding: 0.375rem;
-    border: 1px solid var(--c-line);
-    border-radius: calc(var(--dl-radius, 0.8rem) * 0.9);
-    background: var(--c-bg);
-    box-shadow:
-      0 1px 2px rgb(0 0 0 / 0.06),
-      0 18px 40px -12px rgb(0 0 0 / 0.35);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(8px) scale(0.97);
-    transform-origin: right bottom;
-    transition:
-      opacity 0.25s,
-      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-      visibility 0s 0.25s;
-  }
-  .dl-cv .dl-preview {
-    --dl-preview-w: 12rem;
-  }
-  .dl-share .dl-preview {
-    --dl-preview-w: 16rem;
-  }
-  .dl-preview img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: var(--dl-ratio);
-    border-radius: calc(var(--dl-radius, 0.8rem) * 0.55);
-    background: color-mix(in oklab, var(--c-fg) 6%, transparent);
-  }
-  .dl-cv .dl-preview img {
-    box-shadow: inset 0 0 0 1px var(--c-line);
-  }
-
   /* Grown: under the pointer, or in keyboard focus. */
   @media (hover: hover) {
     .dl:hover {
@@ -249,26 +276,241 @@ const icons: Record<DownloadId, string> = {
     outline: 2px solid var(--c-accent);
     outline-offset: 2px;
   }
-  @media (hover: hover) and (min-width: 768px) {
-    .dl-slot:has(.dl:hover) .dl-preview {
-      opacity: 1;
-      visibility: visible;
-      transform: none;
-      transition:
-        opacity 0.25s 0.08s,
-        transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s,
-        visibility 0s;
+  /* The preview dialog. */
+  .dlm {
+    --dlm-w: 44rem;
+    --dlm-radius: calc(var(--dl-radius, 0.8rem) * 1.5);
+    width: calc(100vw - 2rem);
+    max-width: var(--dlm-w);
+    max-height: calc(100dvh - 3rem);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
+    color: var(--c-fg);
+  }
+  .dlm-qr {
+    --dlm-w: 30rem;
+  }
+  .dlm-share {
+    --dlm-w: 52rem;
+  }
+  .dlm::backdrop {
+    background: rgb(8 9 12 / 0.55);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .dlm[open] .dlm-panel {
+    animation: dlm-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dlm[open]::backdrop {
+    animation: dlm-fade 0.3s ease-out;
+  }
+  .dlm-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 3rem);
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    border-radius: var(--dlm-radius);
+    background: var(--c-bg);
+    box-shadow:
+      0 2px 6px rgb(0 0 0 / 0.08),
+      0 40px 90px -24px rgb(0 0 0 / 0.5);
+  }
+
+  .dlm-head {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 0.875rem 0.875rem 1.125rem;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .dlm-logo {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: calc(var(--dlm-radius) * 0.6);
+    color: var(--c-accent);
+    background: color-mix(in oklab, var(--c-accent) 14%, transparent);
+  }
+  .dlm-logo svg {
+    width: 20px;
+    height: 20px;
+  }
+  .dlm-titles {
+    flex: 1;
+    min-width: 0;
+  }
+  .dlm-titles h2 {
+    font-family: var(--dl-label-font, inherit);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .dlm-titles p {
+    margin-top: 2px;
+    overflow: hidden;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--c-mute);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .dlm-file {
+    color: color-mix(in oklab, var(--c-fg) 75%, transparent);
+  }
+  .dlm-close {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    color: var(--c-mute);
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+  }
+  .dlm-close:hover {
+    color: var(--c-fg);
+    background: color-mix(in oklab, var(--c-fg) 8%, transparent);
+  }
+  .dlm-close svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dlm-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: color-mix(in oklab, var(--c-fg) 5%, var(--c-bg));
+  }
+  .dlm-body:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: -2px;
+  }
+  .dlm-body figure {
+    width: 100%;
+  }
+  .dlm-qr .dlm-body figure {
+    max-width: 20rem;
+  }
+  .dlm-body img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.06),
+      0 12px 32px -14px rgb(0 0 0 / 0.4);
+  }
+  .dlm-qr .dlm-body img,
+  .dlm-share .dlm-body img {
+    border-radius: calc(var(--dlm-radius) * 0.7);
+  }
+  .dlm-body figcaption {
+    margin-top: 0.625rem;
+    text-align: center;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--c-mute);
+  }
+
+  .dlm-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 0.875rem;
+    border-top: 1px solid var(--c-line);
+  }
+  .dlm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 1.125rem;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      transform 0.2s;
+  }
+  .dlm-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  .dlm-btn-quiet {
+    color: color-mix(in oklab, var(--c-fg) 75%, transparent);
+  }
+  .dlm-btn-quiet:hover {
+    color: var(--c-fg);
+    background: color-mix(in oklab, var(--c-fg) 8%, transparent);
+  }
+  .dlm-btn-primary {
+    color: var(--c-on-accent);
+    background: var(--c-accent);
+  }
+  .dlm-btn-primary:hover {
+    background: color-mix(in oklab, var(--c-accent) 85%, var(--c-fg));
+  }
+  .dlm-btn:active {
+    transform: scale(0.98);
+  }
+  .dlm-btn:focus-visible,
+  .dlm-close:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+
+  /* Phones: a sheet from the bottom. */
+  @media (max-width: 639px) {
+    .dlm {
+      width: 100vw;
+      max-width: 100vw;
+      max-height: 92dvh;
+      margin: auto 0 0;
+    }
+    .dlm-panel {
+      max-height: 92dvh;
+      border-width: 1px 0 0;
+      border-radius: var(--dlm-radius) var(--dlm-radius) 0 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .dlm-body {
+      padding: 1rem;
+      gap: 1rem;
+    }
+    .dlm-foot .dlm-btn {
+      flex: 1;
+      justify-content: center;
     }
   }
-  @media (min-width: 768px) {
-    .dl-slot:has(.dl:focus-visible) .dl-preview {
-      opacity: 1;
-      visibility: visible;
-      transform: none;
-      transition:
-        opacity 0.25s,
-        transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-        visibility 0s;
+
+  @keyframes dlm-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.985);
+    }
+  }
+  @keyframes dlm-fade {
+    from {
+      opacity: 0;
     }
   }
 
@@ -285,9 +527,12 @@ const icons: Record<DownloadId, string> = {
     .dl,
     .dl-logo,
     .dl-text,
-    .dl-arrow,
-    .dl-preview {
+    .dl-arrow {
       transition: none !important;
+    }
+    .dlm[open] .dlm-panel,
+    .dlm[open]::backdrop {
+      animation: none;
     }
   }
 </style>

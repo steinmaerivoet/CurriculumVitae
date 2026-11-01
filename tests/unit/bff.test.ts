@@ -173,11 +173,13 @@ describe("SEO BFF", () => {
 });
 
 describe("download buttons", () => {
-  const downloads = buildDownloads(cv);
+  const model = buildDownloads(cv, { pdfPages: 2 });
+  const downloads = model.items;
 
   it("lists the CV, the QR code and the share card, in that order", () => {
     expect(downloads.map((d) => d.id)).toEqual(["cv", "qr", "share"]);
     expect(downloads.map((d) => d.label)).toEqual([cv.ui.downloadCv, cv.ui.downloadQr, cv.ui.downloadShareCard]);
+    expect(model).toMatchObject({ downloadAction: cv.ui.downloadAction, closeAction: cv.ui.closeAction });
   });
 
   it("points at the generated files and names them after the person", () => {
@@ -188,11 +190,12 @@ describe("download buttons", () => {
     expect(downloads[2]!.href).toBe(new URL(buildPageMeta(cv).image.url).pathname);
   });
 
-  it("gives every download a preview with the file's shape", () => {
+  it("previews every page of the PDF, and the images themselves", () => {
     const [pdf, qr, share] = downloads.map((d) => d.preview);
-    expect(pdf!.height / pdf!.width).toBeCloseTo(Math.SQRT2, 2);
-    expect(qr!.width).toBe(qr!.height);
-    expect(share).toMatchObject({ width: SHARE_CARD.width, height: SHARE_CARD.height });
-    expect(new Set(downloads.map((d) => d.preview.src)).size).toBe(3);
+    expect(pdf!.map((p) => p.src)).toEqual(["/stein-maerivoet-curriculum-vitae-page-1.png", "/stein-maerivoet-curriculum-vitae-page-2.png"]);
+    expect(pdf![1]!.caption).toBe("Page 2 of 2");
+    expect(pdf![0]!.height / pdf![0]!.width).toBeCloseTo(Math.SQRT2, 2);
+    expect(qr!.map((p) => p.src)).toEqual([downloads[1]!.href]);
+    expect(share).toEqual([{ src: downloads[2]!.href, width: SHARE_CARD.width, height: SHARE_CARD.height }]);
   });
 });
