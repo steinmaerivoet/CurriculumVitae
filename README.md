@@ -41,7 +41,7 @@ A CV that feels like a deck of slides rather than a long page. Every scroll, swi
 - **Magnetic slide snapping.** Wheel and trackpad pull the page with growing resistance, then let go and glide. One gesture moves at most one slide, including the inertia a trackpad or Magic Mouse adds after the fingers lift.
 - **Skills at the centre.** Each skill shows its level, since when and where it was used. A hidden "Network" view draws the whole graph of skills, employers and projects.
 - **Cross-links everywhere.** Technology chips, "Used in" lists and the JSON shown in the API reference theme are all links to the right slide and item.
-- **Content-only edits.** All copy lives in [`src/content/cv.yaml`](src/content/cv.yaml), validated by a zod schema at build time. A broken link or a missing field fails the build with the exact path.
+- **Content-only edits.** All copy lives in [`src/content/data.yaml`](src/content/data.yaml), validated by a zod schema at build time. A broken link or a missing field fails the build with the exact path.
 - **Static and fast.** Everything is rendered at build time. A visitor downloads only the theme they look at, and icons ship once as an SVG sprite.
 - **Found and shared well.** The whole career is in schema.org JSON-LD, link previews get a share card drawn from the CV, and `robots.txt` and `sitemap.xml` are generated.
 - **Accessible.** Inactive slides are `inert`, tabs and panels have proper roles, deep links work (`/#skills`), and "reduce motion" is respected.
@@ -70,7 +70,7 @@ Pick a theme with the switcher at the top of the page. The current slide travels
 
 ## Everything one build publishes
 
-`npm run build` turns `cv.yaml` into a folder of static files in `dist/`:
+`npm run build` turns `data.yaml` into a folder of static files in `dist/`:
 
 | Output | Path | Built by |
 | --- | --- | --- |
@@ -96,6 +96,7 @@ npm run dev          # http://localhost:4321, with hot reload
 | --- | --- |
 | `npm run dev` | Development server on port 4321. |
 | `npm run build` | `astro check` (type-check) and the production build into `dist/`. |
+| `npm run schema` | Regenerate `src/content/data.schema.json` after changing the zod schema. |
 | `npm run preview` | Serve the production build. |
 | `npm run test:unit` | Vitest: content service and BFFs. Fast, no browser. |
 | `npm run test:e2e` | Playwright: builds, serves and drives every theme on four devices. |
@@ -105,7 +106,7 @@ npm run dev          # http://localhost:4321, with hot reload
 
 ## Editing the CV
 
-**All content lives in [`src/content/cv.yaml`](src/content/cv.yaml).** No component holds copy. Without touching code you can:
+**All content lives in [`src/content/data.yaml`](src/content/data.yaml).** No component holds copy. Without touching code you can:
 
 - change any text, role, project, skill, language or contact detail;
 - add or remove items, and the layout adapts;
@@ -134,7 +135,7 @@ projects:
       tags: [Java, Kubernetes, Helm]
 ```
 
-The build validates the file and stops with a clear message, for example `experience.items.0.roles: Required` or `projects.Foo.employer: "Acme" is not a company under experience`. The full guide is in [docs/CONTENT.md](docs/CONTENT.md).
+Your editor checks the file as you type: [`src/content/data.schema.json`](src/content/data.schema.json) is a JSON Schema generated from the zod schema, and the first line of `data.yaml` points VS Code (with the recommended YAML extension) and IntelliJ to it, for autocomplete, hover docs and red underlines on typos. The build validates the file again and stops with a clear message, for example `experience.items.0.roles: Required` or `projects.Foo.employer: "Acme" is not a company under experience`. The full guide is in [docs/CONTENT.md](docs/CONTENT.md).
 
 ## How it works
 
@@ -142,7 +143,7 @@ One content file, one content service, a backend-for-frontend (BFF) per consumer
 
 ```mermaid
 flowchart TB
-  yaml[("src/content/cv.yaml<br/>every fact, stated once")]
+  yaml[("src/content/data.yaml<br/>every fact, stated once")]
 
   subgraph core["Core · src/core"]
     direction LR
@@ -182,7 +183,8 @@ Dependencies only point down. A theme never imports runtime code from `src/core`
 
 ```
 src/
-  content/cv.yaml          all content
+  content/data.yaml          all content
+  content/data.schema.json   JSON Schema for editors, generated from core/schema.ts
   core/                    content service: schema (zod), loader, linker, domain model
   bff/
     web/deck.ts            DeckModel shared by every website theme
@@ -233,7 +235,7 @@ The UX rules the tests enforce:
 | Builds | Cloudflare Workers Builds, connected to this GitHub repo |
 | Email | Cloudflare Email Routing forwards `hello@steinmaerivoet.dev` to a private mailbox |
 
-Every push to `main` builds and goes live on [steinmaerivoet.dev](https://steinmaerivoet.dev). Other branches and pull requests get their own preview URL on `*.workers.dev`. A build that fails (for example on a typo in `cv.yaml`) never replaces the live site. Response headers (long caching for hashed assets, CORS for the API, security headers) come from [`public/_headers`](public/_headers).
+Every push to `main` builds and goes live on [steinmaerivoet.dev](https://steinmaerivoet.dev). Other branches and pull requests get their own preview URL on `*.workers.dev`. A build that fails (for example on a typo in `data.yaml`) never replaces the live site. Response headers (long caching for hashed assets, CORS for the API, security headers) come from [`public/_headers`](public/_headers).
 
 Every step taken to set this up, from buying the domain to email forwarding, is in **[CLOUDFLARE.md](CLOUDFLARE.md)**.
 
@@ -242,7 +244,7 @@ Every step taken to set this up, from buying the domain to email forwarding, is 
 | Document | For |
 | --- | --- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, build pipeline, linking model, deck engine, themes, recipes. With diagrams. |
-| [docs/CONTENT.md](docs/CONTENT.md) | Editing `cv.yaml`: every section, linking rules, validation, adding slides. |
+| [docs/CONTENT.md](docs/CONTENT.md) | Editing `data.yaml`: every section, linking rules, validation, adding slides. |
 | [CLOUDFLARE.md](CLOUDFLARE.md) | Domain, DNS, Workers deployment and email: every setup step. |
 | [CLAUDE.md](CLAUDE.md) | Rules for AI-assisted edits to this repo. |
 

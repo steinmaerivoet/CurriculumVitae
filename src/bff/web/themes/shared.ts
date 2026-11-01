@@ -1,6 +1,6 @@
 import type { Cv } from "@/core";
 
-/** A language with a share from 0 to 1 for a bar. The order in cv.yaml is the ranking. */
+/** A language with a share from 0 to 1 for a bar. The order in data.yaml is the ranking. */
 export type LanguageShare = { name: string; level: string; share: number };
 
 export const languageShares = (cv: Pick<Cv, "education">): LanguageShare[] =>

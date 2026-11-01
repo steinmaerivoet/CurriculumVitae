@@ -43,7 +43,7 @@ export type PdfModel = {
   projects?: { title: string; items: PdfProject[] } | undefined;
 };
 
-// Print-only headings. TODO: move to cv.yaml if the PDF ever needs another language.
+// Print-only headings. TODO: move to data.yaml if the PDF ever needs another language.
 const LABELS = { contact: "Contact", email: "Email", location: "Location", website: "Website", profile: "Profile" };
 
 /** A titled block, left out when its section is hidden or has nothing to show. */

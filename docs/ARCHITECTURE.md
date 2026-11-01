@@ -22,7 +22,7 @@ hand each front end exactly the data it renders.
 
 ```mermaid
 flowchart TB
-  yaml[("src/content/cv.yaml")]
+  yaml[("src/content/data.yaml")]
 
   subgraph core["Core (src/core): the content service"]
     direction LR
@@ -74,7 +74,7 @@ flowchart TB
 
 | Layer | Folder | Knows about | Responsibility |
 | --- | --- | --- | --- |
-| Content | `src/content/cv.yaml` | nothing | Every fact, stated once. |
+| Content | `src/content/data.yaml` | nothing | Every fact, stated once. `data.schema.json` next to it is generated from `schema.ts` for editors. |
 | Core | `src/core` | content | `schema.ts` validates (zod), `loader.ts` parses, `linker.ts` links and derives (usage, refs, graph, counted stats). `model.ts` holds the domain types. Fails the build on bad content. |
 | BFF | `src/bff` | core | Shapes the domain model for one consumer. Formatting shared by all front ends is in `bff/shared` (`range`, file names, icons). |
 | Engine | `src/web/deck` | BFF types | The slideshow: track, snap, input, reveals, cross-link routing. Knows nothing about how a slide looks. |
@@ -90,7 +90,7 @@ a website, a PDF or an API.
 
 `npm run build` runs `astro check` (TypeScript in strictest mode, including
 `.astro` files) and then `astro build`. Every page and endpoint asks the core
-for the CV through `getCv()`, which parses and links `cv.yaml` once and caches
+for the CV through `getCv()`, which parses and links `data.yaml` once and caches
 the result for the rest of the build.
 
 ```mermaid
@@ -136,7 +136,7 @@ disagree.
 
 ## The content model and the linker
 
-The CV is about skills. `cv.yaml` states each fact once, and `linker.ts`
+The CV is about skills. `data.yaml` states each fact once, and `linker.ts`
 derives every other direction of every link.
 
 ```mermaid
@@ -374,7 +374,7 @@ test suite (`tests/e2e/themes.spec.ts`) check all of them.
   slide whose content changes with a selection anchors to the top, so nothing
   above the selection moves.
 - Theme vocabulary (shell commands, HTTP methods, git verbs) lives in the
-  theme's presenter. CV content and UI copy live in `cv.yaml`.
+  theme's presenter. CV content and UI copy live in `data.yaml`.
 
 ## Other front ends: PDF, QR code, API, SEO
 
@@ -404,7 +404,7 @@ CORS for `/api/*`.
 `bff/seo` gives crawlers the whole CV another way: `Layout.astro` puts the
 schema.org `ProfilePage` / `Person` (every role, its story, projects and
 skills) in a JSON-LD script, and the Open Graph tags point at a share card
-that `og/shareCard.ts` draws from cv.yaml and renders to PNG at build time
+that `og/shareCard.ts` draws from data.yaml and renders to PNG at build time
 (resvg, with the site's own fonts). `robots.txt` and `sitemap.xml` are
 generated from `meta.url`.
 
@@ -439,14 +439,14 @@ policy and `X-Frame-Options`.
 ## Recipes
 
 **New field in the CV.** Add it to `src/core/schema.ts` (with a default) and
-to `cv.yaml`. If it needs deriving, do it in `linker.ts`. Then expose it in
+to `data.yaml`. If it needs deriving, do it in `linker.ts`. Then expose it in
 the BFF of each front end that should show it.
 
 **New slide.** Add the id to `sectionIds` in `src/core/model.ts` and its
 content to the schema. Give every theme a component in
 `src/web/themes/<id>/slides/` and register it in that theme's `slides`
 (TypeScript reports a theme that forgets one). Add the id to `slides` in
-`cv.yaml`.
+`data.yaml`.
 
 **New theme.** Add it to the registry, add `src/web/themes/<id>/` (an
 `index.tsx` island, `Chrome.tsx`, `theme.css`, one component per slide), a

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("corner button downloads the PDF CV generated from cv.yaml", async ({ page }) => {
+test("corner button downloads the PDF CV generated from data.yaml", async ({ page }) => {
   await page.goto("/");
   const button = page.getByRole("link", { name: /Download CV/ });
   await expect(button).toBeVisible();

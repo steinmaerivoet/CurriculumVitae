@@ -74,7 +74,7 @@ export function buildStructuredData(cv: Cv) {
   };
 }
 
-/** What the share card (Open Graph image) shows. All of it comes from cv.yaml. */
+/** What the share card (Open Graph image) shows. All of it comes from data.yaml. */
 export type ShareCard = {
   firstName: string;
   lastName: string;

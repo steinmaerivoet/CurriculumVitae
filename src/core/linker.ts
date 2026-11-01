@@ -5,7 +5,7 @@ import { matches, norm, slug } from "./matching";
 /**
  * Links skills, employers and projects into one web.
  *
- * cv.yaml states each fact once:
+ * data.yaml states each fact once:
  *   - project.employer  → employer (by company name)
  *   - employer.tech     → skills (by name, or a skill's `match` terms)
  *   - project.tags      → skills (same matching)
@@ -15,7 +15,7 @@ import { matches, norm, slug } from "./matching";
 
 export class CvLinkError extends Error {
   constructor(readonly problems: string[]) {
-    super(`src/content/cv.yaml has broken links:\n  • ${problems.join("\n  • ")}`);
+    super(`src/content/data.yaml has broken links:\n  • ${problems.join("\n  • ")}`);
     this.name = "CvLinkError";
   }
 }
@@ -126,7 +126,7 @@ function buildGraph(groups: SkillGroup[], employers: Employer[], projects: Proje
   return { nodes, edges: [...edges].map((k) => k.split("|") as [string, string]) };
 }
 
-/** Turns validated cv.yaml into the linked domain model. */
+/** Turns validated data.yaml into the linked domain model. */
 export function link(input: CvInput, now: Date = new Date()): Cv {
   const problems: string[] = [];
   const toTerms = termResolver(input);

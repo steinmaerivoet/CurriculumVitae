@@ -31,7 +31,7 @@ export function iconSprite(specs: Iterable<string | undefined>): IconSymbol[] {
 const sets: Record<string, IconifyJSON> = { lucide: lucide as IconifyJSON, devicon: devicon as IconifyJSON };
 
 /**
- * `icon` in cv.yaml is either a Simple Icons slug ("kubernetes"), or a
+ * `icon` in data.yaml is either a Simple Icons slug ("kubernetes"), or a
  * prefixed Iconify name: "lucide:boxes" for concepts, "devicon:azure" for
  * logos Simple Icons doesn't carry.
  */
@@ -54,7 +54,7 @@ function resolve(spec: string | undefined): SkillIcon | null {
     const set = sets[prefix];
     const data = set && name ? getIconData(set, name) : null;
     if (!data) {
-      console.warn(`[cv.yaml] Unknown icon "${spec}". Browse https://icon-sets.iconify.design/${prefix}/`);
+      console.warn(`[data.yaml] Unknown icon "${spec}". Browse https://icon-sets.iconify.design/${prefix}/`);
       return null;
     }
     const svg = iconToSVG(data);
@@ -73,7 +73,7 @@ function resolve(spec: string | undefined): SkillIcon | null {
   const key = "si" + spec.charAt(0).toUpperCase() + spec.slice(1);
   const icon = (simpleIcons as unknown as Record<string, { path: string } | undefined>)[key];
   if (!icon) {
-    console.warn(`[cv.yaml] Unknown icon "${spec}". See https://simpleicons.org for valid slugs.`);
+    console.warn(`[data.yaml] Unknown icon "${spec}". See https://simpleicons.org for valid slugs.`);
     return null;
   }
   return { body: `<path d="${icon.path}"/>`, viewBox: "0 0 24 24" };

@@ -1,0 +1,689 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "The site's address. Used for the QR code, the sitemap and link previews."
+        },
+        "lang": {
+          "default": "en",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "url"
+      ],
+      "additionalProperties": false
+    },
+    "slides": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "hero",
+          "about",
+          "experience",
+          "skills",
+          "projects",
+          "education",
+          "contact"
+        ]
+      },
+      "description": "Order and visibility of the slides. Leave one out to hide it on the site and in the PDF."
+    },
+    "ui": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "introLabel": {
+          "default": "Intro",
+          "type": "string"
+        },
+        "scrollHint": {
+          "default": "Scroll",
+          "type": "string"
+        },
+        "talkButton": {
+          "default": "Let's talk",
+          "type": "string"
+        },
+        "contentsLabel": {
+          "default": "Contents",
+          "type": "string"
+        },
+        "footer": {
+          "default": "",
+          "type": "string"
+        },
+        "downloadCv": {
+          "default": "Download CV",
+          "type": "string"
+        },
+        "downloadQr": {
+          "default": "Download QR code",
+          "type": "string"
+        },
+        "pdfQrCaption": {
+          "default": "Scan or click for the interactive CV",
+          "type": "string"
+        },
+        "themeLabel": {
+          "default": "Theme",
+          "type": "string"
+        }
+      }
+    },
+    "person": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "headline": {
+          "type": "string"
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+          "description": "Public address, shown on the site, in the PDF and in the API."
+        },
+        "available": {
+          "default": false,
+          "type": "boolean"
+        },
+        "availabilityText": {
+          "type": "string"
+        },
+        "socials": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "label",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName",
+        "headline",
+        "tagline",
+        "location",
+        "email"
+      ],
+      "additionalProperties": false
+    },
+    "about": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "default": "About",
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "paragraphs": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stats": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "enum": [
+                      "technologies",
+                      "skills",
+                      "projects"
+                    ]
+                  }
+                ]
+              },
+              "suffix": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "statement"
+      ],
+      "additionalProperties": false
+    },
+    "experience": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "default": "Experience",
+          "type": "string"
+        },
+        "presentLabel": {
+          "default": "Present",
+          "type": "string"
+        },
+        "projectsLabel": {
+          "default": "Projects",
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "company": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "roles": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "start": {
+                      "description": "A year, such as 2026 or \"2026\".",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "end": {
+                      "anyOf": [
+                        {
+                          "description": "A year, such as 2026 or \"2026\".",
+                          "type": [
+                            "string",
+                            "number"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "start"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              },
+              "highlights": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tech": {
+                "default": [],
+                "description": "Technologies used here. Names that match a skill become links.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "company",
+              "roles",
+              "summary"
+            ]
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "default": "Skills",
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "allLabel": {
+          "default": "All",
+          "type": "string"
+        },
+        "kindLabels": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "technology": {
+              "default": "Technologies",
+              "type": "string"
+            },
+            "practice": {
+              "default": "Ways of working",
+              "type": "string"
+            },
+            "tool": {
+              "default": "Tools",
+              "type": "string"
+            }
+          }
+        },
+        "hint": {
+          "default": "Select a skill to see where I used it.",
+          "type": "string"
+        },
+        "graphButton": {
+          "default": "Network",
+          "type": "string"
+        },
+        "graphTitle": {
+          "default": "How it all connects",
+          "type": "string"
+        },
+        "graphHint": {
+          "default": "Hover to see the connections, click to go there.",
+          "type": "string"
+        },
+        "usedInLabel": {
+          "default": "Used in",
+          "type": "string"
+        },
+        "sinceLabel": {
+          "default": "Since",
+          "type": "string"
+        },
+        "yearsLabel": {
+          "default": "years",
+          "type": "string"
+        },
+        "levelLabels": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "expert": {
+              "default": "Expert",
+              "type": "string"
+            },
+            "advanced": {
+              "default": "Advanced",
+              "type": "string"
+            },
+            "familiar": {
+              "default": "Familiar",
+              "type": "string"
+            }
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "kind": {
+                "default": "technology",
+                "type": "string",
+                "enum": [
+                  "technology",
+                  "practice",
+                  "tool"
+                ]
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "The skill's name. Experience `tech` and project `tags` link to it by this name."
+                        },
+                        "level": {
+                          "type": "string",
+                          "enum": [
+                            "expert",
+                            "advanced",
+                            "familiar"
+                          ]
+                        },
+                        "since": {
+                          "description": "Year you started using it. Derived from the first employer that used it when left out.",
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "icon": {
+                          "description": "A Simple Icons slug (kubernetes), devicon:<name> or lucide:<name>.",
+                          "type": "string"
+                        },
+                        "match": {
+                          "default": [],
+                          "description": "Other names that link to this skill from `tech` and `tags`, such as Postgres for PostgreSQL.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "items"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "groups"
+      ],
+      "additionalProperties": false
+    },
+    "projects": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "default": "Projects",
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "employer": {
+                "description": "Must equal a `company` under experience.",
+                "type": "string"
+              },
+              "period": {
+                "description": "A year, such as 2026 or \"2026\".",
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "featured": {
+                "default": false,
+                "description": "Give the project its own card on the projects slide.",
+                "type": "boolean"
+              },
+              "meta": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "tags": {
+                "default": [],
+                "description": "Skills the project involved. Names that match a skill become links.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "education": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "default": "Education",
+          "type": "string"
+        },
+        "languagesLabel": {
+          "default": "Languages",
+          "type": "string"
+        },
+        "certificationsLabel": {
+          "default": "Certifications",
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "school": {
+                "type": "string"
+              },
+              "degree": {
+                "type": "string"
+              },
+              "start": {
+                "description": "A year, such as 2026 or \"2026\".",
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "end": {
+                "description": "A year, such as 2026 or \"2026\".",
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "school",
+              "degree",
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "year": {
+                "description": "A year, such as 2026 or \"2026\".",
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "name",
+              "issuer"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "languages": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "level": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "level"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "default": "Contact",
+          "type": "string"
+        },
+        "heading": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "cta": {
+          "default": "Say hello",
+          "type": "string"
+        }
+      },
+      "required": [
+        "heading",
+        "text"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "meta",
+    "slides",
+    "person",
+    "about",
+    "experience",
+    "skills",
+    "projects",
+    "education",
+    "contact"
+  ],
+  "additionalProperties": false,
+  "title": "CV content",
+  "description": "Everything the site, the PDF and the JSON API show. Validated on every build by src/core/schema.ts."
+}

@@ -27,7 +27,7 @@ describe("shared formatting", () => {
 describe("web deck BFF", () => {
   const deck = buildDeckModel(cv);
 
-  it("labels every section and keeps the order of cv.yaml", () => {
+  it("labels every section and keeps the order of data.yaml", () => {
     expect(deck.sections.map((s) => s.id)).toEqual(cv.sections);
     expect(deck.sections.every((s) => s.label.length > 0)).toBe(true);
   });
@@ -145,7 +145,7 @@ describe("SEO BFF", () => {
     expect(meta.canonical).toBe(new URL("/", cv.meta.url).toString());
   });
 
-  it("draws the share card from cv.yaml, escaped", () => {
+  it("draws the share card from data.yaml, escaped", () => {
     const svg = shareCardSvg({ ...buildShareCard(cv), headline: "R&D <lead>" });
     expect(svg).toContain(cv.person.lastName);
     expect(svg).toContain("R&amp;D &lt;lead&gt;");

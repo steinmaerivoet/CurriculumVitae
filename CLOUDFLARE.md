@@ -105,7 +105,7 @@ request gets a preview at
 `<branch>-curriculumvitae.steinmaerivoet.workers.dev`, and the build status
 shows up as a check on the pull request.
 
-`npm run build` also validates `src/content/cv.yaml`. If the content is
+`npm run build` also validates `src/content/data.yaml`. If the content is
 broken, the build fails with the field that is wrong, and the previous version
 stays online.
 
@@ -144,7 +144,7 @@ It is free.
    mailbox. Confirm the verification email Cloudflare sends there.
 3. Let Cloudflare add the **MX** and **TXT** records it asks for.
 4. Send a test mail to `hello@steinmaerivoet.dev`.
-5. Set `person.email` in [`src/content/cv.yaml`](src/content/cv.yaml) to the
+5. Set `person.email` in [`src/content/data.yaml`](src/content/data.yaml) to the
    new address. It shows on the site, in the PDF, in the JSON API and in the
    structured data.
 
@@ -158,6 +158,6 @@ Replies still go out from the private mailbox.
 | "Hostname already has externally managed DNS records" | Delete the old A, AAAA and CNAME records for `@` (step 6). |
 | "Too many redirects" | Set **SSL/TLS → Overview** to **Full**. |
 | Preview build fails about a `previews` block | Keep `"previews": {}` in `wrangler.jsonc`. |
-| Build fails | Open the build log of the Worker. Usually it is a typo in `cv.yaml`, and the message names the field. |
+| Build fails | Open the build log of the Worker. Usually it is a typo in `data.yaml`, and the message names the field. |
 | Pushes to `main` don't deploy | Check **Settings → Build → Branch control** on the Worker. |
 | Mail to hello@ doesn't arrive | Check **Email → Email Routing** for the destination's verification, and that the MX and TXT records are still there. |

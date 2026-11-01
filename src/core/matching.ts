@@ -1,5 +1,5 @@
 /**
- * How labels in cv.yaml are compared and turned into ids.
+ * How labels in data.yaml are compared and turned into ids.
  * One place, so every layer links and slugs the same way.
  */
 

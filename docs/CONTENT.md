@@ -1,7 +1,7 @@
 # Editing the CV
 
 Everything a visitor reads, on the site, in the PDF and in the API, comes from
-one file: [`src/content/cv.yaml`](../src/content/cv.yaml). Components never
+one file: [`src/content/data.yaml`](../src/content/data.yaml). Components never
 hold copy. Change the YAML, run `npm run dev`, and every theme, the PDF and
 the API follow.
 
@@ -88,18 +88,37 @@ no edges points to a missing link. The unit tests fail on it too.
 
 ## Validation
 
-The schema in [`src/core/schema.ts`](../src/core/schema.ts) checks the file on
-every build and every dev reload. Problems are reported with their path, all
+**While you type.** [`data.schema.json`](../src/content/data.schema.json),
+next to `data.yaml`, is a JSON Schema generated from the zod schema. The first
+line of `data.yaml` tells editors to use it:
+
+```yaml
+# yaml-language-server: $schema=./data.schema.json
+```
+
+VS Code with the [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+(recommended by the repo) and IntelliJ then give autocomplete, hover docs and
+red underlines for wrong types, missing fields and unknown keys. The JSON
+Schema cannot check links between items, such as a wrong `employer:` name;
+the build does that.
+
+Never edit `data.schema.json` by hand. After changing `src/core/schema.ts`,
+run `npm run schema` to regenerate it. A unit test fails when it is out of
+date.
+
+**On every build.** The schema in [`src/core/schema.ts`](../src/core/schema.ts)
+checks the file on every build and every dev reload. Unknown keys are errors
+too, so a typo such as `employr:` never goes unnoticed. Problems are reported with their path, all
 at once:
 
 ```text
-src/content/cv.yaml is invalid:
+src/content/data.yaml is invalid:
   • experience.items.0.roles: Required
   • person.email: Invalid email address
 ```
 
 ```text
-src/content/cv.yaml has broken links:
+src/content/data.yaml has broken links:
   • projects.Winfri platform.employer: "Winfry" is not a company under experience
 ```
 
@@ -146,8 +165,9 @@ and from the PDF.
 
 New copy always goes into the schema and the YAML, never into a component:
 
-1. Add the field to `src/core/schema.ts` with a sensible default.
-2. Add it to `cv.yaml`.
+1. Add the field to `src/core/schema.ts` with a sensible default, and run
+   `npm run schema` so editors know it too.
+2. Add it to `data.yaml`.
 3. If it needs deriving, do it in `src/core/linker.ts`.
 4. Expose it in the BFF of every front end that should show it.
 
