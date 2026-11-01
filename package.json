@@ -1,7 +1,7 @@
 {
   "name": "steinmaerivoet-dev",
   "version": "1.0.0",
-  "description": "Persoonlijke CV-website als interactieve verticale slideshow.",
+  "description": "Personal CV website as an interactive vertical slideshow.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",

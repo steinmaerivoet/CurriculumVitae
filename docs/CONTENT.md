@@ -139,7 +139,7 @@ for synonyms.
 its skills. Set `featured: true` to give it its own card.
 
 ```yaml
-- name: Verkeerscentrum
+- name: Flemish Traffic Centre
   employer: Ixor
   period: 2022 – 2023
   featured: true

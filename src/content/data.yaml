@@ -1,13 +1,13 @@
 # yaml-language-server: $schema=./data.schema.json
 # ─────────────────────────────────────────────────────────────────────────────
-#  Alle inhoud van de website staat in dit bestand.
+#  All content of the website lives in this file.
 #
-#  - Pas tekst aan, voeg items toe of verwijder ze: de site past zich aan.
-#  - Volgorde van de slides wijzigen of een slide verbergen: zie `slides`.
-#  - Het bestand wordt bij elke build gecontroleerd. Een fout (bv. een
-#    verplicht veld vergeten) geeft een duidelijke melding met het pad.
-#  - Bron: LinkedIn-profiel (oktober 2026). Regels met "TODO" verdienen nog
-#    een blik van jou.
+#  - Change text, add items or remove them: the site adapts.
+#  - To reorder the slides or hide a slide: see `slides`.
+#  - The file is validated on every build. A mistake (e.g. a forgotten
+#    required field) gives a clear message with the path.
+#  - Source: LinkedIn profile (October 2026). Lines marked "TODO" still
+#    need a look from you.
 # ─────────────────────────────────────────────────────────────────────────────
 
 meta:
@@ -18,8 +18,8 @@ meta:
   url: https://steinmaerivoet.dev
   lang: en
 
-# Volgorde en zichtbaarheid van de slides. Laat een regel weg om de slide te verbergen.
-# Mogelijke waarden: hero, about, experience, skills, projects, education, contact
+# Order and visibility of the slides. Leave out a line to hide that slide.
+# Possible values: hero, about, experience, skills, projects, education, contact
 slides:
   - hero
   - about
@@ -29,18 +29,18 @@ slides:
   - education
   - contact
 
-# Kleine teksten in de navigatie en knoppen.
+# Short texts in the navigation and buttons.
 ui:
   introLabel: Intro
   scrollHint: Scroll
   talkButton: Let's talk
   contentsLabel: Contents
   footer: Built with Astro, React & GSAP
-  # Knop rechtsonder die de PDF-versie van dit CV downloadt (gegenereerd bij de build).
+  # Bottom-right button that downloads the PDF version of this CV (generated at build time).
   downloadCv: Download CV
-  # Knop rechtsonder die een QR-code naar deze site downloadt (PNG, gegenereerd bij de build).
+  # Bottom-right button that downloads a QR code to this site (PNG, generated at build time).
   downloadQr: Download QR code
-  # Tekst bij de QR-code bovenaan de PDF, zodat wie enkel de PDF heeft de site vindt.
+  # Caption next to the QR code at the top of the PDF, so someone with only the PDF finds the site.
   pdfQrCaption: Scan or click for the interactive CV
 
 person:
@@ -51,10 +51,10 @@ person:
     A passionate engineer on a continuous quest to improve the efficiency of
     everything around me.
   location: Mechelen, Belgium
-  # Publiek adres; Cloudflare Email Routing stuurt het door naar je eigen
-  # mailbox (zie CLOUDFLARE.md §7).
+  # Public address; Cloudflare Email Routing forwards it to your own
+  # mailbox (see CLOUDFLARE.md §7).
   email: hello@steinmaerivoet.dev
-  # Zet op true om een "beschikbaar"-badge op de intro te tonen.
+  # Set to true to show an "available" badge on the intro.
   available: false
   availabilityText: Open to new challenges
   socials:
@@ -82,7 +82,7 @@ about:
     - value: 1
       suffix: "st"
       label: Prize at the Belfius hackathon
-    # value: een getal, of `technologies` / `skills` / `projects` om het te laten tellen
+    # value: a number, or `technologies` / `skills` / `projects` to have it counted
     - value: technologies
       label: Technologies on my skill board
 
@@ -90,12 +90,12 @@ experience:
   label: Experience
   presentLabel: Present
   projectsLabel: Projects
-  # Eén blok per werkgever, zoals op LinkedIn.
-  #   roles      functies bij die werkgever, nieuwste eerst (end: null = heden)
-  #   highlights korte extra punten (optioneel)
-  #   tech       technologieën. Namen die overeenkomen met een skill worden
-  #              klikbaar en tellen mee in "Used in" op de skills-slide.
-  # Projecten staan onder `projects:` met `employer:` naar het bedrijf hier.
+  # One block per employer, as on LinkedIn.
+  #   roles      positions at that employer, newest first (end: null = present)
+  #   highlights short extra points (optional)
+  #   tech       technologies. Names that match a skill become clickable
+  #              and count towards "Used in" on the skills slide.
+  # Projects live under `projects:` with `employer:` pointing to the company here.
   items:
     - company: Belfius
       location: Brussels, Belgium
@@ -156,7 +156,7 @@ experience:
 skills:
   label: Skills
   title: The stack I build with
-  # Teksten in de skills-slide
+  # Texts on the skills slide
   allLabel: All
   kindLabels:
     technology: Technologies
@@ -164,7 +164,7 @@ skills:
     tool: Tools
   hint: Select a skill to see where I used it.
   usedInLabel: Used in
-  # Verborgen extraatje: netwerkweergave van skills, ervaring en projecten
+  # Hidden extra: network view of skills, experience and projects
   graphButton: Network
   graphTitle: How it all connects
   graphHint: Hover or tap to see the connections; click or tap again to go there.
@@ -175,19 +175,19 @@ skills:
     advanced: Advanced
     familiar: Familiar
   # Per skill:
-  #   name    naam (verplicht)
-  #   level   expert | advanced | familiar            TODO: nakijken
-  #   since   jaar sinds wanneer je het gebruikt (anders afgeleid uit je ervaring)
-  #   icon    logo: slug van https://simpleicons.org (bv. kubernetes),
-  #           of een Iconify-naam: lucide:<naam> voor begrippen (https://lucide.dev/icons),
-  #           devicon:<naam> voor logo's die Simple Icons niet heeft (bv. devicon:azure)
-  #   match   extra namen om het te herkennen in `tech` en `tags` van ervaring en projecten
-  # "Used in" wordt automatisch opgebouwd uit `tech` (ervaring) en `tags` (projecten).
-  # Elke groep heeft een soort (kind):
-  #   technology  talen, frameworks, platformen (telt mee in "technologies" op About)
-  #   practice    manieren van werken en architectuur
-  #   tool        producten en tools
-  # Op het bord staan de soorten nooit door elkaar.
+  #   name    name (required)
+  #   level   expert | advanced | familiar            TODO: review
+  #   since   year you started using it (otherwise derived from your experience)
+  #   icon    logo: slug from https://simpleicons.org (e.g. kubernetes),
+  #           or an Iconify name: lucide:<name> for concepts (https://lucide.dev/icons),
+  #           devicon:<name> for logos Simple Icons doesn't have (e.g. devicon:azure)
+  #   match   extra names to recognise it in the `tech` and `tags` of experience and projects
+  # "Used in" is built automatically from `tech` (experience) and `tags` (projects).
+  # Each group has a kind:
+  #   technology  languages, frameworks, platforms (counts towards "technologies" on About)
+  #   practice    ways of working and architecture
+  #   tool        products and tools
+  # The board never mixes kinds.
   groups:
     - name: Backend
       items:
@@ -197,7 +197,7 @@ skills:
         - { name: REST, level: expert, since: 2016, icon: openapiinitiative }
         - { name: GraphQL, level: advanced, since: 2019, icon: graphql }
         - { name: SQL, level: advanced, since: 2016, icon: lucide:database }
-        # TODO: PostgreSQL staat nu bij Belfius; zet het ook in `tech` van andere werkgevers waar je het gebruikte.
+        # TODO: PostgreSQL is only listed at Belfius; add it to the `tech` of other employers where you used it.
         - { name: PostgreSQL, level: advanced, icon: postgresql, match: [Postgres] }
         - { name: Microsoft SQL Server, level: advanced, since: 2016, icon: devicon:microsoftsqlserver, match: [MSSQL, SQL Server] }
         - { name: Scala, level: familiar, since: 2015, icon: scala }
@@ -215,7 +215,7 @@ skills:
         - { name: Datadog, level: advanced, since: 2019, icon: datadog }
     - name: Security
       items:
-        # TODO: nu enkel gekoppeld aan myVandelanotte; voeg toe aan `tech` waar je het nog gebruikte.
+        # TODO: only linked to myVandelanotte for now; add it to `tech` wherever else you used it.
         - { name: OAuth2, level: advanced, since: 2021, icon: devicon:oauth }
         - { name: OpenID Connect, level: advanced, since: 2021, icon: openid, match: [OIDC] }
     - name: Testing
@@ -252,23 +252,23 @@ skills:
         - { name: GitHub Copilot, level: advanced, since: 2022, icon: githubcopilot }
         - { name: Claude Code, level: advanced, since: 2025, icon: claudecode }
         - { name: Cursor, level: familiar, icon: cursor }
-        # TODO: IntelliJ en VS Code zijn gegokt bij je werkgevers; pas `tech` aan als dat niet klopt.
+        # TODO: IntelliJ and VS Code at your employers are a guess; fix `tech` if that is wrong.
         - { name: IntelliJ IDEA, level: expert, since: 2016, icon: intellijidea, match: [IntelliJ] }
         - { name: Visual Studio Code, level: advanced, icon: devicon:vscode, match: [VS Code] }
         - { name: Backstage, level: familiar, since: 2026, icon: backstage }
-        # TODO: Jira en Confluence zijn gekoppeld aan Belfius en Ixor; pas `tech` aan als dat niet klopt.
+        # TODO: Jira and Confluence are linked to Belfius and Ixor; fix `tech` if that is wrong.
         - { name: Jira, level: advanced, since: 2019, icon: jira }
         - { name: Confluence, level: advanced, since: 2019, icon: confluence }
         - { name: Bitbucket, level: advanced, since: 2019, icon: bitbucket, match: [Bitbucket Pipelines] }
 
 projects:
   label: Projects
-  # Alle projecten, één keer. Ze worden aan de rest gekoppeld:
-  #   employer  bedrijfsnaam zoals onder `experience` (fout = build faalt)
-  #   tags      namen die overeenkomen met een skill worden links naar die skill
-  #   featured  true = kaart op de projects-slide (hou het op 6)
-  # Op de experience-slide staan de projecten van elke werkgever, in deze volgorde.
-  # summary is de korte tekst op de kaart; description de volledige uitleg.
+  # All projects, once each. They are linked to the rest:
+  #   employer  company name as under `experience` (wrong = build fails)
+  #   tags      names that match a skill become links to that skill
+  #   featured  true = card on the projects slide (keep it at 6)
+  # The experience slide lists each employer's projects, in this order.
+  # summary is the short text on the card; description the full explanation.
   items:
     - name: Cloud-native integration platform
       employer: Belfius
@@ -302,7 +302,7 @@ projects:
         presented it to a jury from Belfius management and Mistral AI.
       tags: [AI, Prototype, Pitch]
 
-    - name: Verkeerscentrum
+    - name: Flemish Traffic Centre
       employer: Ixor
       period: 2022 – 2023
       featured: true
@@ -380,7 +380,7 @@ projects:
         tested with Playwright on desktop and mobile.
       tags: [Astro, React, TypeScript, Tailwind CSS, GSAP, Playwright, Claude Code, VS Code]
 
-    # TODO: vul jaar, korte omschrijving en technologieën aan.
+    # TODO: fill in the year, a short summary and the technologies.
     - name: Wedding website
       meta: Pet project
       description: >-
@@ -420,7 +420,7 @@ education:
       year: "2021"
     - name: Oracle Certified Professional, Java SE 8 Programmer
       issuer: Oracle
-      year: "" # TODO: jaartal
+      year: "" # TODO: year
     - name: Machine Learning
       issuer: Stanford University · Coursera
       year: "2019"
