@@ -52,11 +52,14 @@ test("corner button previews and downloads the share card, and its QR code scans
 test("the three downloads are small, stacked CV, QR code, share card, and grow on hover", async ({ page }, info) => {
   await page.goto("/#contact");
   const buttons = [/Download CV/, /Download QR code/, /Download share card/].map((name) => page.getByRole("link", { name }));
-  const boxes = [];
-  for (const b of buttons) {
-    await expect(b).toBeVisible();
-    boxes.push((await b.boundingBox())!);
-  }
+  for (const b of buttons) await expect(b).toBeVisible();
+  // The column slides in with the rest of the chrome: measure once it has settled,
+  // and all three in the same frame, so the boxes are comparable.
+  const column = page.locator(".downloads");
+  await column.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
+  const measure = () =>
+    column.evaluate((el) => [...el.querySelectorAll(".dl")].map((a) => a.getBoundingClientRect().toJSON() as { x: number; y: number; width: number; height: number }));
+  const boxes = await measure();
   expect(boxes[0]!.y + boxes[0]!.height).toBeLessThanOrEqual(boxes[1]!.y);
   expect(boxes[1]!.y + boxes[1]!.height).toBeLessThanOrEqual(boxes[2]!.y);
   // At rest they are logos only.
@@ -67,7 +70,7 @@ test("the three downloads are small, stacked CV, QR code, share card, and grow o
   await buttons[0]!.hover();
   await expect(async () => expect((await buttons[0]!.boundingBox())!.width).toBeGreaterThan(200)).toPass();
   await expect(page.locator(".dl-cv .dl-label")).toHaveCSS("opacity", "1");
-  expect(await buttons[1]!.boundingBox()).toEqual(boxes[1]);
+  expect((await measure())[1]).toEqual(boxes[1]);
 });
 
 test("the PDF preview pages are images", async ({ page }) => {
