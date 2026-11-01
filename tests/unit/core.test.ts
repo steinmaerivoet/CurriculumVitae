@@ -61,6 +61,12 @@ describe("content service", () => {
     expect(cv.graph.nodes.filter((n) => !linked.has(n.id)).map((n) => n.id)).toEqual([]);
   });
 
+  it("weighs each graph node by its connections", () => {
+    for (const n of cv.graph.nodes) expect(n.degree).toBe(cv.graph.edges.filter((e) => e.includes(n.id)).length);
+    const heaviest = (kind: string) => cv.graph.nodes.filter((n) => n.kind === kind).sort((a, b) => b.degree - a.degree)[0]!;
+    expect(heaviest("skill").label).toBe("Java");
+  });
+
   it("reports invalid content with its path", () => {
     const bad = variant((d) => delete d.person.email);
     expect(() => loadCv(bad, NOW)).toThrow(CvValidationError);

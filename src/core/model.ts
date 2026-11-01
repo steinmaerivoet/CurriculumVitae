@@ -80,7 +80,8 @@ export type Skill = {
 
 export type SkillGroup = { name: string; kind: SkillKind; items: Skill[] };
 
-export type GraphNode = { id: string; kind: "skill" | "employer" | "project"; label: string; group?: string; ref: Ref };
+/** `degree` is the node's number of connections: how much it weighs in the network. */
+export type GraphNode = { id: string; kind: "skill" | "employer" | "project"; label: string; group?: string; ref: Ref; degree: number };
 export type Graph = { nodes: GraphNode[]; edges: [string, string][] };
 
 export type Stat = { value: number; suffix?: string | undefined; label: string };

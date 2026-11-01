@@ -20,6 +20,7 @@
   --c-mute: #6a6c73;
   --c-line: rgb(20 21 24 / 0.11);
   --c-accent: #2e4ee6;
+  --c-accent-2: #c2410c;
   --c-on-accent: #ffffff;
   color-scheme: light;
 }
@@ -32,6 +33,7 @@
   --c-mute: #8e9098;
   --c-line: rgb(236 235 231 / 0.1);
   --c-accent: #8fa3ff;
+  --c-accent-2: #f5a061;
   --c-on-accent: #0e0f12;
   color-scheme: dark;
 }
@@ -44,6 +46,7 @@
     --c-mute: #8e9098;
     --c-line: rgb(236 235 231 / 0.1);
     --c-accent: #8fa3ff;
+  --c-accent-2: #f5a061;
     --c-on-accent: #0e0f12;
     color-scheme: dark;
   }

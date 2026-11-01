@@ -112,10 +112,11 @@ function linkSkills(input: CvInput, employers: Employer[], projects: Project[], 
 }
 
 function buildGraph(groups: SkillGroup[], employers: Employer[], projects: Project[]): Graph {
-  const nodes: GraphNode[] = [
-    ...groups.flatMap((g) => g.items.map((s): GraphNode => ({ id: `s:${s.name}`, kind: "skill", label: s.name, group: g.name, ref: { kind: "skill", name: s.name } }))),
-    ...employers.map((e): GraphNode => ({ id: `e:${e.company}`, kind: "employer", label: e.company, ref: e.ref })),
-    ...projects.map((p): GraphNode => ({ id: `p:${p.id}`, kind: "project", label: p.name, ref: p.ref })),
+  type Bare = Omit<GraphNode, "degree">;
+  const bare: Bare[] = [
+    ...groups.flatMap((g) => g.items.map((s): Bare => ({ id: `s:${s.name}`, kind: "skill", label: s.name, group: g.name, ref: { kind: "skill", name: s.name } }))),
+    ...employers.map((e): Bare => ({ id: `e:${e.company}`, kind: "employer", label: e.company, ref: e.ref })),
+    ...projects.map((p): Bare => ({ id: `p:${p.id}`, kind: "project", label: p.name, ref: p.ref })),
   ];
   const edges = new Set<string>();
   for (const e of employers) for (const t of e.tech) if (t.skill) edges.add(`e:${e.company}|s:${t.skill}`);
@@ -123,7 +124,11 @@ function buildGraph(groups: SkillGroup[], employers: Employer[], projects: Proje
     for (const t of p.tags) if (t.skill) edges.add(`p:${p.id}|s:${t.skill}`);
     if (p.employer) edges.add(`p:${p.id}|e:${p.employer}`);
   }
-  return { nodes, edges: [...edges].map((k) => k.split("|") as [string, string]) };
+  const pairs = [...edges].map((k) => k.split("|") as [string, string]);
+  // A node's weight is its number of connections, so sizes follow data.yaml.
+  const degree = new Map<string, number>();
+  for (const id of pairs.flat()) degree.set(id, (degree.get(id) ?? 0) + 1);
+  return { nodes: bare.map((n) => ({ ...n, degree: degree.get(n.id) ?? 0 })), edges: pairs };
 }
 
 /** Turns validated data.yaml into the linked domain model. */

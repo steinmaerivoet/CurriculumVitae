@@ -5,27 +5,35 @@ import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY
 import type { Graph, GraphNode } from "@/core/model";
 import { follow } from "@/web/deck/follow";
 
-type Node = GraphNode & SimulationNodeDatum & { degree: number; r: number };
+type Node = GraphNode & SimulationNodeDatum & { r: number; font: number };
 type Laid = { nodes: Node[]; edges: [Node, Node][]; box: [number, number, number, number] };
 
-const R = { employer: 11, project: 6, skill: 4 } as const;
+/**
+ * Size range per kind: [smallest, largest] radius and label size. Within a
+ * kind, a node's radius grows with its number of connections (from data.yaml),
+ * so the most used skill, the employer with the most skills and the project
+ * with the most tags come out biggest.
+ */
+const SIZE = {
+  employer: { r: [9, 22], font: [13, 19] },
+  project: { r: [5, 11], font: [9.5, 12] },
+  skill: { r: [3, 16], font: [9, 14] },
+} as const;
 // d3 swaps link ends from ids to nodes once the simulation starts.
 const isEmployer = (end: unknown) => (typeof end === "string" ? end : (end as Node).id).startsWith("e:");
+const between = ([lo, hi]: readonly [number, number], t: number) => lo + (hi - lo) * t;
 
 /** A static force layout, shaped to the screen it's shown on. */
 function layout(graph: Graph, w: number, h: number): Laid {
-  const degree = new Map<string, number>();
-  for (const [a, b] of graph.edges) {
-    degree.set(a, (degree.get(a) ?? 0) + 1);
-    degree.set(b, (degree.get(b) ?? 0) + 1);
-  }
+  const most = new Map<string, number>();
+  for (const n of graph.nodes) most.set(n.kind, Math.max(most.get(n.kind) ?? 1, n.degree));
   const nodes: Node[] = graph.nodes.map((n, i) => {
-    const d = degree.get(n.id) ?? 0;
+    const t = n.degree / most.get(n.kind)!;
     const angle = (i / graph.nodes.length) * Math.PI * 2;
     return {
       ...n,
-      degree: d,
-      r: n.kind === "skill" ? R.skill + Math.min(5, d * 0.7) : R[n.kind],
+      r: between(SIZE[n.kind].r, t),
+      font: between(SIZE[n.kind].font, t),
       x: Math.cos(angle) * 200,
       y: Math.sin(angle) * 200,
     };
@@ -35,8 +43,8 @@ function layout(graph: Graph, w: number, h: number): Laid {
   const aspect = w / h;
   forceSimulation(nodes)
     .force("link", forceLink<Node, { source: string; target: string }>(links).id((n) => n.id).distance((l) => (isEmployer(l.source) || isEmployer(l.target) ? 120 : 70)).strength(0.4))
-    .force("charge", forceManyBody<Node>().strength((n) => (n.kind === "employer" ? -1400 : -300)))
-    .force("collide", forceCollide<Node>().radius((n) => n.r + 26).iterations(2))
+    .force("charge", forceManyBody<Node>().strength((n) => (n.kind === "employer" ? -1400 : -260 - n.r * 12)))
+    .force("collide", forceCollide<Node>().radius((n) => n.r + 22 + n.font).iterations(2))
     // The longer side of the screen gets the weaker pull, so the web fills it.
     .force("x", forceX(0).strength(0.07 / Math.max(1, aspect)))
     .force("y", forceY(0).strength(0.07 * Math.min(1, aspect)))
@@ -45,10 +53,12 @@ function layout(graph: Graph, w: number, h: number): Laid {
 
   let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
   for (const n of nodes) {
-    x0 = Math.min(x0, n.x! - 70);
-    x1 = Math.max(x1, n.x! + 70);
-    y0 = Math.min(y0, n.y! - 20);
-    y1 = Math.max(y1, n.y! + 26);
+    // Room for the label underneath, which is about as wide as its text.
+    const half = Math.max(n.r, (n.label.length * n.font * 0.55) / 2) + 6;
+    x0 = Math.min(x0, n.x! - half);
+    x1 = Math.max(x1, n.x! + half);
+    y0 = Math.min(y0, n.y! - n.r - 8);
+    y1 = Math.max(y1, n.y! + n.r + n.font + 10);
   }
   return {
     nodes,
@@ -115,7 +125,8 @@ export default function SkillGraph({ graph, onClose, labels }: { graph: Graph; o
     follow(n.ref);
   };
 
-  const fill = { skill: "var(--color-accent)", employer: "var(--color-paper)", project: "var(--color-accent-2)" } as const;
+  // Theme tokens only, so every node reads in light and dark mode alike.
+  const fill = { skill: "var(--color-accent)", employer: "var(--color-fg)", project: "var(--color-accent-2)" } as const;
 
   return createPortal(
     <div
@@ -135,7 +146,10 @@ export default function SkillGraph({ graph, onClose, labels }: { graph: Graph; o
           <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-mute" aria-hidden="true">
             {(["skill", "employer", "project"] as const).map((k) => (
               <span key={k} className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full" style={{ background: fill[k] }} />
+                <span
+                  className={k === "project" ? "h-2 w-2 rotate-45 rounded-[1px]" : k === "employer" ? "h-2.5 w-2.5 rounded-full border-2" : "h-2 w-2 rounded-full"}
+                  style={k === "employer" ? { borderColor: fill.employer } : { background: fill[k] }}
+                />
                 {k === "skill" ? "Skills" : k === "employer" ? "Experience" : "Projects"}
               </span>
             ))}
@@ -165,8 +179,8 @@ export default function SkillGraph({ graph, onClose, labels }: { graph: Graph; o
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke={lit ? "var(--color-accent)" : "var(--color-paper)"}
-                strokeOpacity={lit ? 0.75 : focus ? 0.04 : 0.16}
+                stroke={lit ? "var(--color-accent)" : "var(--color-fg)"}
+                strokeOpacity={lit ? 0.8 : focus ? 0.04 : 0.14}
                 strokeWidth={lit ? 1.4 : 1}
                 className="transition-[stroke-opacity] duration-300"
               />
@@ -175,6 +189,7 @@ export default function SkillGraph({ graph, onClose, labels }: { graph: Graph; o
         </g>
         {laid.nodes.map((n) => {
           const on = near(n.id);
+          const glow = n.id === focus ? { filter: "drop-shadow(0 0 6px var(--color-accent))" } : undefined;
           return (
             <g
               key={n.id}
@@ -198,23 +213,24 @@ export default function SkillGraph({ graph, onClose, labels }: { graph: Graph; o
               <title>{n.label}</title>
               <circle r={n.r + 14} fill="transparent" />
               {n.kind === "project" ? (
-                <rect x={-n.r} y={-n.r} width={n.r * 2} height={n.r * 2} rx={2} transform="rotate(45)" fill={fill.project} />
+                <rect x={-n.r * 0.75} y={-n.r * 0.75} width={n.r * 1.5} height={n.r * 1.5} rx={1.5} transform="rotate(45)" fill={fill.project} style={glow} />
+              ) : n.kind === "employer" ? (
+                // A ring filled with the background: the lines stop at its edge.
+                <circle r={n.r} fill="var(--color-bg)" stroke={fill.employer} strokeWidth={2.5} style={glow} />
               ) : (
-                <circle
-                  r={n.r}
-                  fill={n.kind === "employer" ? "var(--color-ink)" : fill.skill}
-                  stroke={n.kind === "employer" ? fill.employer : "none"}
-                  strokeWidth={2}
-                  style={n.id === focus ? { filter: "drop-shadow(0 0 6px var(--color-accent))" } : undefined}
-                />
+                <circle r={n.r} fill={fill.skill} style={glow} />
               )}
               <text
-                y={n.r + (n.kind === "employer" ? 16 : 12)}
+                y={n.r + n.font + (n.kind === "employer" ? 4 : 2)}
                 textAnchor="middle"
-                className={n.kind === "employer" ? "font-display" : ""}
-                fontSize={n.kind === "employer" ? 15 : n.kind === "project" ? 10 : 10}
-                fill={n.kind === "employer" ? "var(--color-paper)" : "var(--color-mute)"}
-                fillOpacity={n.id === focus ? 1 : 0.9}
+                className={n.kind === "employer" ? "font-display" : n.kind === "project" ? "italic" : ""}
+                fontSize={n.font}
+                fill={n.kind === "employer" ? "var(--color-fg)" : n.id === focus ? "var(--color-fg)" : "var(--color-mute)"}
+                // A halo in the background colour keeps labels readable over the lines.
+                stroke="var(--color-bg)"
+                strokeWidth={3}
+                strokeLinejoin="round"
+                paintOrder="stroke"
               >
                 {n.label}
               </text>

@@ -23,6 +23,8 @@
   --color-mute: var(--c-mute);
   --color-line: var(--c-line);
   --color-accent: var(--c-accent);
+  /* A second accent, for where two kinds of thing sit side by side (the skills network). */
+  --color-accent-2: var(--c-accent-2, var(--c-accent));
   --color-on-accent: var(--c-on-accent);
 }
 
