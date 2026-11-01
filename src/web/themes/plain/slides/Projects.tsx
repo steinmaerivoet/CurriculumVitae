@@ -70,13 +70,14 @@ function Card({ project, n, lit }: { project: Project; n: number; lit: boolean }
             </a>
           ) : null}
         </div>
-        <div className="relative mt-auto pt-8 lg:pt-6 short:pt-4">
+        {/* Titles line up across a row, tags sit on the bottom edge. */}
+        <div className="relative flex flex-1 flex-col pt-8 lg:pt-6 short:pt-4">
           <h3 className="font-display text-3xl leading-tight tracking-tight lg:text-[1.75rem]">{project.name}</h3>
           <p className="mt-2.5 text-sm leading-relaxed text-mute lg:line-clamp-3 short:line-clamp-2">
             {project.summary ?? project.description[0]}
           </p>
           {project.tags.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-1.5">
+            <ul className="mt-auto flex flex-wrap gap-1.5 pt-4">
               {project.tags.map((c) => (
                 <li key={c.label}>
                   <Chip term={c} />

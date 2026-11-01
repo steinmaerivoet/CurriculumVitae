@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./data.schema.json
 # ─────────────────────────────────────────────────────────────────────────────
 #  Alle inhoud van de website staat in dit bestand.
 #
@@ -39,6 +40,8 @@ ui:
   downloadCv: Download CV
   # Knop rechtsonder die een QR-code naar deze site downloadt (PNG, gegenereerd bij de build).
   downloadQr: Download QR code
+  # Tekst bij de QR-code bovenaan de PDF, zodat wie enkel de PDF heeft de site vindt.
+  pdfQrCaption: Scan or click for the interactive CV
 
 person:
   firstName: Stein
@@ -49,7 +52,7 @@ person:
     everything around me.
   location: Mechelen, Belgium
   # Publiek adres; Cloudflare Email Routing stuurt het door naar je eigen
-  # mailbox (zie CLOUDFLARE.md §6).
+  # mailbox (zie CLOUDFLARE.md §7).
   email: hello@steinmaerivoet.dev
   # Zet op true om een "beschikbaar"-badge op de intro te tonen.
   available: false

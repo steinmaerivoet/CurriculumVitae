@@ -38,7 +38,7 @@ test("the network view opens, connects and navigates", async ({ page, isMobile }
   await page.locator("#skills").getByRole("button", { name: "Network" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
-  // Every node is connected to something: a lonely node is a missing link in cv.yaml.
+  // Every node is connected to something: a lonely node is a missing link in data.yaml.
   const lonely = await page.evaluate(() => {
     const linked = new Set([...document.querySelectorAll("[data-edge]")].flatMap((l) => l.getAttribute("data-edge")!.split("|")));
     return [...document.querySelectorAll("[data-node]")].map((g) => g.getAttribute("data-node")!).filter((id) => !linked.has(id));

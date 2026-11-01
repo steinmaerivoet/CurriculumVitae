@@ -1,0 +1,15 @@
+---
+import type { IconSymbol } from "@/bff/shared/icons";
+
+/**
+ * The skill icons as one hidden SVG sprite, rendered as static HTML next to
+ * the deck. SkillIcon draws an icon with <use href="#id">, so each logo's
+ * markup is in the page once and never travels in the island props.
+ */
+type Props = { icons: IconSymbol[] };
+const { icons } = Astro.props;
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  {icons.map((i) => <symbol id={i.id} viewBox={i.viewBox} set:html={i.body} />)}
+</svg>

@@ -2,31 +2,40 @@ import { z } from "zod";
 import { sectionIds, skillKinds, skillLevels } from "./model";
 
 /**
- * The contract for src/content/cv.yaml.
+ * The contract for src/content/data.yaml.
  *
  * This is the only place that knows the file's shape. Everything after
  * validation works with the linked domain model in ./model.ts.
  */
 
-const year = z.union([z.string(), z.number()]).transform(String);
-const linkItem = z.object({ label: z.string(), url: z.url() });
+const year = z.union([z.string(), z.number()]).describe("A year, such as 2026 or \"2026\".").transform(String);
+const linkItem = z.strictObject({ label: z.string(), url: z.url() });
 
-const skillItem = z.object({
-  name: z.string(),
+const skillItem = z.strictObject({
+  name: z.string().describe("The skill's name. Experience `tech` and project `tags` link to it by this name."),
   level: z.enum(skillLevels).optional(),
-  since: z.number().int().optional(),
-  icon: z.string().optional(),
-  match: z.array(z.string()).default([]),
+  since: z.number().int().optional().describe("Year you started using it. Derived from the first employer that used it when left out."),
+  icon: z
+    .string()
+    .optional()
+    .describe("A Simple Icons slug (kubernetes), devicon:<name> or lucide:<name>."),
+  match: z
+    .array(z.string())
+    .default([])
+    .describe("Other names that link to this skill from `tech` and `tags`, such as Postgres for PostgreSQL."),
 });
 
-export const cvSchema = z.object({
-  meta: z.object({
+/** A bare string is shorthand for `{ name: ... }`. */
+const skillEntry = z.union([z.string().transform((name) => skillItem.parse({ name })), skillItem]);
+
+export const cvSchema = z.strictObject({
+  meta: z.strictObject({
     title: z.string(),
     description: z.string(),
-    url: z.url(),
+    url: z.url().describe("The site's address. Used for the QR code, the sitemap and link previews."),
     lang: z.string().default("en"),
   }),
-  slides: z.array(z.enum(sectionIds)).min(1),
+  slides: z.array(z.enum(sectionIds)).min(1).describe("Order and visibility of the slides. Leave one out to hide it on the site and in the PDF."),
   ui: z
     .object({
       introLabel: z.string().default("Intro"),
@@ -36,27 +45,28 @@ export const cvSchema = z.object({
       footer: z.string().default(""),
       downloadCv: z.string().default("Download CV"),
       downloadQr: z.string().default("Download QR code"),
+      pdfQrCaption: z.string().default("Scan or click for the interactive CV"),
       themeLabel: z.string().default("Theme"),
     })
     .prefault({}),
-  person: z.object({
+  person: z.strictObject({
     firstName: z.string(),
     lastName: z.string(),
     headline: z.string(),
     tagline: z.string(),
     location: z.string(),
-    email: z.email(),
+    email: z.email().describe("Public address, shown on the site, in the PDF and in the API."),
     available: z.boolean().default(false),
     availabilityText: z.string().optional(),
     socials: z.array(linkItem).default([]),
   }),
-  about: z.object({
+  about: z.strictObject({
     label: z.string().default("About"),
     statement: z.string(),
     paragraphs: z.array(z.string()).default([]),
     stats: z
       .array(
-        z.object({
+        z.strictObject({
           // A number, or something to count from the rest of the CV.
           value: z.union([z.number(), z.enum(["technologies", "skills", "projects"])]),
           suffix: z.string().optional(),
@@ -65,7 +75,7 @@ export const cvSchema = z.object({
       )
       .default([]),
   }),
-  experience: z.object({
+  experience: z.strictObject({
     label: z.string().default("Experience"),
     presentLabel: z.string().default("Present"),
     projectsLabel: z.string().default("Projects"),
@@ -78,11 +88,11 @@ export const cvSchema = z.object({
           company: z.string(),
           location: z.string().optional(),
           roles: z
-            .array(z.object({ title: z.string(), start: year, end: year.nullable().default(null) }))
+            .array(z.strictObject({ title: z.string(), start: year, end: year.nullable().default(null) }))
             .min(1),
           summary: z.string(),
           highlights: z.array(z.string()).default([]),
-          tech: z.array(z.string()).default([]),
+          tech: z.array(z.string()).default([]).describe("Technologies used here. Names that match a skill become links."),
         })
         .transform((e) => {
           const starts = e.roles.map((r) => r.start).sort();
@@ -96,7 +106,7 @@ export const cvSchema = z.object({
         }),
     ),
   }),
-  skills: z.object({
+  skills: z.strictObject({
     label: z.string().default("Skills"),
     title: z.string().optional(),
     allLabel: z.string().default("All"),
@@ -122,41 +132,41 @@ export const cvSchema = z.object({
       })
       .prefault({}),
     groups: z.array(
-      z.object({
+      z.strictObject({
         name: z.string(),
         kind: z.enum(skillKinds).default("technology"),
         // A bare string is shorthand for `{ name: ... }`.
-        items: z.array(z.preprocess((v) => (typeof v === "string" ? { name: v } : v), skillItem)),
+        items: z.array(skillEntry),
       }),
     ),
   }),
-  projects: z.object({
+  projects: z.strictObject({
     label: z.string().default("Projects"),
     // Every project lives here once. `employer` links it to an experience
     // item; `tags` link it to skills (see src/lib/links.ts).
     items: z.array(
-      z.object({
+      z.strictObject({
         id: z.string().optional(),
         name: z.string(),
-        employer: z.string().optional(),
+        employer: z.string().optional().describe("Must equal a `company` under experience."),
         period: year.optional(),
-        featured: z.boolean().default(false),
+        featured: z.boolean().default(false).describe("Give the project its own card on the projects slide."),
         meta: z.string().optional(),
         summary: z.string().optional(),
         // One paragraph, or a list of paragraphs.
         description: z.union([z.string(), z.array(z.string())]).transform((d) => (Array.isArray(d) ? d : [d])),
         url: z.url().optional(),
-        tags: z.array(z.string()).default([]),
+        tags: z.array(z.string()).default([]).describe("Skills the project involved. Names that match a skill become links."),
       }),
     ),
   }),
-  education: z.object({
+  education: z.strictObject({
     label: z.string().default("Education"),
     languagesLabel: z.string().default("Languages"),
     certificationsLabel: z.string().default("Certifications"),
     items: z
       .array(
-        z.object({
+        z.strictObject({
           school: z.string(),
           degree: z.string(),
           start: year,
@@ -167,7 +177,7 @@ export const cvSchema = z.object({
       .default([]),
     certifications: z
       .array(
-        z.object({
+        z.strictObject({
           name: z.string(),
           issuer: z.string(),
           year: year.optional(),
@@ -175,9 +185,9 @@ export const cvSchema = z.object({
         }),
       )
       .default([]),
-    languages: z.array(z.object({ name: z.string(), level: z.string() })).default([]),
+    languages: z.array(z.strictObject({ name: z.string(), level: z.string() })).default([]),
   }),
-  contact: z.object({
+  contact: z.strictObject({
     label: z.string().default("Contact"),
     heading: z.string(),
     text: z.string(),

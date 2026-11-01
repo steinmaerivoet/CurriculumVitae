@@ -277,7 +277,8 @@ export default function Skills({ deck }: SlideProps) {
                       skill={e}
                       className={`h-[18px] w-[18px] shrink-0 text-[0.9rem] transition-colors duration-300 ${on ? "text-accent" : "text-fg/70 group-hover:text-fg"}`}
                     />
-                    <span className="min-w-0 flex-1 truncate text-[13px] leading-tight text-fg/90">{e.name}</span>
+                    {/* Two lines rather than an ellipsis: "Microsoft SQL Server" stays readable. */}
+                    <span className="line-clamp-2 min-w-0 flex-1 text-[13px] leading-[1.15] text-fg/90">{e.name}</span>
                     <Meter level={e.level} className="h-1 w-6 shrink-0" />
                   </button>
                 </li>

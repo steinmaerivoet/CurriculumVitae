@@ -1,14 +1,24 @@
 import type { APIRoute, GetStaticPaths } from "astro";
-import { Resvg } from "@resvg/resvg-js";
 import { getCv } from "@/core";
-import { qrSlug } from "@/bff/shared/files";
-import { styledQrSvg } from "@/qr/styledQr";
+import { qrSlug, shareSlug } from "@/bff/shared/files";
+import { buildShareCard } from "@/bff/seo";
+import { styledQrPng } from "@/qr/styledQr";
+import { shareCardPng } from "@/og/shareCard";
 
-// Styled QR code for the site URL, rendered once at build time as a 2048 px PNG:
-// large enough for print, small enough to share.
-export const getStaticPaths: GetStaticPaths = () => [{ params: { file: qrSlug(getCv()) } }];
+/**
+ * PNG files rendered once at build time:
+ * - the styled QR code for the site URL, 2048 px: large enough for print, small enough to share;
+ * - the share card (Open Graph image) that link previews show.
+ */
+const renderers: Record<string, () => Uint8Array> = {
+  [qrSlug(getCv())]: () => new Uint8Array(styledQrPng(getCv().meta.url, 2048)),
+  [shareSlug(getCv())]: () => shareCardPng(buildShareCard(getCv())),
+};
 
-export const GET: APIRoute = () => {
-  const png = new Resvg(styledQrSvg(getCv().meta.url), { fitTo: { mode: "width", value: 2048 } }).render().asPng();
-  return new Response(new Uint8Array(png), { headers: { "Content-Type": "image/png" } });
+export const getStaticPaths: GetStaticPaths = () => Object.keys(renderers).map((file) => ({ params: { file } }));
+
+export const GET: APIRoute = ({ params }) => {
+  const render = renderers[params["file"] ?? ""];
+  if (!render) return new Response(null, { status: 404 });
+  return new Response(new Uint8Array(render()), { headers: { "Content-Type": "image/png" } });
 };

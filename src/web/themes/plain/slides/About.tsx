@@ -37,7 +37,7 @@ export default function About({ deck }: SlideProps) {
         {about.stats.length > 0 && (
           <dl className="grid grid-cols-3 gap-4 border-t border-line pt-6 sm:gap-8">
             {about.stats.map((s) => (
-              <div key={s.label} className="flex flex-col-reverse" data-reveal>
+              <div key={s.label} className="flex flex-col-reverse justify-end" data-reveal>
                 <dt className="mt-3 text-xs leading-snug text-mute sm:text-sm">{s.label}</dt>
                 <dd className="font-display text-[clamp(2.5rem,6vw,4.5rem)] leading-none tracking-tight">
                   <span data-count={s.value}>{s.value.toLocaleString("en")}</span>

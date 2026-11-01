@@ -28,7 +28,9 @@ export type PdfEmployer = {
 
 export type PdfModel = {
   doc: { title: string; author: string; subject: string; keywords: string; creator: string; language: string };
-  footer: { title: string; url: string };
+  footer: { title: string; url: string; href: string };
+  /** The site, shown next to the name with its QR code, so a reader of the PDF finds the interactive CV. */
+  website: { url: string; label: string; caption: string };
   header: { firstName: string; lastName: string; monogram: string; headline: string; tagline: string };
   contact: { title: string; items: { label: string; value: string; href?: string }[] };
   skills: PdfSkillSection[];
@@ -41,7 +43,7 @@ export type PdfModel = {
   projects?: { title: string; items: PdfProject[] } | undefined;
 };
 
-// Print-only headings. TODO: move to cv.yaml if the PDF ever needs another language.
+// Print-only headings. TODO: move to data.yaml if the PDF ever needs another language.
 const LABELS = { contact: "Contact", email: "Email", location: "Location", website: "Website", profile: "Profile" };
 
 /** A titled block, left out when its section is hidden or has nothing to show. */
@@ -49,7 +51,7 @@ const section = <T>(visible: boolean, title: string, items: T[]): { title: strin
   visible && items.length ? { title, items } : undefined;
 
 export function buildPdfModel(cv: Cv): PdfModel {
-  const { person, about, experience, skills, projects, education, meta } = cv;
+  const { person, about, experience, skills, projects, education, meta, ui } = cv;
   const fullName = `${person.firstName} ${person.lastName}`;
   const shows = (id: Cv["sections"][number]) => cv.sections.includes(id);
   const present = experience.presentLabel;
@@ -66,7 +68,8 @@ export function buildPdfModel(cv: Cv): PdfModel {
       creator: meta.url,
       language: meta.lang,
     },
-    footer: { title: `${fullName} · Curriculum Vitae`, url: bareUrl(meta.url) },
+    footer: { title: `${fullName} · Curriculum Vitae`, url: bareUrl(meta.url), href: meta.url },
+    website: { url: meta.url, label: bareUrl(meta.url), caption: ui.pdfQrCaption },
     header: {
       firstName: person.firstName,
       lastName: person.lastName,

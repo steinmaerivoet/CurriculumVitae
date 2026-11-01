@@ -6,7 +6,7 @@ import { careerStart, languageShares, type LanguageShare } from "./shared";
 /**
  * Terminal theme presenter: the extra view model the terminal theme needs on
  * top of the DeckModel. Content comes from the CV; the shell vocabulary
- * (commands, key hints) is the theme's own and lives here, not in cv.yaml.
+ * (commands, key hints) is the theme's own and lives here, not in data.yaml.
  */
 
 export type TerminalView = {

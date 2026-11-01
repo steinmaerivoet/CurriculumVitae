@@ -4,7 +4,7 @@ import { CvValidationError, loadCv } from "@/core/loader";
 import { CvLinkError } from "@/core/linker";
 import { cv, NOW, yamlText } from "./fixture";
 
-/** cv.yaml with one change applied. */
+/** data.yaml with one change applied. */
 const variant = (change: (doc: any) => void) => {
   const doc = parse(yamlText);
   change(doc);
@@ -12,7 +12,7 @@ const variant = (change: (doc: any) => void) => {
 };
 
 describe("content service", () => {
-  it("loads cv.yaml into the linked model", () => {
+  it("loads data.yaml into the linked model", () => {
     expect(cv.person.firstName).toBe("Stein");
     expect(cv.experience.items.length).toBeGreaterThan(0);
     expect(cv.sections[0]).toBe("hero");

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildDeckModel } from "@/bff/web/deck";
+import { buildDeckModel, buildIconSprite } from "@/bff/web/deck";
+import { buildPageMeta, buildShareCard, buildStructuredData, SHARE_CARD } from "@/bff/seo";
+import { shareCardSvg } from "@/og/shareCard";
+import { woffToSfnt } from "@/og/woff";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { allSkills } from "@/bff/web/model";
 import { buildPdfModel } from "@/bff/pdf/document";
 import { apiPath, buildApiResources } from "@/bff/api/resources";
@@ -22,7 +27,7 @@ describe("shared formatting", () => {
 describe("web deck BFF", () => {
   const deck = buildDeckModel(cv);
 
-  it("labels every section and keeps the order of cv.yaml", () => {
+  it("labels every section and keeps the order of data.yaml", () => {
     expect(deck.sections.map((s) => s.id)).toEqual(cv.sections);
     expect(deck.sections.every((s) => s.label.length > 0)).toBe(true);
   });
@@ -31,6 +36,12 @@ describe("web deck BFF", () => {
     const skills = allSkills(deck);
     expect(new Set(skills.map((s) => s.key)).size).toBe(skills.length);
     expect(skills.filter((s) => !s.icon).map((s) => s.name)).toEqual([]);
+  });
+
+  it("points every icon at a symbol in the sprite, and ships no icon markup in the props", () => {
+    const sprite = new Set(buildIconSprite(cv).map((i) => i.id));
+    for (const s of allSkills(deck)) if (s.icon) expect(sprite).toContain(s.icon);
+    expect(JSON.stringify(deck)).not.toContain("<path");
   });
 
   it("is plain data, so it can cross into the browser", () => {
@@ -108,5 +119,42 @@ describe("theme presenters", () => {
     expect(heatFor(2020, "expert", [2019, 2020, 2022, 2030])).toEqual([0, 1, 2, 4]);
     expect(heatFor(2020, "familiar", [2030])).toEqual([2]);
     expect(heatFor(undefined, "expert", [2030])).toEqual([0]);
+  });
+});
+
+describe("SEO BFF", () => {
+  const data = buildStructuredData(cv);
+
+  it("carries the whole career, not just the employer the slides show first", () => {
+    const companies = data.mainEntity.worksFor.map((r) => r.worksFor.name);
+    for (const e of cv.experience.items) expect(companies).toContain(e.company);
+    expect(data.mainEntity.hasOccupation).toHaveLength(cv.experience.items.length);
+    for (const p of cv.projects.items.filter((x) => x.employer)) {
+      expect(data.mainEntity.hasOccupation.some((o) => o.description.includes(p.name))).toBe(true);
+    }
+  });
+
+  it("is safe to inline in a script tag", () => {
+    expect(JSON.parse(JSON.stringify(data))).toEqual(data);
+  });
+
+  it("points link previews at the share card", () => {
+    const meta = buildPageMeta(cv);
+    expect(meta.image.url).toMatch(/^https:\/\/.+-share-card\.png$/);
+    expect(meta.image).toMatchObject(SHARE_CARD);
+    expect(meta.canonical).toBe(new URL("/", cv.meta.url).toString());
+  });
+
+  it("draws the share card from data.yaml, escaped", () => {
+    const svg = shareCardSvg({ ...buildShareCard(cv), headline: "R&D <lead>" });
+    expect(svg).toContain(cv.person.lastName);
+    expect(svg).toContain("R&amp;D &lt;lead&gt;");
+  });
+
+  it("unwraps WOFF fonts for the renderer", () => {
+    const woff = readFileSync(createRequire(import.meta.url).resolve("@fontsource/inter/files/inter-latin-400-normal.woff"));
+    const ttf = woffToSfnt(woff);
+    expect(new DataView(ttf.buffer).getUint32(0)).toBe(0x00010000);
+    expect(ttf.byteLength).toBeGreaterThan(woff.byteLength);
   });
 });

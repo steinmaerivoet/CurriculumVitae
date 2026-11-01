@@ -15,7 +15,7 @@ export function RefLink({ to, className, children, title }: { to: Ref; className
   );
 }
 
-/** A label from cv.yaml (`tech`, `tags`): a link when it names a skill, plain text otherwise. */
+/** A label from data.yaml (`tech`, `tags`): a link when it names a skill, plain text otherwise. */
 export function TermLink({
   term,
   className = "",

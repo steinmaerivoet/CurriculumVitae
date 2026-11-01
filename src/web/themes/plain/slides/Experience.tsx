@@ -70,7 +70,7 @@ export default function Experience({ deck }: SlideProps) {
                       <span className={`lg:hidden ${selected ? "text-on-accent/60" : "text-mute"}`}> · {it.start}</span>
                     </span>
                     <span className={`hidden text-sm tabular-nums lg:inline ${selected ? "text-accent" : "text-mute"}`}>
-                      {range(it.start, it.end, experience.presentLabel)}
+                      {it.period}
                     </span>
                   </span>
                   <span className="mt-0.5 hidden truncate text-sm text-mute lg:block">{it.roles.map((r) => r.title).join(" · ")}</span>
@@ -83,7 +83,7 @@ export default function Experience({ deck }: SlideProps) {
         {/* Details of the selected employer */}
         <div ref={panelRef} id="experience-panel" role="tabpanel" className="min-w-0" data-reveal>
           <p data-panel className="text-sm text-mute tabular-nums">
-            {range(item.start, item.end, experience.presentLabel)}
+            {item.period}
             {item.location ? <span> · {item.location}</span> : null}
           </p>
           <h3 data-panel className="mt-2 font-display text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.02] tracking-tight italic text-accent short:text-[2.5rem]">

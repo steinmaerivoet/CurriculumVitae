@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
 import { createRequire } from "node:module";
-import { Document, Font, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
 import type { SkillLevel } from "@/core/model";
-import type { PdfModel, PdfProject } from "@/bff/pdf/document";
+import type { PdfEmployer, PdfModel, PdfProject } from "@/bff/pdf/document";
+
+/** Images the page renders for the document (react-pdf embeds PNG, not SVG). */
+export type PdfAssets = { qrPng: Buffer };
 
 /*
  * Lays out the PDF CV. All content decisions (what to show, in which order,
@@ -58,8 +61,14 @@ const s = StyleSheet.create({
   sideBg: { position: "absolute", top: 0, bottom: 0, left: 0, width: 190, backgroundColor: c.side },
 
   header: { flexDirection: "row", paddingTop: 4, paddingBottom: 20 },
-  headerSide: { width: 190, paddingHorizontal: 26, justifyContent: "flex-end" },
-  headerMain: { flex: 1, paddingLeft: 26, paddingRight: 40 },
+  headerSide: { width: 190, paddingHorizontal: 26, justifyContent: "center" },
+  headerMain: { flex: 1, flexDirection: "row", alignItems: "flex-start", paddingLeft: 26, paddingRight: 40 },
+  headerText: { flex: 1, paddingRight: 16 },
+  // QR code to the site, top right: the way from paper to the interactive CV.
+  qr: { width: 82, alignItems: "center", textDecoration: "none" },
+  qrImage: { width: 72, height: 72 },
+  qrCaption: { fontSize: 6.4, lineHeight: 1.3, color: c.mute, textAlign: "center", marginTop: 4 },
+  qrUrl: { fontSize: 7.6, fontWeight: 600, color: c.accentInk, textAlign: "center", marginTop: 1.5, textDecoration: "none" },
   monogram: {
     width: 46,
     height: 46,
@@ -138,6 +147,7 @@ const s = StyleSheet.create({
     fontFamily: "Inter",
     fontSize: 7,
     color: c.mute,
+    textDecoration: "none",
     borderTopWidth: 0.5,
     borderTopColor: c.line,
     paddingTop: 6,
@@ -179,9 +189,32 @@ function ProjectName({ project, style }: { project: PdfProject; style: Style }) 
   );
 }
 
+function JobProject({ project }: { project: PdfProject }) {
+  return (
+    <View style={s.jobProject} wrap={false}>
+      <View style={s.projectRow}>
+        <ProjectName project={project} style={s.jobProjectName} />
+        {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
+      </View>
+      {project.text.map((t, i) => (
+        <Text key={i}>{t}</Text>
+      ))}
+    </View>
+  );
+}
+
+function Tech({ job }: { job: PdfEmployer }) {
+  return job.tech ? (
+    <Text style={s.tech}>
+      <Text style={s.techLabel}>Tech </Text>
+      {job.tech}
+    </Text>
+  ) : null;
+}
+
 /* ── Document ───────────────────────────────────────────────────────────── */
-export default function CvDocument({ model }: { model: PdfModel }) {
-  const { doc, footer, header, contact, skills, education, certifications, languages, profile, experience, projects } = model;
+export default function CvDocument({ model, assets }: { model: PdfModel; assets: PdfAssets }) {
+  const { doc, footer, header, website, contact, skills, education, certifications, languages, profile, experience, projects } = model;
 
   return (
     <Document title={doc.title} author={doc.author} subject={doc.subject} keywords={doc.keywords} creator={doc.creator} producer={doc.creator} language={doc.language}>
@@ -189,7 +222,9 @@ export default function CvDocument({ model }: { model: PdfModel }) {
         <View style={s.sideBg} fixed />
         <View style={s.footer} fixed>
           <Text>{footer.title}</Text>
-          <Text>{footer.url}</Text>
+          <Link src={footer.href} style={{ color: c.mute, textDecoration: "none" }}>
+            {footer.url}
+          </Link>
           <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
 
@@ -201,11 +236,18 @@ export default function CvDocument({ model }: { model: PdfModel }) {
             </View>
           </View>
           <View style={s.headerMain}>
-            <Text style={s.name}>
-              {header.firstName} <Text style={s.nameAccent}>{header.lastName}</Text>
-            </Text>
-            <Text style={s.headline}>{header.headline}</Text>
-            <Text style={s.tagline}>{header.tagline}</Text>
+            <View style={s.headerText}>
+              <Text style={s.name}>
+                {header.firstName} <Text style={s.nameAccent}>{header.lastName}</Text>
+              </Text>
+              <Text style={s.headline}>{header.headline}</Text>
+              <Text style={s.tagline}>{header.tagline}</Text>
+            </View>
+            <Link src={website.url} style={s.qr}>
+              <Image style={s.qrImage} src={{ data: assets.qrPng, format: "png" }} />
+              <Text style={s.qrCaption}>{website.caption}</Text>
+              <Text style={s.qrUrl}>{website.label}</Text>
+            </Link>
           </View>
         </View>
 
@@ -226,6 +268,17 @@ export default function CvDocument({ model }: { model: PdfModel }) {
                 </View>
               ))}
             </Section>
+
+            {languages && (
+              <Section title={languages.title}>
+                {languages.items.map((lang) => (
+                  <View key={lang.name} style={s.langRow}>
+                    <Text style={s.langName}>{lang.name}</Text>
+                    <Text style={s.langLevel}>{lang.level}</Text>
+                  </View>
+                ))}
+              </Section>
+            )}
 
             {skills.map((block) => (
               <Section key={block.title} title={block.title} wrap={block.wrap}>
@@ -278,16 +331,6 @@ export default function CvDocument({ model }: { model: PdfModel }) {
               </Section>
             )}
 
-            {languages && (
-              <Section title={languages.title}>
-                {languages.items.map((lang) => (
-                  <View key={lang.name} style={s.langRow}>
-                    <Text style={s.langName}>{lang.name}</Text>
-                    <Text style={s.langLevel}>{lang.level}</Text>
-                  </View>
-                ))}
-              </Section>
-            )}
           </View>
 
           {/* Main column */}
@@ -334,23 +377,16 @@ export default function CvDocument({ model }: { model: PdfModel }) {
                       </View>
                     </View>
                     <View style={s.roleBody}>
-                      {job.projects.map((project) => (
-                        <View key={project.id} style={s.jobProject} wrap={false}>
-                          <View style={s.projectRow}>
-                            <ProjectName project={project} style={s.jobProjectName} />
-                            {project.meta && <Text style={s.projectMeta}>{project.meta}</Text>}
-                          </View>
-                          {project.text.map((t, i) => (
-                            <Text key={i}>{t}</Text>
-                          ))}
-                        </View>
+                      {job.projects.slice(0, -1).map((project) => (
+                        <JobProject key={project.id} project={project} />
                       ))}
-                      {job.tech && (
-                        <Text style={s.tech} wrap={false}>
-                          <Text style={s.techLabel}>Tech </Text>
-                          {job.tech}
-                        </Text>
-                      )}
+                      {/* The tech line closes the employer: keep it on the page of its last project. */}
+                      <View wrap={false}>
+                        {job.projects.slice(-1).map((project) => (
+                          <JobProject key={project.id} project={project} />
+                        ))}
+                        <Tech job={job} />
+                      </View>
                     </View>
                   </View>
                 ))}
