@@ -187,4 +187,12 @@ describe("download buttons", () => {
     }
     expect(downloads[2]!.href).toBe(new URL(buildPageMeta(cv).image.url).pathname);
   });
+
+  it("gives every download a preview with the file's shape", () => {
+    const [pdf, qr, share] = downloads.map((d) => d.preview);
+    expect(pdf!.height / pdf!.width).toBeCloseTo(Math.SQRT2, 2);
+    expect(qr!.width).toBe(qr!.height);
+    expect(share).toMatchObject({ width: SHARE_CARD.width, height: SHARE_CARD.height });
+    expect(new Set(downloads.map((d) => d.preview.src)).size).toBe(3);
+  });
 });

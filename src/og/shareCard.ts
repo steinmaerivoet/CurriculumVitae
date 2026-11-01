@@ -176,10 +176,11 @@ export function shareCardSvg(card: ShareCard): string {
 </svg>`;
 }
 
-export function shareCardPng(card: ShareCard): Uint8Array {
+/** The card as a PNG, `width` pixels wide (the full Open Graph size by default). */
+export function shareCardPng(card: ShareCard, width: number = SHARE_CARD.width): Uint8Array {
   const resvg = new Resvg(shareCardSvg(card), {
     font: { fontFiles: fonts(), loadSystemFonts: false, defaultFontFamily: "Inter" },
-    fitTo: { mode: "width", value: SHARE_CARD.width },
+    fitTo: { mode: "width", value: width },
   });
   return new Uint8Array(resvg.render().asPng());
 }

@@ -173,11 +173,6 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
   });
 
   // Start-up: measure, jump to the slide in the URL hash, wire listeners.
-  // The current slide on <html>, for chrome outside the deck (the download buttons open up on the intro and contact slides).
-  useEffect(() => {
-    if (ready) document.documentElement.dataset.slide = ids[index];
-  }, [ready, index, ids]);
-
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;

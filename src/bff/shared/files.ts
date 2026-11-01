@@ -19,10 +19,16 @@ export const shareSlug = (cv: Pick<Cv, "person">): string => cvSlug(cv).replace(
 /** Width and height of the QR code PNG: large enough for print, small enough to share. */
 export const QR_PNG_SIZE = 2048;
 
+/** Width in pixels of the preview images next to the download buttons (about twice their CSS size, for retina). */
+export const PREVIEW_WIDTH = 480;
+
 export const files = (cv: Pick<Cv, "person">) => ({
   pdf: `/${cvSlug(cv)}.pdf`,
+  /** First page of the PDF, for the preview next to its download button. */
+  pdfPreview: `/${cvSlug(cv)}-preview.png`,
   qrPng: `/${qrSlug(cv)}.png`,
   qrSvg: `/${qrSlug(cv)}.svg`,
   shareImage: `/${shareSlug(cv)}.png`,
+  sharePreview: `/${shareSlug(cv)}-preview.png`,
   api: apiPath("cv"),
 });

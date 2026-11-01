@@ -41,7 +41,7 @@ export default function Contact({ deck }: SlideProps) {
         </a>
       </div>
 
-      <div className="mt-14 flex flex-wrap short:mt-10 items-center justify-between gap-6 md:justify-start md:gap-x-16 border-t border-line pt-6 text-sm text-mute sm:mt-20" data-reveal>
+      <div className="mt-14 flex flex-wrap short:mt-10 items-center justify-between gap-6 border-t border-line pt-6 text-sm text-mute sm:mt-20" data-reveal>
         <ul className="flex flex-wrap gap-x-8 gap-y-2">
           {person.socials.map((s) => (
             <li key={s.url}>

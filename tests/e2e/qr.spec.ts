@@ -54,7 +54,7 @@ test("corner button downloads the share card, and its QR code scans to the site"
   expect(result?.text).toBe("https://steinmaerivoet.dev");
 });
 
-test("the three downloads are stacked CV, QR code, share card, and open on the contact slide", async ({ page }, info) => {
+test("the three downloads are small, stacked CV, QR code, share card, and grow with a preview on hover", async ({ page }, info) => {
   await page.goto("/#contact");
   const buttons = [/Download CV/, /Download QR code/, /Download share card/].map((name) => page.getByRole("link", { name }));
   const boxes = [];
@@ -64,13 +64,24 @@ test("the three downloads are stacked CV, QR code, share card, and open on the c
   }
   expect(boxes[0]!.y + boxes[0]!.height).toBeLessThanOrEqual(boxes[1]!.y);
   expect(boxes[1]!.y + boxes[1]!.height).toBeLessThanOrEqual(boxes[2]!.y);
+  // At rest they are logos only.
+  for (const box of boxes) expect(box.width).toBeLessThan(44);
 
-  // Desktop and laptop show the label and format next to the logo; phones keep the logos only.
-  const label = page.locator(".dl-cv .dl-label");
-  if (info.project.name === "desktop" || info.project.name === "laptop") {
-    await expect(async () => expect((await buttons[0]!.boundingBox())!.width).toBeGreaterThan(200)).toPass();
-    await expect(label).toHaveCSS("opacity", "1");
-  } else {
-    expect(boxes[0]!.width).toBeLessThan(50);
+  // Where a pointer can hover, a button grows to show its label, a preview of the file appears, and its neighbours stay put.
+  if (info.project.name !== "desktop" && info.project.name !== "laptop") return;
+  await buttons[0]!.hover();
+  await expect(async () => expect((await buttons[0]!.boundingBox())!.width).toBeGreaterThan(200)).toPass();
+  await expect(page.locator(".dl-cv .dl-label")).toHaveCSS("opacity", "1");
+  const preview = page.locator(".dl-cv .dl-preview img");
+  await expect(preview).toBeVisible();
+  await expect.poll(() => preview.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  expect(await buttons[1]!.boundingBox()).toEqual(boxes[1]);
+});
+
+test("the previews are images of the files", async ({ page }) => {
+  for (const path of ["/stein-maerivoet-curriculum-vitae-preview.png", "/stein-maerivoet-share-card-preview.png"]) {
+    const response = await page.request.get(path);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toContain("image/png");
   }
 });

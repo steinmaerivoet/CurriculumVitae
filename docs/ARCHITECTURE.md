@@ -412,12 +412,13 @@ figures on the left, and the site's QR code on an ink panel on the right.
 **Download buttons.** `web/shared/Downloads.astro` puts three buttons in the
 bottom-right corner of every theme, top to bottom: the PDF CV, the QR code and
 the share card. `bff/web/downloads.ts` gives each its label (data.yaml `ui`),
-format line and file name. Each button is a logo followed by its label and
-format. The column is open on the intro and contact slides (the deck sets
-`data-slide` on `<html>`), on hover and when tabbing into it, and folds into a
-column of logos on the other slides so it never covers content. A theme can
-tune it with `--dl-radius`, `--dl-label-font` and `--dl-on-hero: 0` (keep it
-folded on the intro, as the Commit graph theme does for its branch graph).
+format line, file name and preview. At rest they are a quiet column of small
+logos. The one under the pointer, or in keyboard focus, grows into a pill with
+its label and format, and a preview of the file appears beside it: the PDF's
+first page (rasterised with pdf.js in `pdf/preview.ts`), the QR code's SVG and
+a small share card, all generated at build time and fetched on the first
+interaction. Touch screens keep the logos and download on tap. A theme can set
+`--dl-radius` and `--dl-label-font`.
 
 ## Hosting and delivery
 
@@ -491,7 +492,7 @@ npm test            # both
 | E2E | `layout` | Every slide fits on desktop and laptop, in every state. |
 | E2E | `experience`, `skills`, `links` | Selections, filters and cross-links between slides. |
 | E2E | `themes` | The shared conventions, for every theme in the registry. |
-| E2E | `download`, `qr` | The PDF, QR and share card downloads, their order in the corner, and that both QR codes scan. |
+| E2E | `download`, `qr` | The PDF, QR and share card downloads, their order and hover previews, and that both QR codes scan. |
 
 The Playwright config builds the site, serves the production build and runs
 on four devices: desktop (1440×900), laptop (1366×768), Pixel 7 and a small

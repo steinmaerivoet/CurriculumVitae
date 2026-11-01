@@ -3,10 +3,10 @@ import { getCv } from "@/core";
 import { buildDownloads, type DownloadId } from "@/bff/web/downloads";
 
 // The download buttons in the bottom-right corner, top to bottom: CV (PDF),
-// QR code and share card (both PNG, see src/pages/[file].*.ts). Each one is a
-// logo followed by its label and format. They stay open on the intro and
-// contact slides, where nothing sits behind them, and fold into a column of
-// logos on the other slides; hovering the column or tabbing into it opens it again.
+// QR code and share card (both PNG, see src/pages/[file].*.ts). At rest they
+// are a quiet column of small logos. The one under the pointer (or in keyboard
+// focus) grows into a pill with its label and format, and a preview of the
+// file appears beside it. Previews load on the first interaction only.
 const downloads = buildDownloads(getCv());
 
 const icons: Record<DownloadId, string> = {
@@ -16,57 +16,96 @@ const icons: Record<DownloadId, string> = {
 };
 ---
 
-<div class="downloads pointer-events-none fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex flex-col items-end gap-2 sm:right-4 lg:right-7">
+<div class="downloads pointer-events-none fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex flex-col items-end gap-2 sm:right-4 lg:right-7" data-downloads>
   {
     downloads.map((d) => (
-      <a href={d.href} download={d.filename} aria-label={`${d.label} (${d.detail})`} title={`${d.label} (${d.detail})`} class={`dl dl-${d.id}`}>
-        <span class="dl-logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={icons[d.id]} />
+      <div class={`dl-slot dl-${d.id}`} style={`--dl-ratio: ${d.preview.width} / ${d.preview.height}`}>
+        <a href={d.href} download={d.filename} aria-label={`${d.label} (${d.detail})`} title={`${d.label} (${d.detail})`} class="dl">
+          <span class="dl-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={icons[d.id]} />
+          </span>
+          <span class="dl-text" aria-hidden="true">
+            <span class="dl-label">{d.label}</span>
+            <span class="dl-detail">{d.detail}</span>
+          </span>
+          <span class="dl-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v10m0 0-4-4m4 4 4-4M6.5 19h11" />
+            </svg>
+          </span>
+        </a>
+        <span class="dl-preview" aria-hidden="true">
+          <img data-src={d.preview.src} alt="" width={d.preview.width} height={d.preview.height} decoding="async" />
         </span>
-        <span class="dl-text" aria-hidden="true">
-          <span class="dl-label">{d.label}</span>
-          <span class="dl-detail">{d.detail}</span>
-        </span>
-        <span class="dl-arrow" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 5v10m0 0-4-4m4 4 4-4M6.5 19h11" />
-          </svg>
-        </span>
-      </a>
+      </div>
     ))
   }
 </div>
 
+<script>
+  // Fetch the preview images on the first hover or focus, not with the page.
+  const root = document.querySelector<HTMLElement>("[data-downloads]");
+  const load = () => {
+    root?.querySelectorAll<HTMLImageElement>("img[data-src]").forEach((img) => {
+      img.src = img.dataset["src"] ?? "";
+      img.removeAttribute("data-src");
+    });
+  };
+  root?.addEventListener("pointerover", load, { once: true });
+  root?.addEventListener("focusin", load, { once: true });
+</script>
+
 <style>
   .downloads {
-    /* Folded and open sizes. A theme can set --dl-radius (corners), --dl-label-font and --dl-on-hero. */
+    /* Resting size of a button, and its size when it grows. A theme can set
+       --dl-radius (corners) and --dl-label-font. */
     --dl-size: 2.5rem;
-    --dl-open: 14.5rem;
+    --dl-open: 13.5rem;
+    --dl-open-h: 2.75rem;
     animation: downloads-in 1s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
   }
   @media (min-width: 640px) {
     .downloads {
-      --dl-size: 3rem;
-      --dl-open: 16rem;
+      --dl-size: 2.25rem;
+      --dl-open: 15rem;
     }
+  }
+
+  /* Each button sits in a fixed slot and grows out of it (left, and a little up
+     and down into the gaps), so its neighbours never move. */
+  .dl-slot {
+    position: relative;
+    width: var(--dl-size);
+    height: var(--dl-size);
+  }
+  .dl-slot:hover,
+  .dl-slot:focus-within {
+    z-index: 1;
   }
 
   .dl {
     pointer-events: auto;
+    position: absolute;
+    top: 50%;
+    right: 0;
     display: flex;
     align-items: center;
+    width: var(--dl-size);
     height: var(--dl-size);
     overflow: hidden;
-    border: 1px solid var(--c-line);
-    border-radius: var(--dl-radius, 0.95rem);
-    background: color-mix(in oklab, var(--c-bg) 80%, transparent);
+    border: 1px solid color-mix(in oklab, var(--c-line) 80%, transparent);
+    border-radius: var(--dl-radius, 0.8rem);
+    background: color-mix(in oklab, var(--c-bg) 72%, transparent);
     color: var(--c-fg);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    translate: 0 -50%;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     transition:
-      width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.3s,
-      background-color 0.3s;
+      background-color 0.3s,
+      box-shadow 0.4s;
   }
 
   .dl-logo {
@@ -75,25 +114,20 @@ const icons: Record<DownloadId, string> = {
     place-items: center;
     width: calc(var(--dl-size) - 2px);
     height: 100%;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .dl-logo svg {
     box-sizing: content-box;
-    width: 18px;
-    height: 18px;
-    padding: 0.4rem;
-    border-radius: calc(var(--dl-radius, 0.95rem) * 0.65);
-    color: var(--c-accent);
-    background: color-mix(in oklab, var(--c-accent) 13%, transparent);
+    width: 16px;
+    height: 16px;
+    padding: 0.3rem;
+    border-radius: calc(var(--dl-radius, 0.8rem) * 0.7);
+    color: color-mix(in oklab, var(--c-fg) 62%, transparent);
     transition:
       color 0.3s,
-      background-color 0.3s;
-  }
-  @media (max-width: 639px) {
-    .dl-logo svg {
-      padding: 0;
-      background: none;
-      color: var(--c-fg);
-    }
+      background-color 0.3s,
+      width 0.5s,
+      height 0.5s;
   }
 
   .dl-text {
@@ -102,9 +136,9 @@ const icons: Record<DownloadId, string> = {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding-left: 0.15rem;
     white-space: nowrap;
-    transition: opacity 0.25s;
+    opacity: 0;
+    transition: opacity 0.2s;
   }
   .dl-label {
     font-family: var(--dl-label-font, inherit);
@@ -125,69 +159,117 @@ const icons: Record<DownloadId, string> = {
     display: grid;
     place-items: center;
     width: 2.5rem;
-    color: var(--c-mute);
-    transition:
-      opacity 0.25s,
-      color 0.3s,
-      transform 0.3s;
+    color: var(--c-accent);
+    opacity: 0;
+    transition: opacity 0.2s;
   }
   .dl-arrow svg {
     width: 16px;
     height: 16px;
   }
 
-  /* How open the column is, 0 (logos) or 1 (logos, labels and formats). Open
-     on the contact slide and the intro when the screen has room (a theme whose
-     intro art sits in the corner sets --dl-on-hero: 0), on hover, when tabbing
-     into it, and without JavaScript. */
-  .downloads {
-    --dl-k: 0;
+  /* The preview: a small image of the file, beside the grown button and
+     aligned with its bottom edge. Shown where a pointer can hover. */
+  .dl-preview {
+    pointer-events: none;
+    position: absolute;
+    right: calc(var(--dl-open) + 0.625rem);
+    bottom: calc((var(--dl-size) - var(--dl-open-h)) / 2);
+    width: var(--dl-preview-w, 9.5rem);
+    padding: 0.375rem;
+    border: 1px solid var(--c-line);
+    border-radius: calc(var(--dl-radius, 0.8rem) * 0.9);
+    background: var(--c-bg);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.06),
+      0 18px 40px -12px rgb(0 0 0 / 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(8px) scale(0.97);
+    transform-origin: right bottom;
+    transition:
+      opacity 0.25s,
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s 0.25s;
   }
-  @media (min-width: 768px) and (min-height: 600px) {
-    :global(html[data-slide="contact"]) .downloads {
-      --dl-k: 1;
-    }
-    :global(html[data-slide="hero"]) .downloads {
-      --dl-k: var(--dl-on-hero, 1);
-    }
+  .dl-cv .dl-preview {
+    --dl-preview-w: 12rem;
   }
-  @media (hover: hover) {
-    :global(html) .downloads:hover {
-      --dl-k: 1;
-    }
+  .dl-share .dl-preview {
+    --dl-preview-w: 16rem;
   }
-  :global(html) .downloads:has(:focus-visible),
-  :global(html:not(.js)) .downloads {
-    --dl-k: 1;
+  .dl-preview img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--dl-ratio);
+    border-radius: calc(var(--dl-radius, 0.8rem) * 0.55);
+    background: color-mix(in oklab, var(--c-fg) 6%, transparent);
   }
-  .dl {
-    width: calc(var(--dl-size) + (var(--dl-open) - var(--dl-size)) * var(--dl-k));
-  }
-  .dl-text,
-  .dl-arrow {
-    opacity: var(--dl-k);
-    transition-delay: 0.12s;
+  .dl-cv .dl-preview img {
+    box-shadow: inset 0 0 0 1px var(--c-line);
   }
 
-  /* The button under the pointer or in focus takes the accent. */
+  /* Grown: under the pointer, or in keyboard focus. */
+  @media (hover: hover) {
+    .dl:hover {
+      width: var(--dl-open);
+      height: var(--dl-open-h);
+    }
+    .dl-slot:hover .dl-text,
+    .dl-slot:hover .dl-arrow {
+      opacity: 1;
+      transition-delay: 0.1s;
+    }
+  }
+  .dl:focus-visible {
+    width: var(--dl-open);
+    height: var(--dl-open-h);
+  }
+  .dl:focus-visible .dl-text,
+  .dl:focus-visible .dl-arrow {
+    opacity: 1;
+  }
   .dl:hover,
   .dl:focus-visible {
-    border-color: var(--c-accent);
+    border-color: color-mix(in oklab, var(--c-accent) 70%, transparent);
     background: var(--c-bg);
+    box-shadow: 0 10px 28px -12px rgb(0 0 0 / 0.35);
+  }
+  .dl:hover .dl-logo,
+  .dl:focus-visible .dl-logo {
+    width: calc(var(--dl-open-h) - 2px);
   }
   .dl:hover .dl-logo svg,
   .dl:focus-visible .dl-logo svg {
-    color: var(--c-on-accent);
-    background: var(--c-accent);
-  }
-  .dl:hover .dl-arrow,
-  .dl:focus-visible .dl-arrow {
     color: var(--c-accent);
-    transform: translateY(1px);
+    background: color-mix(in oklab, var(--c-accent) 14%, transparent);
   }
   .dl:focus-visible {
     outline: 2px solid var(--c-accent);
     outline-offset: 2px;
+  }
+  @media (hover: hover) and (min-width: 768px) {
+    .dl-slot:has(.dl:hover) .dl-preview {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity 0.25s 0.08s,
+        transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s,
+        visibility 0s;
+    }
+  }
+  @media (min-width: 768px) {
+    .dl-slot:has(.dl:focus-visible) .dl-preview {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity 0.25s,
+        transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        visibility 0s;
+    }
   }
 
   @keyframes downloads-in {
@@ -201,9 +283,11 @@ const icons: Record<DownloadId, string> = {
       animation: none;
     }
     .dl,
+    .dl-logo,
     .dl-text,
-    .dl-arrow {
-      transition: none;
+    .dl-arrow,
+    .dl-preview {
+      transition: none !important;
     }
   }
 </style>
