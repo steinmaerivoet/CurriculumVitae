@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import { Resvg } from "@resvg/resvg-js";
 
 /**
  * Builds a QR code as an SVG in the site's style: round dots for the data,
@@ -130,5 +131,9 @@ export function styledQrSvg(text: string, { theme = qrThemes.light, module: m = 
     `</svg>`,
   ].join("");
 }
+
+/** The same code as a PNG, `width` pixels wide: for the download and the PDF (which cannot embed SVG). */
+export const styledQrPng = (text: string, width: number, options: Options = {}): Buffer =>
+  new Resvg(styledQrSvg(text, options), { fitTo: { mode: "width", value: width } }).render().asPng();
 
 const escapeXml = (s: string) => s.replace(/[<>&"]/g, (c) => `&#${c.charCodeAt(0)};`);

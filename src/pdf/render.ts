@@ -1,8 +1,8 @@
 import { createElement } from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { PdfModel } from "@/bff/pdf/document";
-import CvDocument from "./CvDocument";
+import CvDocument, { type PdfAssets } from "./CvDocument";
 
-/** PDF view model → PDF bytes. */
-export const renderCvPdf = (model: PdfModel): Promise<Buffer> =>
-  renderToBuffer(createElement(CvDocument, { model }) as Parameters<typeof renderToBuffer>[0]);
+/** PDF view model + images rendered by the page → PDF bytes. */
+export const renderCvPdf = (model: PdfModel, assets: PdfAssets): Promise<Buffer> =>
+  renderToBuffer(createElement(CvDocument, { model, assets }) as Parameters<typeof renderToBuffer>[0]);

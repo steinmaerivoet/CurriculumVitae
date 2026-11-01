@@ -39,6 +39,8 @@ ui:
   downloadCv: Download CV
   # Knop rechtsonder die een QR-code naar deze site downloadt (PNG, gegenereerd bij de build).
   downloadQr: Download QR code
+  # Tekst bij de QR-code bovenaan de PDF, zodat wie enkel de PDF heeft de site vindt.
+  pdfQrCaption: Scan or click for the interactive CV
 
 person:
   firstName: Stein

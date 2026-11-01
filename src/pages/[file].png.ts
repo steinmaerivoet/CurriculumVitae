@@ -1,9 +1,8 @@
 import type { APIRoute, GetStaticPaths } from "astro";
-import { Resvg } from "@resvg/resvg-js";
 import { getCv } from "@/core";
 import { qrSlug, shareSlug } from "@/bff/shared/files";
 import { buildShareCard } from "@/bff/seo";
-import { styledQrSvg } from "@/qr/styledQr";
+import { styledQrPng } from "@/qr/styledQr";
 import { shareCardPng } from "@/og/shareCard";
 
 /**
@@ -12,8 +11,7 @@ import { shareCardPng } from "@/og/shareCard";
  * - the share card (Open Graph image) that link previews show.
  */
 const renderers: Record<string, () => Uint8Array> = {
-  [qrSlug(getCv())]: () =>
-    new Uint8Array(new Resvg(styledQrSvg(getCv().meta.url), { fitTo: { mode: "width", value: 2048 } }).render().asPng()),
+  [qrSlug(getCv())]: () => new Uint8Array(styledQrPng(getCv().meta.url, 2048)),
   [shareSlug(getCv())]: () => shareCardPng(buildShareCard(getCv())),
 };
 
