@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Personal CV site for Stein Maerivoet: a vertical slideshow built with Astro, React, TypeScript (strictest), Tailwind CSS v4 and GSAP. It deploys to Cloudflare Pages (see CLOUDFLARE.md).
+Personal CV site for Stein Maerivoet: a vertical slideshow built with Astro, React, TypeScript (strictest), Tailwind CSS v4 and GSAP. It deploys to a Cloudflare Worker from `main` (see CLOUDFLARE.md).
 
 The site has four themes (Plain, the default, Terminal, API reference and Commit graph), a PDF and a JSON API, all built from one content service. Read docs/ARCHITECTURE.md before changing structure: content → core (`src/core`) → one BFF per front end (`src/bff`) → front ends (`src/web/themes/<id>`, `src/pdf`). Dependencies only point down.
 

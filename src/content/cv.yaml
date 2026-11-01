@@ -51,7 +51,7 @@ person:
     everything around me.
   location: Mechelen, Belgium
   # Publiek adres; Cloudflare Email Routing stuurt het door naar je eigen
-  # mailbox (zie CLOUDFLARE.md §6).
+  # mailbox (zie CLOUDFLARE.md §7).
   email: hello@steinmaerivoet.dev
   # Zet op true om een "beschikbaar"-badge op de intro te tonen.
   available: false
