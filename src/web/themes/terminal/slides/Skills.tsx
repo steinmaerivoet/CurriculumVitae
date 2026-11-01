@@ -34,12 +34,12 @@ export default function Skills({ deck, view }: SlideProps<TerminalView>) {
           return (
             <div key={m.group} className="grid grid-cols-[10ch_minmax(0,1fr)] gap-2 whitespace-nowrap">
               <span className="t-cyan truncate">{m.group.split(" ")[0]}</span>
-              <span className="overflow-hidden text-mute">
+              <span className="overflow-hidden whitespace-pre text-mute">
                 [<span className="t-green">{"|".repeat(Math.min(filled, 12))}</span>
                 <span className="t-yellow">{"|".repeat(Math.max(0, Math.min(filled, 20) - 12))}</span>
                 <span className="t-red">{"|".repeat(Math.max(0, filled - 20))}</span>
                 {" ".repeat(METER - filled)}
-                <span className="text-fg">{m.count}</span>]
+                <span className="text-fg">{String(m.count).padStart(2)}</span>]
               </span>
             </div>
           );

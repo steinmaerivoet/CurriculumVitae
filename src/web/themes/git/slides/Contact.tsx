@@ -10,7 +10,7 @@ export default function Contact({ deck, view }: SlideProps<GitView>) {
   return (
     <Frame>
       <Command command={view.commands.contact} arg={`--base ${view.repo}`} />
-      <div data-reveal className="max-w-3xl overflow-hidden rounded-xl border border-line">
+      <div data-reveal className="max-w-4xl overflow-hidden rounded-xl border border-line">
         <p className="flex flex-wrap items-center gap-2.5 bg-bg-2 px-4 py-3 text-xs text-mute">
           <span className="rounded-md border border-line px-2 py-1 text-fg">base: {view.repo}</span>←
           <span className="rounded-md border border-line px-2 py-1 text-fg">compare: you/idea</span>

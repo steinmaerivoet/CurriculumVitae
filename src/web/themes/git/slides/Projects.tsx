@@ -43,7 +43,7 @@ export default function Projects({ deck, view }: SlideProps<GitView>) {
                       {p.name}
                     </button>
                   </h3>
-                  <ul className="ml-2 inline-flex flex-wrap gap-1 align-[2px]">
+                  <ul className="mt-1 flex flex-wrap gap-1 sm:mt-0 sm:ml-2 sm:inline-flex sm:align-[2px]">
                     {p.tags.map((t, j) => {
                       return (
                         <li key={t.label} style={{ color: LABELS[(i + j) % LABELS.length] }}>

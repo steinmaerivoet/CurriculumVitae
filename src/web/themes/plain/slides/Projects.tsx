@@ -41,16 +41,16 @@ function Card({ project, n, lit }: { project: Project; n: number; lit: boolean }
   ) : null;
 
   return (
-    <li data-project={project.id} className="w-[78vw] max-w-sm shrink-0 snap-center [perspective:1000px] sm:w-auto sm:max-w-none" data-reveal>
+    <li data-project={project.id} className="w-[78vw] max-w-sm shrink-0 snap-center [perspective:1000px] sm:row-span-4 sm:grid sm:w-auto sm:max-w-none sm:grid-rows-subgrid sm:gap-y-0" data-reveal>
       <article
         ref={ref}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        className={`group relative flex h-full min-h-[19rem] flex-col overflow-hidden rounded-3xl border bg-surface/60 p-6 transition-[border-color,box-shadow] duration-700 [transform-style:preserve-3d] hover:border-fg/25 sm:min-h-[16rem] lg:min-h-0 lg:p-7 short:p-6 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(600px_circle_at_var(--mx,50%)_var(--my,0%),color-mix(in_oklab,var(--c-accent)_9%,transparent),transparent_40%)] before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100 ${
+        className={`group relative flex h-full min-h-[19rem] flex-col overflow-hidden sm:row-span-4 sm:grid sm:grid-rows-subgrid sm:gap-y-0 rounded-3xl border bg-surface/60 p-6 transition-[border-color,box-shadow] duration-700 [transform-style:preserve-3d] hover:border-fg/25 sm:min-h-[16rem] lg:min-h-0 lg:p-7 short:p-6 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(600px_circle_at_var(--mx,50%)_var(--my,0%),color-mix(in_oklab,var(--c-accent)_9%,transparent),transparent_40%)] before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100 ${
           lit ? "border-accent shadow-[0_0_0_1px_color-mix(in_oklab,var(--c-accent)_35%,transparent),0_20px_60px_-20px_color-mix(in_oklab,var(--c-accent)_35%,transparent)]" : "border-line"
         }`}
       >
-        <div className="relative flex items-start justify-between gap-3">
+        <div className="relative flex items-center justify-between gap-3">
           <span className="text-sm tabular-nums">
             <span className="text-accent">{pad(n)}</span>
             {meta ? <span className="text-mute"> · </span> : null}
@@ -62,7 +62,7 @@ function Card({ project, n, lit }: { project: Project; n: number; lit: boolean }
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${project.name} (opens in a new tab)`}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line transition-all duration-500 hover:rotate-45 hover:border-accent hover:bg-accent hover:text-on-accent"
+              className="-my-2.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line transition-all duration-500 hover:rotate-45 hover:border-accent hover:bg-accent hover:text-on-accent"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M1 13 13 1M13 1H4M13 1v9" stroke="currentColor" strokeWidth="1.5" />
@@ -70,14 +70,15 @@ function Card({ project, n, lit }: { project: Project; n: number; lit: boolean }
             </a>
           ) : null}
         </div>
-        {/* Titles line up across a row, tags sit on the bottom edge. */}
-        <div className="relative flex flex-1 flex-col pt-8 lg:pt-6 short:pt-4">
-          <h3 className="font-display text-3xl leading-tight tracking-tight lg:text-[1.75rem]">{project.name}</h3>
-          <p className="mt-2.5 text-sm leading-relaxed text-mute lg:line-clamp-3 short:line-clamp-2">
+        {/* On a grid the header, title, summary and tags share row tracks
+            (subgrid), so each lines up with its neighbours in the row. */}
+        <div className="relative flex flex-1 flex-col sm:contents">
+          <h3 className="relative mt-6 font-display text-3xl leading-tight tracking-tight lg:mt-5 lg:text-[1.75rem] short:mt-3">{project.name}</h3>
+          <p className="relative mt-2.5 text-sm leading-relaxed text-mute lg:line-clamp-3 short:line-clamp-2">
             {project.summary ?? project.description[0]}
           </p>
           {project.tags.length > 0 && (
-            <ul className="mt-auto flex flex-wrap gap-1.5 pt-4">
+            <ul className="relative mt-auto flex flex-wrap content-start gap-1.5 pt-4 sm:mt-0">
               {project.tags.map((c) => (
                 <li key={c.label}>
                   <Chip term={c} />

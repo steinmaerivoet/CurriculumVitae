@@ -14,8 +14,8 @@ export default function Education({ deck, view }: SlideProps<GitView>) {
       <div className="grid items-start gap-8 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:gap-12">
         <ul>
           {education.items.map((e) => (
-            <li key={e.degree} data-reveal className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-3.5 border-b border-line py-3">
-              <span className="g-gold rounded-full border border-[color-mix(in_oklab,var(--g-gold)_35%,transparent)] px-2.5 py-0.5 text-xs whitespace-nowrap">v{e.end}</span>
+            <li key={e.degree} data-reveal className="grid grid-cols-[4.25rem_minmax(0,1fr)_auto] items-baseline gap-3.5 border-b border-line py-3">
+              <span className="g-gold rounded-full border border-[color-mix(in_oklab,var(--g-gold)_35%,transparent)] justify-self-start px-2.5 py-0.5 text-xs whitespace-nowrap">v{e.end}</span>
               <div>
                 <h3 className="font-display text-base leading-snug font-semibold">{e.degree}</h3>
                 <span className="text-[11.5px] text-mute">
@@ -27,8 +27,8 @@ export default function Education({ deck, view }: SlideProps<GitView>) {
             </li>
           ))}
           {education.certifications.map((c) => (
-            <li key={c.name} data-reveal className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-3.5 border-b border-line py-3">
-              <span className="g-teal rounded-full border border-[color-mix(in_oklab,var(--g-teal)_35%,transparent)] px-2.5 py-0.5 text-xs">cert</span>
+            <li key={c.name} data-reveal className="grid grid-cols-[4.25rem_minmax(0,1fr)_auto] items-baseline gap-3.5 border-b border-line py-3">
+              <span className="g-teal rounded-full border border-[color-mix(in_oklab,var(--g-teal)_35%,transparent)] justify-self-start px-2.5 py-0.5 text-xs">cert</span>
               <div>
                 <h3 className="font-display text-base leading-snug font-semibold">{c.name}</h3>
                 <span className="text-[11.5px] text-mute">{c.issuer}</span>
@@ -40,17 +40,17 @@ export default function Education({ deck, view }: SlideProps<GitView>) {
             </li>
           ))}
         </ul>
-        <div data-reveal>
+        <div data-reveal className="md:pt-3">
           <p className="mb-2 text-xs text-mute">$ ls i18n/</p>
           <h3 className="sr-only">{education.languagesLabel}</h3>
           <ul>
             {view.i18n.map((l) => (
-              <li key={l.name} className="grid grid-cols-[7rem_minmax(0,1fr)_auto] items-center gap-3 py-1.5 text-xs">
+              <li key={l.name} className="grid grid-cols-[minmax(0,6rem)_minmax(0,1fr)_17ch] items-center gap-3 py-1.5 text-xs">
                 <span>{l.name}</span>
                 <span className="h-1.5 overflow-hidden rounded-full bg-surface" aria-hidden="true">
                   <i className="block h-full rounded-full bg-gradient-to-r from-accent to-[var(--g-gold)]" style={{ width: `${l.share * 100}%` }} />
                 </span>
-                <span className="text-mute">{l.level}</span>
+                <span className="text-right text-mute">{l.level}</span>
               </li>
             ))}
           </ul>

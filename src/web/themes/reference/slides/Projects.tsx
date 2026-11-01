@@ -16,13 +16,14 @@ export default function Projects({ deck, view }: SlideProps<ReferenceView>) {
         <h2 className="text-[clamp(1.5rem,2.4vw,1.9rem)] font-semibold tracking-tight">{projects.label}</h2>
         <Endpoint endpoint={ep} />
       </div>
+      {/* Cards share row tracks (subgrid), so titles, summaries and tags line up across a row. */}
       <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {projects.featured.map((p) => (
           <li
             key={p.id}
             id={`project-${p.id}`}
             data-reveal
-            className={`grid content-start gap-1.5 rounded-xl border bg-surface px-4 py-3.5 transition-shadow duration-500 ${
+            className={`grid content-start gap-1.5 rounded-xl md:row-span-5 md:grid-rows-subgrid border bg-surface px-4 py-3.5 transition-shadow duration-500 ${
               lit === p.id ? "border-accent shadow-[0_0_0_3px_rgb(47_91_255/0.12)]" : "border-line"
             }`}
           >
@@ -47,9 +48,11 @@ export default function Projects({ deck, view }: SlideProps<ReferenceView>) {
               ) : (
                 <span className="text-[12.5px] text-mute">{p.meta}</span>
               )
-            ) : null}
+            ) : (
+              <span aria-hidden="true" />
+            )}
             <p className="text-[13.5px] leading-normal text-mute">{p.summary ?? p.description[0]}</p>
-            <ul className="mt-1 flex flex-wrap gap-1">
+            <ul className="mt-1 flex flex-wrap content-start gap-1">
               {p.tags.map((t) => (
                 <li key={t.label}>
                   <TermLink

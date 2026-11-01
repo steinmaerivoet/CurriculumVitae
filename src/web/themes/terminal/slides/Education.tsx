@@ -60,7 +60,7 @@ export default function Education({ deck, view }: SlideProps<TerminalView>) {
 
         <Pane title="locale -a">
           <h3 className="sr-only">{education.languagesLabel}</h3>
-          <ul className="grid grid-cols-[9ch_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[9ch_minmax(0,1fr)_auto]">
+          <ul className="grid grid-cols-[8ch_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[9ch_minmax(0,1fr)_auto]">
             {view.locales.map((l) => {
               const n = Math.round(l.share * BAR);
               return (
@@ -70,7 +70,7 @@ export default function Education({ deck, view }: SlideProps<TerminalView>) {
                     {"█".repeat(n)}
                     <span className="text-line">{"░".repeat(BAR - n)}</span>
                   </span>
-                  <span className="text-mute max-sm:col-start-2">{l.level.toLowerCase()}</span>
+                  <span className="text-mute">{l.level.toLowerCase()}</span>
                 </li>
               );
             })}
