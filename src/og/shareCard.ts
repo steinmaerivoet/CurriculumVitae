@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import { SHARE_CARD, type ShareCard } from "@/bff/seo";
-import { HASH_PATH, qrThemes, S_PATH, styledQrShapes } from "@/qr/styledQr";
+import { qrThemes, styledQrShapes } from "@/qr/styledQr";
 import { woffToSfnt } from "./woff";
 
 /**
@@ -87,13 +87,13 @@ export function shareCardSvg(card: ShareCard): string {
   const x0 = 72;
   const colRight = 704;
 
-  // Ink panel on the right: a header, the QR code on a paper tile, and what it opens.
+  // Ink panel on the right: the QR code on a paper tile, and what it opens.
   const panel = { x: 760, y: 36, w: W - 760 - 36, h: H - 72 };
   const panelCx = panel.x + panel.w / 2;
   const inset = 36;
   const tile = 312;
   const tileX = panelCx - tile / 2;
-  const tileY = panel.y + 80;
+  const tileY = panel.y + 66;
   const qr = styledQrShapes(card.url, { theme: { ...qrThemes.light, background: C.paper }, margin: 3 });
   const qrPad = 14;
   const qrScale = (tile - qrPad * 2) / qr.size;
@@ -164,10 +164,6 @@ export function shareCardSvg(card: ShareCard): string {
     <rect x="${panel.x}" y="${panel.y}" width="${panel.w}" height="${panel.h}" fill="url(#glow-panel)"/>
   </g>
   <rect x="${panel.x + 0.5}" y="${panel.y + 0.5}" width="${panel.w - 1}" height="${panel.h - 1}" rx="27.5" fill="none" stroke="${C.inkLine}"/>
-
-  <g transform="translate(${panel.x + inset - 5} ${panel.y + 18}) scale(0.62)">
-    <path fill="${C.inkAccent}" d="${HASH_PATH}"/><path fill="${C.inkFg}" d="${S_PATH}"/>
-  </g>
 
   <rect x="${tileX}" y="${tileY}" width="${tile}" height="${tile}" rx="26" fill="${C.paper}" filter="url(#tile-shadow)"/>
   <g transform="translate(${tileX + qrPad} ${tileY + qrPad}) scale(${qrScale})">${qr.body}</g>
