@@ -33,14 +33,18 @@ function Meter({ level, className = "" }: { level: SkillLevel | undefined; class
 
 function Detail({ entry, skills, onClose }: { entry: SkillView; skills: DeckModel["skills"]; onClose?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const fade = useRef<gsap.core.Tween | null>(null);
 
-  // A short, deliberate transition when another skill is selected.
-  useEffect(() => {
+  // A short, deliberate transition when another skill is selected, set up
+  // before the browser paints (no frame of the new skill at full strength) and
+  // replacing any fade still running, so two fades never fight.
+  useLayoutEffect(() => {
     if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.fromTo(
+    fade.current?.kill();
+    fade.current = gsap.fromTo(
       ref.current.querySelectorAll("[data-detail]"),
       { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.45, ease: "power3.out", stagger: 0.04, overwrite: true },
+      { opacity: 1, y: 0, duration: 0.45, ease: "power3.out", stagger: 0.04, clearProps: "opacity,transform" },
     );
   }, [entry.key]);
 
@@ -134,6 +138,7 @@ export default function Skills({ deck }: SlideProps) {
   const [graphOpen, setGraphOpen] = useState(false);
   const gridRef = useRef<HTMLUListElement>(null);
   const settling = useRef(false); // tiles are animating in: ignore hover
+  const dealing = useRef<gsap.core.Tween | null>(null);
   const filtered = useRef(false); // the filter changed: deal the new tiles in
 
   // Linked from experience, a project card or the graph. Wide screens show the
@@ -184,9 +189,12 @@ export default function Skills({ deck }: SlideProps) {
     filtered.current = false;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     settling.current = true;
+    // Stop the previous deal first, also on tiles this filter hides: left
+    // running, it would keep setting their opacity once they show again, and
+    // they would flash in at full strength before this deal fades them in.
+    dealing.current?.kill();
     const tiles = grid.querySelectorAll("[data-tile]:not([hidden])");
-    gsap.killTweensOf(tiles);
-    gsap.fromTo(
+    dealing.current = gsap.fromTo(
       tiles,
       { opacity: 0, y: 10 },
       {

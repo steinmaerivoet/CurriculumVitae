@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import type { SlideProps } from "@/web/themes/types";
 import { range } from "@/bff/shared/format";
@@ -12,19 +12,25 @@ export default function Experience({ deck }: SlideProps) {
   const { active, item, select, openProject, toggleProject } = useEmployerSelection(experience.items);
   const panelRef = useRef<HTMLDivElement>(null);
   const first = useRef(true);
+  const fade = useRef<gsap.core.Tween | null>(null);
 
-  // Animate the detail panel whenever another role is selected.
-  useEffect(() => {
+  // Animate the detail panel whenever another role is selected. It runs before
+  // the browser paints, so the new role never shows for a frame at full
+  // strength first, and it stops the previous fade: two staggered fades on the
+  // same elements would take turns setting their opacity, and the text would
+  // flicker between both while a visitor clicks through the roles.
+  useLayoutEffect(() => {
     if (first.current) {
       first.current = false;
       return;
     }
     const panel = panelRef.current;
     if (!panel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.fromTo(
+    fade.current?.kill();
+    fade.current = gsap.fromTo(
       panel.querySelectorAll("[data-panel]"),
       { autoAlpha: 0, y: 18 },
-      { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.05 },
+      { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.05, clearProps: "opacity,visibility,transform" },
     );
   }, [active]);
 
