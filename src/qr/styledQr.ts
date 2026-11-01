@@ -4,7 +4,7 @@ import { Resvg } from "@resvg/resvg-js";
 /**
  * Builds a QR code as an SVG in the site's style: round dots for the data,
  * rounded "eyes" for the finder patterns and the #S mark from the favicon
- * between < > brackets in the middle.
+ * in the middle.
  *
  * Error correction is set to H (about 30% of the code can be lost), and the
  * centre mark covers well under 10% of the modules, so the code keeps a wide
@@ -16,8 +16,7 @@ export type QrTheme = {
   dots: string;
   eyes: string;
   eyeCenter: string;
-  /** Colours of the centre mark: brackets, "#" and "S". */
-  bracket: string;
+  /** Colours of the centre mark: "#" and "S". */
   hash: string;
   letter: string;
 };
@@ -30,7 +29,6 @@ export const qrThemes = {
     dots: "#141518",
     eyes: "#2e4ee6",
     eyeCenter: "#141518",
-    bracket: "#2e4ee6",
     hash: "#2e4ee6",
     letter: "#141518",
   },
@@ -40,7 +38,6 @@ export const qrThemes = {
     dots: "#ecebe7",
     eyes: "#8fa3ff",
     eyeCenter: "#8fa3ff",
-    bracket: "#8fa3ff",
     hash: "#8fa3ff",
     letter: "#ecebe7",
   },
@@ -78,9 +75,9 @@ export function styledQrSvg(text: string, { theme = qrThemes.light, module: m = 
   const inEye = (x: number, y: number) => eyes.some(([ex, ey]) => x >= ex && x < ex + 7 && y >= ey && y < ey + 7);
 
   // Clear area for the centre mark: an odd number of modules so it sits exactly
-  // on the grid centre. 11×7 modules is about 7% of a 33×33 code, far below what
+  // on the grid centre. 9×7 modules is about 6% of a 33×33 code, far below what
   // level H can recover.
-  const badgeW = 11;
+  const badgeW = 9;
   const badgeH = 7;
   const bx0 = (n - badgeW) / 2;
   const by0 = (n - badgeH) / 2;
@@ -106,18 +103,11 @@ export function styledQrSvg(text: string, { theme = qrThemes.light, module: m = 
     })
     .join("");
 
-  // Centre mark: "< #S >". Brackets are strokes, #S is the favicon glyph.
+  // Centre mark: the outlined #S from the favicon.
   const cx = px(n / 2);
   const cy = px(n / 2);
-  const sw = m * 0.95; // stroke width
-  const h = m * 1.75; // half height of the brackets
-  const gap = m * 3.25; // horizontal distance from centre to the bracket tips
-  const arm = m * 1.5; // horizontal reach of a bracket
-  const stroke = `fill="none" stroke="${theme.bracket}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"`;
-  const glyphScale = m * 0.08; // 64-unit favicon box, about 4.5 x 3.2 modules for the glyphs
+  const glyphScale = m * 0.12; // 64-unit favicon box; the glyphs span about 5.3 x 3.8 modules
   const mark =
-    `<path d="M${cx - gap} ${cy - h} L${cx - gap - arm} ${cy} L${cx - gap} ${cy + h}" ${stroke}/>` +
-    `<path d="M${cx + gap} ${cy - h} L${cx + gap + arm} ${cy} L${cx + gap} ${cy + h}" ${stroke}/>` +
     `<g transform="translate(${cx - 31.5 * glyphScale} ${cy - 32 * glyphScale}) scale(${glyphScale})">` +
     `<path fill="${theme.hash}" d="${HASH_PATH}"/><path fill="${theme.letter}" d="${S_PATH}"/></g>`;
 
