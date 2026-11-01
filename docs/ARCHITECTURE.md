@@ -405,8 +405,19 @@ CORS for `/api/*`.
 schema.org `ProfilePage` / `Person` (every role, its story, projects and
 skills) in a JSON-LD script, and the Open Graph tags point at a share card
 that `og/shareCard.ts` draws from data.yaml and renders to PNG at build time
-(resvg, with the site's own fonts). `robots.txt` and `sitemap.xml` are
-generated from `meta.url`.
+(resvg, with the site's own fonts): the name, headline, tagline and About
+figures on the left, and the site's QR code on an ink panel on the right.
+`robots.txt` and `sitemap.xml` are generated from `meta.url`.
+
+**Download buttons.** `web/shared/Downloads.astro` puts three buttons in the
+bottom-right corner of every theme, top to bottom: the PDF CV, the QR code and
+the share card. `bff/web/downloads.ts` gives each its label (data.yaml `ui`),
+format line and file name. Each button is a logo followed by its label and
+format. The column is open on the intro and contact slides (the deck sets
+`data-slide` on `<html>`), on hover and when tabbing into it, and folds into a
+column of logos on the other slides so it never covers content. A theme can
+tune it with `--dl-radius`, `--dl-label-font` and `--dl-on-hero: 0` (keep it
+folded on the intro, as the Commit graph theme does for its branch graph).
 
 ## Hosting and delivery
 
@@ -480,7 +491,7 @@ npm test            # both
 | E2E | `layout` | Every slide fits on desktop and laptop, in every state. |
 | E2E | `experience`, `skills`, `links` | Selections, filters and cross-links between slides. |
 | E2E | `themes` | The shared conventions, for every theme in the registry. |
-| E2E | `download`, `qr` | The PDF and QR downloads, and that the QR scans. |
+| E2E | `download`, `qr` | The PDF, QR and share card downloads, their order in the corner, and that both QR codes scan. |
 
 The Playwright config builds the site, serves the production build and runs
 on four devices: desktop (1440×900), laptop (1366×768), Pixel 7 and a small

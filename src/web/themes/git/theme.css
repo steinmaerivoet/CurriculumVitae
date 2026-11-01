@@ -37,6 +37,12 @@
   .g-del { color: var(--g-del); }
   .g-prose { color: var(--g-prose); }
 
+  /* The download buttons: grotesque labels, and folded on the intro so the branch graph keeps its corner. */
+  .downloads {
+    --dl-label-font: var(--f-display);
+    --dl-on-hero: 0;
+  }
+
   .g-paper {
     background:
       radial-gradient(90% 70% at 100% 0%, color-mix(in oklab, var(--c-accent) 8%, transparent), transparent 60%),

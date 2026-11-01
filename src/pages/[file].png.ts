@@ -1,17 +1,17 @@
 import type { APIRoute, GetStaticPaths } from "astro";
 import { getCv } from "@/core";
-import { qrSlug, shareSlug } from "@/bff/shared/files";
+import { QR_PNG_SIZE, qrSlug, shareSlug } from "@/bff/shared/files";
 import { buildShareCard } from "@/bff/seo";
 import { styledQrPng } from "@/qr/styledQr";
 import { shareCardPng } from "@/og/shareCard";
 
 /**
  * PNG files rendered once at build time:
- * - the styled QR code for the site URL, 2048 px: large enough for print, small enough to share;
+ * - the styled QR code for the site URL (QR_PNG_SIZE pixels wide);
  * - the share card (Open Graph image) that link previews show.
  */
 const renderers: Record<string, () => Uint8Array> = {
-  [qrSlug(getCv())]: () => new Uint8Array(styledQrPng(getCv().meta.url, 2048)),
+  [qrSlug(getCv())]: () => new Uint8Array(styledQrPng(getCv().meta.url, QR_PNG_SIZE)),
   [shareSlug(getCv())]: () => shareCardPng(buildShareCard(getCv())),
 };
 

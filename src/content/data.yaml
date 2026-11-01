@@ -40,8 +40,12 @@ ui:
   downloadCv: Download CV
   # Bottom-right button that downloads a QR code to this site (PNG, generated at build time).
   downloadQr: Download QR code
+  # Bottom-right button that downloads the share card (the image link previews show, with the QR code).
+  downloadShareCard: Download share card
   # Caption next to the QR code at the top of the PDF, so someone with only the PDF finds the site.
   pdfQrCaption: Scan or click for the interactive CV
+  # Caption next to the QR code on the share card.
+  shareCardQrCaption: Scan for the interactive CV
 
 person:
   firstName: Stein

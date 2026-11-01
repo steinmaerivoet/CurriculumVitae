@@ -81,7 +81,13 @@ export type ShareCard = {
   headline: string;
   tagline: string;
   location: string;
+  /** Short address shown under the QR code, "example.dev". */
   site: string;
+  /** What the QR code opens. */
+  url: string;
+  qrCaption: string;
+  /** The key figures from the About slide, at most three. */
+  stats: { value: string; label: string }[];
 };
 
 export const buildShareCard = (cv: Cv): ShareCard => ({
@@ -91,6 +97,9 @@ export const buildShareCard = (cv: Cv): ShareCard => ({
   tagline: clean(cv.person.tagline),
   location: cv.person.location,
   site: bareUrl(cv.meta.url),
+  url: cv.meta.url,
+  qrCaption: cv.ui.shareCardQrCaption,
+  stats: cv.about.stats.slice(0, 3).map((s) => ({ value: `${s.value}${s.suffix ?? ""}`, label: s.label })),
 });
 
 /** The <head> tags every theme page shares: title, description, canonical URL and the share card. */

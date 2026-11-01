@@ -38,6 +38,18 @@
 }
 
 [data-theme="reference"] {
+  /* On wide screens the download buttons sit over the dark response pane: dress them like it. */
+  @media (min-width: 1024px) {
+    .downloads {
+      --c-bg: var(--r-code);
+      --c-fg: var(--r-code-fg);
+      --c-line: var(--r-code-line);
+      --c-mute: #6f7899;
+      --c-accent: var(--r-key);
+      --c-on-accent: var(--r-code);
+    }
+  }
+
   .r-code { background: var(--r-code); color: var(--r-code-fg); }
   .r-key { color: var(--r-key); }
   .r-string { color: var(--r-string); }

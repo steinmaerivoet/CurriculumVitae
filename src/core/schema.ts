@@ -45,7 +45,9 @@ export const cvSchema = z.strictObject({
       footer: z.string().default(""),
       downloadCv: z.string().default("Download CV"),
       downloadQr: z.string().default("Download QR code"),
+      downloadShareCard: z.string().default("Download share card"),
       pdfQrCaption: z.string().default("Scan or click for the interactive CV"),
+      shareCardQrCaption: z.string().default("Scan for the interactive CV"),
       themeLabel: z.string().default("Theme"),
     })
     .prefault({}),

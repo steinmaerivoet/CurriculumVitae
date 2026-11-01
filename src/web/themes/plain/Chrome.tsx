@@ -166,7 +166,7 @@ export default function Chrome({ deck, index, goTo, ready }: ChromeProps) {
         data-chrome
         onClick={() => goTo(1)}
         aria-label={deck.ui.scrollHint}
-        className={`pointer-events-auto absolute right-14 bottom-0 flex items-center gap-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-[11px] tracking-[0.22em] text-mute uppercase transition-opacity duration-500 sm:right-20 lg:right-24 ${
+        className={`pointer-events-auto absolute right-14 bottom-0 flex items-center gap-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-[11px] tracking-[0.22em] text-mute uppercase transition-opacity duration-500 sm:right-20 lg:right-24 [@media(min-width:768px)_and_(min-height:600px)]:right-[18.5rem] lg:[@media(min-height:600px)]:right-[19.75rem] ${
           index === 0 ? "" : "pointer-events-none !opacity-0"
         }`}
       >

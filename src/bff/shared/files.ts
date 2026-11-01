@@ -16,6 +16,9 @@ export const qrSlug = (cv: Pick<Cv, "person">): string => cvSlug(cv).replace(/-c
 /** "Stein Maerivoet" → "stein-maerivoet-share-card": the Open Graph image. */
 export const shareSlug = (cv: Pick<Cv, "person">): string => cvSlug(cv).replace(/-curriculum-vitae$/, "-share-card");
 
+/** Width and height of the QR code PNG: large enough for print, small enough to share. */
+export const QR_PNG_SIZE = 2048;
+
 export const files = (cv: Pick<Cv, "person">) => ({
   pdf: `/${cvSlug(cv)}.pdf`,
   qrPng: `/${qrSlug(cv)}.png`,

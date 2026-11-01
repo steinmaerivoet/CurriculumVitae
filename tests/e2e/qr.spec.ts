@@ -40,12 +40,37 @@ test("QR code also ships as SVG", async ({ page }) => {
   expect((await response.text()).startsWith("<svg")).toBe(true);
 });
 
-test("both download buttons sit in the corner on every slide", async ({ page }) => {
+test("corner button downloads the share card, and its QR code scans to the site", async ({ page }) => {
+  await page.goto("/");
+  const button = page.getByRole("link", { name: /Download share card/ });
+  await expect(button).toBeVisible();
+
+  const [download] = await Promise.all([page.waitForEvent("download"), button.click()]);
+  expect(download.suggestedFilename()).toBe("stein-maerivoet-share-card.png");
+
+  const response = await page.request.get("/stein-maerivoet-share-card.png");
+  expect(response.ok()).toBe(true);
+  const result = await decode(await response.body(), "image/png");
+  expect(result?.text).toBe("https://steinmaerivoet.dev");
+});
+
+test("the three downloads are stacked CV, QR code, share card, and open on the contact slide", async ({ page }, info) => {
   await page.goto("/#contact");
-  const qr = page.getByRole("link", { name: /Download QR code/ });
-  const cv = page.getByRole("link", { name: /Download CV/ });
-  await expect(qr).toBeVisible();
-  await expect(cv).toBeVisible();
-  const [q, c] = [await qr.boundingBox(), await cv.boundingBox()];
-  expect(q!.y + q!.height).toBeLessThanOrEqual(c!.y);
+  const buttons = [/Download CV/, /Download QR code/, /Download share card/].map((name) => page.getByRole("link", { name }));
+  const boxes = [];
+  for (const b of buttons) {
+    await expect(b).toBeVisible();
+    boxes.push((await b.boundingBox())!);
+  }
+  expect(boxes[0]!.y + boxes[0]!.height).toBeLessThanOrEqual(boxes[1]!.y);
+  expect(boxes[1]!.y + boxes[1]!.height).toBeLessThanOrEqual(boxes[2]!.y);
+
+  // Desktop and laptop show the label and format next to the logo; phones keep the logos only.
+  const label = page.locator(".dl-cv .dl-label");
+  if (info.project.name === "desktop" || info.project.name === "laptop") {
+    await expect(async () => expect((await buttons[0]!.boundingBox())!.width).toBeGreaterThan(200)).toPass();
+    await expect(label).toHaveCSS("opacity", "1");
+  } else {
+    expect(boxes[0]!.width).toBeLessThan(50);
+  }
 });

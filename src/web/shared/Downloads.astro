@@ -1,23 +1,195 @@
 ---
-import DownloadCv from "./DownloadCv.astro";
-import DownloadQr from "./DownloadQr.astro";
+import { getCv } from "@/core";
+import { buildDownloads, type DownloadId } from "@/bff/web/downloads";
 
-// Always-visible download buttons in the bottom-right corner, stacked so each
-// label can open to the left without pushing the other button around.
+// The download buttons in the bottom-right corner, top to bottom: CV (PDF),
+// QR code and share card (both PNG, see src/pages/[file].*.ts). Each one is a
+// logo followed by its label and format. They stay open on the intro and
+// contact slides, where nothing sits behind them, and fold into a column of
+// logos on the other slides; hovering the column or tabbing into it opens it again.
+const downloads = buildDownloads(getCv());
+
+const icons: Record<DownloadId, string> = {
+  cv: '<path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M9 12.5h6M9 16h4"/>',
+  qr: '<rect x="3.5" y="3.5" width="6" height="6" rx="1.5"/><rect x="14.5" y="3.5" width="6" height="6" rx="1.5"/><rect x="3.5" y="14.5" width="6" height="6" rx="1.5"/><path d="M14.5 14.5h.01M17.5 14.5h3M14.5 17.5v3M17.5 17.5h.01M20.5 20.5h.01M17.5 20.5h.01M20.5 17.5h.01"/>',
+  share: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M6 10h5M6 13.5h3.5"/><rect x="14" y="8.5" width="4.5" height="7" rx="1"/>',
+};
 ---
 
-<div
-  class="downloads pointer-events-none fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex flex-col items-end gap-2 sm:right-4 lg:right-7"
->
-  <DownloadQr />
-  <DownloadCv />
+<div class="downloads pointer-events-none fixed right-3 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[45] flex flex-col items-end gap-2 sm:right-4 lg:right-7">
+  {
+    downloads.map((d) => (
+      <a href={d.href} download={d.filename} aria-label={`${d.label} (${d.detail})`} title={`${d.label} (${d.detail})`} class={`dl dl-${d.id}`}>
+        <span class="dl-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={icons[d.id]} />
+        </span>
+        <span class="dl-text" aria-hidden="true">
+          <span class="dl-label">{d.label}</span>
+          <span class="dl-detail">{d.detail}</span>
+        </span>
+        <span class="dl-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v10m0 0-4-4m4 4 4-4M6.5 19h11" />
+          </svg>
+        </span>
+      </a>
+    ))
+  }
 </div>
 
 <style>
-  /* Appear together with the rest of the deck chrome. */
   .downloads {
+    /* Folded and open sizes. A theme can set --dl-radius (corners), --dl-label-font and --dl-on-hero. */
+    --dl-size: 2.5rem;
+    --dl-open: 14.5rem;
     animation: downloads-in 1s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
   }
+  @media (min-width: 640px) {
+    .downloads {
+      --dl-size: 3rem;
+      --dl-open: 16rem;
+    }
+  }
+
+  .dl {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    height: var(--dl-size);
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    border-radius: var(--dl-radius, 0.95rem);
+    background: color-mix(in oklab, var(--c-bg) 80%, transparent);
+    color: var(--c-fg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition:
+      width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s,
+      background-color 0.3s;
+  }
+
+  .dl-logo {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: calc(var(--dl-size) - 2px);
+    height: 100%;
+  }
+  .dl-logo svg {
+    box-sizing: content-box;
+    width: 18px;
+    height: 18px;
+    padding: 0.4rem;
+    border-radius: calc(var(--dl-radius, 0.95rem) * 0.65);
+    color: var(--c-accent);
+    background: color-mix(in oklab, var(--c-accent) 13%, transparent);
+    transition:
+      color 0.3s,
+      background-color 0.3s;
+  }
+  @media (max-width: 639px) {
+    .dl-logo svg {
+      padding: 0;
+      background: none;
+      color: var(--c-fg);
+    }
+  }
+
+  .dl-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 0.15rem;
+    white-space: nowrap;
+    transition: opacity 0.25s;
+  }
+  .dl-label {
+    font-family: var(--dl-label-font, inherit);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+  }
+  .dl-detail {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    color: var(--c-mute);
+  }
+  .dl-arrow {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    color: var(--c-mute);
+    transition:
+      opacity 0.25s,
+      color 0.3s,
+      transform 0.3s;
+  }
+  .dl-arrow svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* How open the column is, 0 (logos) or 1 (logos, labels and formats). Open
+     on the contact slide and the intro when the screen has room (a theme whose
+     intro art sits in the corner sets --dl-on-hero: 0), on hover, when tabbing
+     into it, and without JavaScript. */
+  .downloads {
+    --dl-k: 0;
+  }
+  @media (min-width: 768px) and (min-height: 600px) {
+    :global(html[data-slide="contact"]) .downloads {
+      --dl-k: 1;
+    }
+    :global(html[data-slide="hero"]) .downloads {
+      --dl-k: var(--dl-on-hero, 1);
+    }
+  }
+  @media (hover: hover) {
+    :global(html) .downloads:hover {
+      --dl-k: 1;
+    }
+  }
+  :global(html) .downloads:has(:focus-visible),
+  :global(html:not(.js)) .downloads {
+    --dl-k: 1;
+  }
+  .dl {
+    width: calc(var(--dl-size) + (var(--dl-open) - var(--dl-size)) * var(--dl-k));
+  }
+  .dl-text,
+  .dl-arrow {
+    opacity: var(--dl-k);
+    transition-delay: 0.12s;
+  }
+
+  /* The button under the pointer or in focus takes the accent. */
+  .dl:hover,
+  .dl:focus-visible {
+    border-color: var(--c-accent);
+    background: var(--c-bg);
+  }
+  .dl:hover .dl-logo svg,
+  .dl:focus-visible .dl-logo svg {
+    color: var(--c-on-accent);
+    background: var(--c-accent);
+  }
+  .dl:hover .dl-arrow,
+  .dl:focus-visible .dl-arrow {
+    color: var(--c-accent);
+    transform: translateY(1px);
+  }
+  .dl:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+
   @keyframes downloads-in {
     from {
       opacity: 0;
@@ -27,6 +199,11 @@ import DownloadQr from "./DownloadQr.astro";
   @media (prefers-reduced-motion: reduce) {
     .downloads {
       animation: none;
+    }
+    .dl,
+    .dl-text,
+    .dl-arrow {
+      transition: none;
     }
   }
 </style>

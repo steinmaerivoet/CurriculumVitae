@@ -77,8 +77,16 @@
           "default": "Download QR code",
           "type": "string"
         },
+        "downloadShareCard": {
+          "default": "Download share card",
+          "type": "string"
+        },
         "pdfQrCaption": {
           "default": "Scan or click for the interactive CV",
+          "type": "string"
+        },
+        "shareCardQrCaption": {
+          "default": "Scan for the interactive CV",
           "type": "string"
         },
         "themeLabel": {

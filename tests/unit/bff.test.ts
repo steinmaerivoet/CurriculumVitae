@@ -6,6 +6,7 @@ import { woffToSfnt } from "@/og/woff";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { allSkills } from "@/bff/web/model";
+import { buildDownloads } from "@/bff/web/downloads";
 import { buildPdfModel } from "@/bff/pdf/document";
 import { apiPath, buildApiResources } from "@/bff/api/resources";
 import { buildTerminalView } from "@/bff/web/themes/terminal";
@@ -151,10 +152,39 @@ describe("SEO BFF", () => {
     expect(svg).toContain("R&amp;D &lt;lead&gt;");
   });
 
+  it("puts the QR code to the site and the About figures on the share card", () => {
+    const card = buildShareCard(cv);
+    expect(card.url).toBe(cv.meta.url);
+    expect(card.stats.length).toBeGreaterThan(0);
+    expect(card.stats.length).toBeLessThanOrEqual(3);
+    const svg = shareCardSvg(card);
+    expect(svg).toContain(card.qrCaption);
+    expect(svg).toContain(card.stats[0]!.label.split(" ")[0]);
+    // The QR code's round data dots.
+    expect(svg.match(/<circle /g)?.length ?? 0).toBeGreaterThan(100);
+  });
+
   it("unwraps WOFF fonts for the renderer", () => {
     const woff = readFileSync(createRequire(import.meta.url).resolve("@fontsource/inter/files/inter-latin-400-normal.woff"));
     const ttf = woffToSfnt(woff);
     expect(new DataView(ttf.buffer).getUint32(0)).toBe(0x00010000);
     expect(ttf.byteLength).toBeGreaterThan(woff.byteLength);
+  });
+});
+
+describe("download buttons", () => {
+  const downloads = buildDownloads(cv);
+
+  it("lists the CV, the QR code and the share card, in that order", () => {
+    expect(downloads.map((d) => d.id)).toEqual(["cv", "qr", "share"]);
+    expect(downloads.map((d) => d.label)).toEqual([cv.ui.downloadCv, cv.ui.downloadQr, cv.ui.downloadShareCard]);
+  });
+
+  it("points at the generated files and names them after the person", () => {
+    for (const d of downloads) {
+      expect(d.href).toBe(`/${d.filename}`);
+      expect(d.detail).toMatch(/^(PDF|PNG) · /);
+    }
+    expect(downloads[2]!.href).toBe(new URL(buildPageMeta(cv).image.url).pathname);
   });
 });
