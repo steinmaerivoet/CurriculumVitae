@@ -299,10 +299,10 @@ projects:
         EstateMate: an AI companion app that guides customers to the house
         they love. First prize from a jury of Belfius management and Mistral AI.
       description: >-
-        With our team we pitched EstateMate, an AI-powered companion app that
-        guides customers to find the house they love. We built a working
-        prototype through the night and presented it to a jury from Belfius
-        management and Mistral AI, who awarded it first prize.
+        I pitched EstateMate, an AI-powered companion app that guides customers
+        to find the house they love. We built a working prototype through the
+        night and presented it to a jury from Belfius management and Mistral AI,
+        who awarded it first prize.
       tags: [Agentic AI]
 
     - name: Flemish Traffic Centre
