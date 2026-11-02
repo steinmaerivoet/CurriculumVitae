@@ -684,6 +684,11 @@
         "cta": {
           "default": "Say hello",
           "type": "string"
+        },
+        "privacy": {
+          "default": "",
+          "description": "Small print under the contact slide about the anonymous visit statistics. Empty hides it.",
+          "type": "string"
         }
       },
       "required": [

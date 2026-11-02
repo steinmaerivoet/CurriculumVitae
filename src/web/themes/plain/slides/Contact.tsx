@@ -57,6 +57,11 @@ export default function Contact({ deck }: SlideProps) {
           {ui.footer ? <span className="hidden md:inline"> · {ui.footer}</span> : null}
         </p>
       </div>
+      {contact.privacy ? (
+        <p className="mt-3 text-xs text-mute" data-reveal>
+          {contact.privacy}
+        </p>
+      ) : null}
     </SlideFrame>
   );
 }

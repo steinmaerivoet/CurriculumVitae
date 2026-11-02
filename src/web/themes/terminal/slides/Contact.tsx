@@ -44,6 +44,11 @@ export default function Contact({ deck, view }: SlideProps<TerminalView>) {
             {contact.cta} ↵
           </a>
         </p>
+        {contact.privacy ? (
+          <p data-reveal className="mt-3 text-xs text-mute">
+            # {contact.privacy}
+          </p>
+        ) : null}
       </div>
     </Frame>
   );

@@ -32,6 +32,11 @@ export default function Contact({ deck, view }: SlideProps<GitView>) {
           ))}
         </div>
       </div>
+      {contact.privacy ? (
+        <p data-reveal className="mt-3 max-w-4xl text-xs text-mute">
+          {contact.privacy}
+        </p>
+      ) : null}
     </Frame>
   );
 }

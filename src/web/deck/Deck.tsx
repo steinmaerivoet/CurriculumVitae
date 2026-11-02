@@ -6,6 +6,7 @@ import { prepareReveal, revealOnce } from "./reveal";
 import { useDeckInput } from "./useDeckInput";
 import { DeckContext } from "./context";
 import { useFollowSlides } from "./follow";
+import { useVisitTracking } from "@/web/analytics/visit";
 
 // Motion
 const GLIDE_DURATION = 0.95; // seconds for one slide
@@ -335,6 +336,9 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
 
   // Links between slides (a skill's "Used in", technology chips, the graph).
   useFollowSlides(goToId);
+
+  // Anonymous time per slide for the visit statistics (production only, see ANALYTICS.md).
+  useVisitTracking(theme.id, ids, index);
 
   const ctx = useMemo(() => ({ index, ids, goToId }), [index, ids, goToId]);
 

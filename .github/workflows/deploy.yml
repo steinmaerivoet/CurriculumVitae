@@ -3,7 +3,8 @@
 # GitHub: Actions → "Deploy to production" → Run workflow.
 #
 # Needs two repository secrets (Settings → Secrets and variables → Actions):
-#   CLOUDFLARE_API_TOKEN   an API token with the "Edit Cloudflare Workers" template
+#   CLOUDFLARE_API_TOKEN   an API token with the "Edit Cloudflare Workers" template,
+#                          plus Account → D1 → Edit for the visit log (ANALYTICS.md)
 #   CLOUDFLARE_ACCOUNT_ID  the account ID shown on the Workers & Pages overview
 # See CLOUDFLARE.md, "Deploying from GitHub Actions".
 name: Deploy to production

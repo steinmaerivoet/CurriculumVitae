@@ -1,11 +1,36 @@
-// Cloudflare Workers configuration: the site is fully static, so the Worker only
-// serves the files Astro builds into ./dist (including the PDF CV).
+// Cloudflare Workers configuration. The site itself is static: the Worker serves
+// the files Astro builds into ./dist (including the PDF CV). Its own code in
+// ./worker only runs for the visit statistics (see ANALYTICS.md).
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "curriculumvitae",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-10-01",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Every other path is served straight from ./dist without running the Worker.
+    "run_worker_first": ["/t", "/stats", "/stats/*"]
+  },
+  // The visit log. Wrangler creates the database on the first deploy and keeps
+  // using it after that (the token needs D1 Edit, see ANALYTICS.md).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "curriculumvitae-visits"
+    }
+  ],
+  "vars": {
+    "SITE_HOST": "steinmaerivoet.dev",
+    "STATS_TIMEZONE": "Europe/Brussels",
+    // From Zero Trust → Access → Applications → the /stats application (see ANALYTICS.md).
+    // While they are empty, /stats answers 503 and shows nothing.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  },
+  // Deletes visits older than 180 days, every night.
+  "triggers": {
+    "crons": ["17 3 * * *"]
   },
   // Pull requests and other branches get a Preview deployment. The block may stay
   // empty: assets and compatibility settings above are shared with Previews.

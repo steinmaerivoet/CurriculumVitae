@@ -39,6 +39,11 @@ export default function Contact({ deck, view }: SlideProps<ReferenceView>) {
           {contact.cta} →
         </a>
       </div>
+      {contact.privacy ? (
+        <p data-reveal className="mt-5 max-w-[54ch] text-xs text-mute">
+          {contact.privacy}
+        </p>
+      ) : null}
     </DocPage>
   );
 }

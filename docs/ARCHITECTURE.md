@@ -429,6 +429,12 @@ The site is a folder of static files, served by a Cloudflare Worker with
 static assets (`wrangler.jsonc` points it at `./dist`). The step-by-step
 setup is in [CLOUDFLARE.md](../CLOUDFLARE.md).
 
+The Worker's own code (`worker/`) runs only for the visit statistics: `POST /t`
+takes the time-per-slide beacons the deck sends (`src/web/analytics/visit.ts`)
+and stores them in D1, and `/stats` shows them behind Cloudflare Access. Every
+other path is served from `dist/` without running it. See
+[ANALYTICS.md](../ANALYTICS.md).
+
 ```mermaid
 flowchart LR
   dev["git push"] --> gh["GitHub<br/>steinmaerivoet/CurriculumVitae"]

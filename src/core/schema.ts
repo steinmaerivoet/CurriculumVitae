@@ -197,6 +197,7 @@ export const cvSchema = z.strictObject({
     heading: z.string(),
     text: z.string(),
     cta: z.string().default("Say hello"),
+    privacy: z.string().default("").describe("Small print under the contact slide about the anonymous visit statistics. Empty hides it."),
   }),
 });
 

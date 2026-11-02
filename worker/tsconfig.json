@@ -1,0 +1,12 @@
+{
+  // The Worker that serves the site and the visit statistics. It runs on
+  // Cloudflare's runtime, not in the browser, so it has its own types and is
+  // checked separately from the Astro project (`npm run check:worker`).
+  "extends": "astro/tsconfigs/strictest",
+  "include": ["./**/*.ts"],
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["@cloudflare/workers-types"],
+    "noEmit": true
+  }
+}

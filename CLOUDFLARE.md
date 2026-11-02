@@ -18,7 +18,7 @@ flowchart LR
 | --- | --- | --- |
 | Domain registration | Porkbun | Where `steinmaerivoet.dev` was bought. Only the nameservers are set there. |
 | DNS | Cloudflare | Porkbun's nameservers point to Cloudflare, so every DNS record is managed in Cloudflare. |
-| Hosting | Cloudflare Worker `curriculumvitae` | Serves the static build in `dist/` ([`wrangler.jsonc`](wrangler.jsonc)). |
+| Hosting | Cloudflare Worker `curriculumvitae` | Serves the static build in `dist/` ([`wrangler.jsonc`](wrangler.jsonc)), plus the visit statistics ([ANALYTICS.md](ANALYTICS.md)). |
 | Builds | Cloudflare Workers Builds | Builds and deploys on every push to GitHub. |
 | Email | Cloudflare Email Routing | Forwards `hello@steinmaerivoet.dev` to a private mailbox. |
 
