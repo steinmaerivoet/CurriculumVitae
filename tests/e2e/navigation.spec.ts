@@ -22,6 +22,43 @@ test.describe("snapping with mouse, trackpad and keyboard", () => {
     await expectAtRestOn(page, 0);
   });
 
+  test("glide: spinning the wheel on moves on without waiting for the glide", async ({ page }) => {
+    await openDeck(page);
+    await page.mouse.move(600, 400);
+    await wheel(page, [100, 100, 100, 100], 90); // two clicks per slide, also mid-glide
+    await expectAtRestOn(page, 2);
+  });
+
+  test("glide: scrolling back mid-glide turns the page around", async ({ page }) => {
+    await openDeck(page);
+    await page.mouse.move(600, 400);
+    await wheel(page, [100, 100], 90);
+    await expect.poll(() => activeIndex(page)).toBe(1);
+    await page.waitForTimeout(200); // still gliding
+    await wheel(page, [-100]);
+    await expectAtRestOn(page, 0);
+  });
+
+  test("glide: a trackpad flick back mid-glide turns the page around", async ({ page }) => {
+    await openDeck(page, "about");
+    await page.mouse.move(600, 400);
+    await wheel(page, [100, 100], 90);
+    await page.waitForTimeout(200);
+    await trackpadFlick(page, -1);
+    await expectAtRestOn(page, 1);
+  });
+
+  test("glide: a second trackpad flick mid-glide moves on one more slide", async ({ page }) => {
+    await openDeck(page);
+    await page.mouse.move(600, 400);
+    await trackpadFlick(page, 1);
+    await expectAtRestOn(page, 1);
+    // A new flick while the first one's glide is still running.
+    const flick = [2, 6, 14, 30, 50, 60, 55, 45, 38, 30, 24, 18, 14, 10, 8, 6, 5, 4, 3, 2, 2, 1, 1, 1];
+    await wheel(page, [...flick.slice(0, 8), ...flick, ...Array.from({ length: 50 }, () => 1)]);
+    await expectAtRestOn(page, 3);
+  });
+
   test("magnet: a gentle trackpad scroll springs back", async ({ page }) => {
     await openDeck(page);
     await page.mouse.move(600, 400);

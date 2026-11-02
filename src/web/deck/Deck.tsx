@@ -9,6 +9,8 @@ import { useFollowSlides } from "./follow";
 
 // Motion
 const GLIDE_DURATION = 0.95; // seconds for one slide
+const STEER_DURATION = 0.7; // seconds for a glide that was redirected mid-way
+const HURRY = 1.2; // extra glide speed from scrolling on (at the point it carries on)
 const GLIDE_EASE = "power3.inOut";
 const SWIPE_DISTANCE = 0.16; // fraction of the screen a drag must cover...
 const SWIPE_VELOCITY = 0.35; // ...or px/ms it must be flicked with
@@ -33,6 +35,8 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
   const current = useRef(0);
   const height = useRef(0);
   const tween = useRef<gsap.core.Tween | null>(null);
+  /** Direction of the glide to a new slide that is running, 0 when none is. */
+  const glideDir = useRef<1 | -1 | 0>(0);
   const dragBase = useRef(0);
   const reduced = useRef(false);
   const [index, setIndex] = useState(0);
@@ -59,24 +63,30 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
         if (slide) revealOnce(slide, reduced.current);
       }
 
+      const steering = glideDir.current !== 0;
       tween.current?.kill();
       gsap.killTweensOf(track);
       if (opts.instant || reduced.current) {
         gsap.set(track, { y: yFor(clamped) });
         tween.current = null;
+        glideDir.current = 0;
         return;
       }
+      const y = Number(gsap.getProperty(track, "y"));
       // Shorter when finishing a drag: part of the distance is already covered.
-      const remaining = Math.abs(Number(gsap.getProperty(track, "y")) - yFor(clamped)) / (height.current || 1);
+      const remaining = Math.abs(y - yFor(clamped)) / (height.current || 1);
       const duration = changed
-        ? Math.max(0.45, GLIDE_DURATION * Math.min(1, remaining + 0.15))
+        ? Math.max(0.45, Math.min(steering ? STEER_DURATION : GLIDE_DURATION, GLIDE_DURATION * (remaining + 0.15)))
         : 0.55;
+      glideDir.current = changed ? (yFor(clamped) < y ? 1 : -1) : 0;
       tween.current = gsap.to(track, {
         y: yFor(clamped),
         duration,
-        ease: changed ? (opts.velocity ? "power3.out" : GLIDE_EASE) : "power3.out",
+        // Already moving (a drag, a pull or a redirected glide): no ease-in.
+        ease: changed ? (opts.velocity || steering ? "power3.out" : GLIDE_EASE) : "power3.out",
         onComplete: () => {
           tween.current = null;
+          glideDir.current = 0;
         },
       });
     },
@@ -122,6 +132,7 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
     last: () => goTo(ids.length - 1),
     // Locked while the track is gliding to a new slide.
     isLocked: () => tween.current !== null,
+    gliding: () => glideDir.current,
     activeScroller: () => scrollerOf(current.current),
     onEdge: bounce,
     pull: (progress) => {
@@ -137,6 +148,11 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
       glideTo(target, { velocity: 1 });
       return true;
     },
+    hurry: (amount) => {
+      // Never slower than it is: a decaying scroll must not hold the glide back.
+      const t = tween.current;
+      if (t && glideDir.current) t.timeScale(Math.max(t.timeScale(), 1 + HURRY * amount));
+    },
     release: () => {
       // Spring back without locking input, so a new gesture can start right away.
       if (reduced.current) {
@@ -148,6 +164,7 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
     dragStart: () => {
       tween.current?.kill();
       tween.current = null;
+      glideDir.current = 0;
       dragBase.current = Number(gsap.getProperty(trackRef.current, "y"));
     },
     dragMove: (dy) => {
