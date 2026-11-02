@@ -10,6 +10,25 @@ export async function trackY(page: Page): Promise<number> {
   });
 }
 
+/** The track's offset (y) on every frame for `ms` milliseconds, with its time (t). Start it before the input. */
+export function recordTrack(page: Page, ms: number): Promise<{ t: number; y: number }[]> {
+  return page.evaluate(
+    (ms) =>
+      new Promise<{ t: number; y: number }[]>((resolve) => {
+        const el = document.querySelector<HTMLElement>(".deck-track")!;
+        const ys: { t: number; y: number }[] = [];
+        const t0 = performance.now();
+        const tick = (t: number) => {
+          ys.push({ t, y: new DOMMatrixReadOnly(getComputedStyle(el).transform).m42 });
+          if (performance.now() - t0 < ms) requestAnimationFrame(tick);
+          else resolve(ys);
+        };
+        requestAnimationFrame(tick);
+      }),
+    ms,
+  );
+}
+
 export async function deckHeight(page: Page): Promise<number> {
   return page.evaluate(() => document.querySelector<HTMLElement>("[data-ready]")!.clientHeight);
 }

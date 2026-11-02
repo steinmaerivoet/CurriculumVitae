@@ -11,6 +11,9 @@ import { useFollowSlides } from "./follow";
 const GLIDE_DURATION = 0.95; // seconds for one slide
 const SETTLE_DURATION = 0.55; // seconds to settle back on the same slide
 const MAX_SPEED = 4; // screens per second a glide takes over from the moving page
+const HURRY = 0.75; // scrolling on during a glide: share of the remaining time it still takes
+const HURRY_MIN = 0.3; // ...but never less than this many seconds
+const SLIDE_HOLD_MS = 220; // a slide the page glided onto holds it this long against the wheel
 const SWIPE_DISTANCE = 0.16; // fraction of the screen a drag must cover...
 const SWIPE_VELOCITY = 0.35; // ...or px/ms it must be flicked with
 const RUBBER_BAND = 0.3; // resistance when dragging past the first/last slide
@@ -43,6 +46,8 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
   const offsetTween = useRef<gsap.core.Tween | null>(null);
   /** How fast the track moves, in px/s, sampled every frame. */
   const motion = useRef({ y: 0, t: 0, v: 0 });
+  /** When the last glide onto a new slide came to rest. */
+  const arrivedAt = useRef(-Infinity);
   const dragBase = useRef(0);
   const reduced = useRef(false);
   const [index, setIndex] = useState(0);
@@ -64,6 +69,15 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
     const toEnd = 10 * s3 - 15 * s4 + 6 * s5;
     const speed = s - 6 * s3 + 8 * s4 - 3 * s5;
     return g.y0 + (g.y1 - g.y0) * toEnd + g.T * g.v0 * speed;
+  };
+
+  /** Speed of the glide at its current point, in px/s. */
+  const glideSpeed = (g: { y0: number; v0: number; y1: number; T: number; s: number }) => {
+    const s = g.s;
+    const s2 = s * s;
+    const s3 = s2 * s;
+    const s4 = s3 * s;
+    return ((g.y1 - g.y0) * (30 * s2 - 60 * s3 + 30 * s4)) / g.T + g.v0 * (1 - 18 * s2 + 32 * s3 - 15 * s4);
   };
 
   /** Places the track: the slide (or the glide towards it) plus the magnet's pull. */
@@ -123,23 +137,48 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
       // (and never overshoot, which needs T * v0 <= 2.5 * distance).
       if (v0 * (y1 - y0) > 0) T = Math.max(0.3, Math.min(T, (2.2 * distance) / Math.abs(v0)));
       glideDir.current = changed ? (y1 < y0 ? 1 : -1) : 0;
-      const g = { y0, v0, y1, T, s: 0 };
-      glide.current = g;
-      tween.current = gsap.to(g, {
-        s: 1,
-        duration: T,
-        ease: "none",
-        onUpdate: render,
-        onComplete: () => {
-          tween.current = null;
-          glide.current = null;
-          glideDir.current = 0;
-          render();
-        },
-      });
+      startGlide({ y0, v0, y1, T, s: 0 });
     },
     [ids],
   );
+
+  const startGlide = (g: { y0: number; v0: number; y1: number; T: number; s: number }) => {
+    glide.current = g;
+    tween.current = gsap.to(g, {
+      s: 1,
+      duration: g.T,
+      ease: "none",
+      onUpdate: render,
+      onComplete: () => {
+        if (glideDir.current) arrivedAt.current = performance.now();
+        tween.current = null;
+        glide.current = null;
+        glideDir.current = 0;
+        render();
+      },
+    });
+  };
+
+  /**
+   * Gets the running glide to its slide sooner, from where it is and at the
+   * speed it has. The slide stays the target: a glide never passes a slide.
+   */
+  const hurry = () => {
+    const g = glide.current;
+    const track = trackRef.current;
+    if (!g || !glideDir.current || !track) return;
+    const left = (1 - g.s) * g.T;
+    const y0 = Number(gsap.getProperty(track, "y"));
+    const v0 = glideSpeed(g);
+    const distance = Math.abs(g.y1 - y0);
+    const T = Math.max(HURRY_MIN, left * HURRY);
+    // Only a glide that is already on its way, with time left to gain. Never
+    // overshoot the slide (that needs T * v0 <= 2.5 * distance) or brake hard.
+    if (v0 * (g.y1 - y0) <= 0 || T >= left || T * Math.abs(v0) > 2.2 * distance) return;
+    tween.current?.kill();
+    stopOffset();
+    startGlide({ y0, v0, y1: g.y1, T, s: 0 });
+  };
 
   const goTo = useCallback(
     (target: number): boolean => {
@@ -176,12 +215,20 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
   }, []);
 
   useDeckInput(rootRef, {
-    step: (dir) => goTo(current.current + dir),
+    step: (dir) => {
+      // A glide never passes its slide: pressing on only gets it there sooner.
+      if (glideDir.current === dir) {
+        hurry();
+        return true;
+      }
+      return goTo(current.current + dir);
+    },
     first: () => goTo(0),
     last: () => goTo(ids.length - 1),
     // Locked while the track is gliding to a new slide.
     isLocked: () => tween.current !== null,
     gliding: () => glideDir.current,
+    holding: () => performance.now() - arrivedAt.current < SLIDE_HOLD_MS,
     activeScroller: () => scrollerOf(current.current),
     onEdge: bounce,
     pull: (progress) => {
@@ -195,11 +242,13 @@ export default function Deck<V>({ deck, view, theme }: SlideProps<V> & { theme: 
       else setOffset(o, 0.3, "power3.out");
     },
     commit: (dir) => {
+      if (glideDir.current === dir) return false; // never past the slide it is heading to
       const target = current.current + dir;
       if (target < 0 || target >= ids.length) return false;
       glideTo(target);
       return true;
     },
+    hurry,
     release: () => {
       // Spring back without locking input, so a new gesture can start right away.
       if (reduced.current) {

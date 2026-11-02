@@ -10,6 +10,8 @@ export type DeckInputHandlers = {
   isLocked: () => boolean;
   /** Direction of the glide to a new slide that is running now, 0 when there is none. */
   gliding: () => Direction | 0;
+  /** Just arrived on a slide: the wheel can't pull it away yet (the magnet at its middle). */
+  holding: () => boolean;
   /** Scroll container of the active slide, for content taller than the screen. */
   activeScroller: () => HTMLElement | null;
   onEdge: (direction: Direction) => void;
@@ -25,6 +27,8 @@ export type DeckInputHandlers = {
    * it, or back to the one it came from.
    */
   commit: (direction: Direction) => boolean;
+  /** Scrolling on during a glide: reach the slide it is heading to sooner (never past it). */
+  hurry: () => void;
   /** The gesture ended before the commit point: spring back. */
   release: () => void;
   /** Touch: the page follows the finger. dy > 0 means the finger moved down. */
@@ -36,7 +40,6 @@ export type DeckInputHandlers = {
 // Wheel / trackpad magnet tuning
 const PULL_SOFTNESS = 200; // px of wheel delta for ~63% of the full pull
 const COMMIT_AT = 0.6; // fraction of the full pull that commits to the next slide
-const ONWARD_AT = 0.7; // during a glide: the pull that carries on to the slide after (a bit stiffer)
 const GESTURE_END_MS = 160; // silence that ends a trackpad gesture
 const NOTCH_END_MS = 380; // mouse wheels tick in notches: allow a pause between clicks
 const NOTCH_DELTA = 60; // deltas this big come from a notched mouse wheel
@@ -57,12 +60,13 @@ export function canScroll(el: HTMLElement | null, direction: number): boolean {
  * most one slide: the inertia that trackpads add after the fingers lift is
  * part of the same gesture, and is ignored once the gesture has committed.
  *
- * The glide itself never locks the wheel. New input (a reversal, a fresh
- * flick, another wheel click) works the same magnet on the moving page:
- * scrolling on pulls it ahead and, pulled far enough, carries it on to the
- * slide after; scrolling back holds it back and, pulled as far as a commit at
- * rest, turns it around. Inertia only ever slows down in the same direction,
- * so it can't.
+ * The glide itself never locks the wheel, but it never passes a slide either:
+ * every slide holds the page until a new pull from rest. New input during a
+ * glide (a reversal, a fresh flick, another wheel click) can only hurry it on
+ * to the slide it is heading to, or work the magnet backwards: scrolling back
+ * holds the page back and, pulled as far as a commit at rest, turns it around
+ * to the slide it came from. Inertia only ever slows down in the same
+ * direction, so it does neither.
  *
  * Touch: the page follows the finger and the deck decides on release whether
  * to move on or snap back. Inside a slide whose content overflows, the content
@@ -107,8 +111,12 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
       const now = e.timeStamp || performance.now();
 
       const gliding = h.current.gliding();
-      // A spring-back or the edge bounce: let it finish.
-      if (!gliding && h.current.isLocked()) {
+      // A spring-back or the edge bounce: let it finish. A slide the page has
+      // just glided onto holds it for a moment: scrolling on through the
+      // arrival must not pull it straight on to the next one.
+      const holding = !gliding && h.current.holding();
+      if (holding || (!gliding && h.current.isLocked())) {
+        if (holding && !pulling) committed = true; // what follows must be new input
         e.preventDefault();
         lastTime = now;
         lastAbs = Math.abs(dy);
@@ -142,6 +150,14 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
         (abs > 24 && abs > lastAbs * 1.8) ||
         (gap >= NOTCH_GAP_MS && abs >= 16 && abs >= lastAbs);
       lastAbs = abs;
+      // Scrolling on during a glide never counts towards the slide after: the
+      // slide it is heading to holds the page. It only gets there sooner.
+      if (gliding && dir === gliding && (committed || accum * gliding >= 0)) {
+        if (fresh) h.current.hurry();
+        committed = true;
+        accum = 0;
+        return;
+      }
       if (gap > endAfter || (committed && fresh)) {
         committed = false;
         accum = 0;
@@ -149,11 +165,12 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
       if (committed) return;
 
       accum += dy;
+      // While gliding, the pull only ever works backwards.
+      if (gliding && accum * gliding > 0) accum = 0;
       const progress = Math.sign(accum) * (1 - Math.exp(-Math.abs(accum) / PULL_SOFTNESS));
 
       pulling = true;
-      const commitAt = gliding && Math.sign(progress) === gliding ? ONWARD_AT : COMMIT_AT;
-      if (Math.abs(progress) >= commitAt) {
+      if (Math.abs(progress) >= COMMIT_AT) {
         committed = true;
         pulling = false;
         accum = 0;

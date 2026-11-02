@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SLIDES, activeIndex, deckHeight, expectAtRestOn, openDeck, trackY, trackpadFlick, wheel } from "./helpers";
+import { SLIDES, activeIndex, deckHeight, expectAtRestOn, openDeck, recordTrack, trackY, trackpadFlick, wheel } from "./helpers";
 
 test.describe("snapping with mouse, trackpad and keyboard", () => {
   test.skip(({ isMobile }) => isMobile, "desktop input");
@@ -29,11 +29,38 @@ test.describe("snapping with mouse, trackpad and keyboard", () => {
     await expectAtRestOn(page, 1);
   });
 
-  test("glide: spinning the wheel on carries on without waiting for the glide", async ({ page }) => {
+  test("glide: never passes a slide, however fast the wheel, trackpad or keys go", async ({ page }) => {
     await openDeck(page);
     await page.mouse.move(600, 400);
-    await wheel(page, [100, 100, 100, 100, 100], 90); // two clicks to go, three more to carry on mid-glide
-    await expectAtRestOn(page, 2);
+    const h = await deckHeight(page);
+    const inputs = [
+      () => wheel(page, Array.from({ length: 14 }, () => 100), 40), // a fast spin of the wheel
+      () => wheel(page, Array.from({ length: 30 }, () => 100), 90), // a long, steady spin
+      async () => {
+        await trackpadFlick(page, 1);
+        await trackpadFlick(page, 1);
+      },
+      async () => {
+        for (let i = 0; i < 4; i++) await page.keyboard.press("PageDown");
+      },
+    ];
+    for (const input of inputs) {
+      await openDeck(page);
+      await page.mouse.move(600, 400);
+      const record = recordTrack(page, 4000);
+      await input();
+      const ys = (await record).map((f) => f.y);
+      // Split the motion where the page stops or turns: no stretch of it may
+      // cover more than one slide (plus the pull into it).
+      let from = ys[0]!;
+      let prevStep = 0;
+      for (let i = 1; i < ys.length; i++) {
+        const step = ys[i]! - ys[i - 1]!;
+        if (Math.abs(step) < 1.5 || step * prevStep < 0) from = ys[i - 1]!;
+        expect(Math.abs(ys[i]! - from)).toBeLessThan(h * 1.05);
+        prevStep = step;
+      }
+    }
   });
 
   test("glide: scrolling back mid-glide turns the page around", async ({ page }) => {
@@ -48,25 +75,13 @@ test.describe("snapping with mouse, trackpad and keyboard", () => {
     await page.mouse.move(600, 400);
     const h = await deckHeight(page);
     // Record the track every frame while the wheel steers the glide.
-    const record = page.evaluate(
-      () =>
-        new Promise<number[]>((resolve) => {
-          const el = document.querySelector<HTMLElement>(".deck-track")!;
-          const ys: number[] = [];
-          const t0 = performance.now();
-          const tick = () => {
-            ys.push(new DOMMatrixReadOnly(getComputedStyle(el).transform).m42);
-            if (performance.now() - t0 < 2500) requestAnimationFrame(tick);
-            else resolve(ys);
-          };
-          requestAnimationFrame(tick);
-        }),
-    );
+    const record = recordTrack(page, 2500);
     await wheel(page, [100, 100, -100, -100, 100, 100, 100], 90);
-    const ys = await record;
-    // Speed changes gradually: no frame moves the page much further than the one before.
-    const steps = ys.slice(1).map((y, i) => y - ys[i]!);
-    const jolts = steps.slice(1).map((d, i) => Math.abs(d - steps[i]!));
+    const frames = await record;
+    // Speed changes gradually: no frame moves the page much faster than the
+    // one before. (Per 60 Hz frame, so a frame the test machine drops doesn't count.)
+    const speeds = frames.slice(1).map((f, i) => ((f.y - frames[i]!.y) / Math.max(1, f.t - frames[i]!.t)) * 16.7);
+    const jolts = speeds.slice(1).map((v, i) => Math.abs(v - speeds[i]!));
     expect(Math.max(...jolts)).toBeLessThan(h * 0.04);
     await expectAtRestOn(page, await activeIndex(page));
   });
@@ -80,7 +95,7 @@ test.describe("snapping with mouse, trackpad and keyboard", () => {
     await expectAtRestOn(page, 1);
   });
 
-  test("glide: a second trackpad flick mid-glide moves on one more slide", async ({ page }) => {
+  test("glide: a second trackpad flick mid-glide stops at the slide all the same", async ({ page }) => {
     await openDeck(page);
     await page.mouse.move(600, 400);
     await trackpadFlick(page, 1);
@@ -88,7 +103,7 @@ test.describe("snapping with mouse, trackpad and keyboard", () => {
     // A new flick while the first one's glide is still running.
     const flick = [2, 6, 14, 30, 50, 60, 55, 45, 38, 30, 24, 18, 14, 10, 8, 6, 5, 4, 3, 2, 2, 1, 1, 1];
     await wheel(page, [...flick.slice(0, 8), ...flick, ...Array.from({ length: 50 }, () => 1)]);
-    await expectAtRestOn(page, 3);
+    await expectAtRestOn(page, 2);
   });
 
   test("magnet: a gentle trackpad scroll springs back", async ({ page }) => {
