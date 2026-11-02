@@ -432,8 +432,8 @@ setup is in [CLOUDFLARE.md](../CLOUDFLARE.md).
 ```mermaid
 flowchart LR
   dev["git push"] --> gh["GitHub<br/>steinmaerivoet/CurriculumVitae"]
-  gh -- "main" --> prod["Workers Builds<br/>npm run build → deploy"]
-  gh -- "other branch / PR" --> prev["Workers Builds<br/>preview version"]
+  gh -- "main" --> prod["Workers Builds<br/>npm run build → npm run deploy<br/>wrangler deploy"]
+  gh -- "other branch / PR" --> prev["Workers Builds<br/>npm run deploy<br/>wrangler versions upload"]
   prod --> worker["Worker 'curriculumvitae'<br/>static assets from dist/"]
   prev --> pv["&lt;branch&gt;-curriculumvitae<br/>.steinmaerivoet.workers.dev"]
 

@@ -31,6 +31,7 @@ npm run dev        # http://localhost:4321
 npm run build      # astro check + production build
 npm run test:unit  # vitest: core and BFFs
 npm run test:e2e   # Playwright: every theme on desktop, laptop, phone, small phone
+npm run deploy     # Workers Builds deploy step: main → production, else preview (scripts/deploy.mjs)
 ```
 
 Run `npm test` before pushing. The tests cover snapping (wheel, trackpad, touch, keyboard), reveals, layout fit per device, the skill filters, experience and cross-links, for every theme (`tests/e2e/themes.spec.ts`), plus the content service and BFFs (`tests/unit`).

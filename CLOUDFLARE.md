@@ -67,11 +67,19 @@ Astro builds into `dist/`.
 3. Settings:
    - **Project name**: `curriculumvitae` (it must match `name` in `wrangler.jsonc`)
    - **Build command**: `npm run build`
-   - **Deploy command**: `npx wrangler deploy` (the default)
-   - **Non-production branch deploy command**: `npx wrangler versions upload` (the default)
+   - **Deploy command**: `npm run deploy`
+   - **Non-production branch deploy command**: `npm run deploy`
    - Node comes from [`.nvmrc`](.nvmrc) (22). If a build ever picks an older
      one, add the build variable `NODE_VERSION` = `22`.
 4. **Deploy**.
+
+Both deploy commands run [`scripts/deploy.mjs`](scripts/deploy.mjs), which
+looks at the branch being built (`WORKERS_CI_BRANCH`): `main` runs
+`wrangler deploy` and goes live on `steinmaerivoet.dev`, any other branch runs
+`wrangler versions upload` and only gets a preview. So the repo decides what is
+production, and a wrong production branch in the dashboard can neither keep
+`main` off the live site nor put another branch on it. The build log shows
+which way it went, as `deploy: branch "main" → production`.
 
 The repo carries the Worker's configuration in
 [`wrangler.jsonc`](wrangler.jsonc):
@@ -97,8 +105,20 @@ The first commits lived on a feature branch. To deploy from `main`:
 
 1. On GitHub, in [repository settings → Default branch](https://github.com/steinmaerivoet/CurriculumVitae/settings),
    switch the default branch to `main`.
-2. In Cloudflare, open the Worker → **Settings → Build → Branch control** and
-   set the production branch to `main`.
+2. In Cloudflare, open **Workers & Pages → curriculumvitae → Settings → Build**:
+   - **Branch control**: set the production branch to `main` and keep
+     *Builds for non-production branches* on. Cloudflare does not follow a
+     change of GitHub's default branch, so this has to be changed by hand.
+   - **Build configuration**: set both *Deploy command* and *Non-production
+     branch deploy command* to `npm run deploy` (step 4).
+3. Push to `main` (or use **Deployments → Retry build** on the latest `main`
+   build) and check that **Deployments** lists it as *Production* (*Active*),
+   not as a *Version*/preview.
+
+When Cloudflare's production branch was still the old feature branch, every
+push to `main` counted as a non-production build: it ran
+`wrangler versions upload`, so it only produced a preview and
+`steinmaerivoet.dev` kept serving an old version. Step 2 fixes that.
 
 Now every push to `main` is built and published. Every other branch and pull
 request gets a preview at
@@ -159,5 +179,6 @@ Replies still go out from the private mailbox.
 | "Too many redirects" | Set **SSL/TLS → Overview** to **Full**. |
 | Preview build fails about a `previews` block | Keep `"previews": {}` in `wrangler.jsonc`. |
 | Build fails | Open the build log of the Worker. Usually it is a typo in `data.yaml`, and the message names the field. |
-| Pushes to `main` don't deploy | Check **Settings → Build → Branch control** on the Worker. |
+| Pushes to `main` only create a preview | The production branch in **Settings → Build → Branch control** is not `main`, or the deploy commands are still `npx wrangler versions upload`. Set both as in step 5. The build log should say `deploy: branch "main" → production`. |
+| `deploy: WORKERS_CI_BRANCH is not set` | `npm run deploy` ran outside Workers Builds. Locally, run `WORKERS_CI_BRANCH=main npm run deploy` (needs `npx wrangler login`). |
 | Mail to hello@ doesn't arrive | Check **Email → Email Routing** for the destination's verification, and that the MX and TXT records are still there. |
