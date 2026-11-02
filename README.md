@@ -236,7 +236,7 @@ The UX rules the tests enforce:
 | Builds | Cloudflare Workers Builds, connected to this GitHub repo |
 | Email | Cloudflare Email Routing forwards `hello@steinmaerivoet.dev` to a private mailbox |
 
-Every push to `main` builds and goes live on [steinmaerivoet.dev](https://steinmaerivoet.dev): both deploy commands in Cloudflare run `npm run deploy` ([`scripts/deploy.mjs`](scripts/deploy.mjs)), which deploys `main` to production and only uploads a preview version for anything else. Other branches and pull requests get their own preview URL on `*.workers.dev`. A build that fails (for example on a typo in `data.yaml`) never replaces the live site. Response headers (long caching for hashed assets, CORS for the API, security headers) come from [`public/_headers`](public/_headers).
+Every push to `main` builds and goes live on [steinmaerivoet.dev](https://steinmaerivoet.dev): both deploy commands in Cloudflare run `npm run deploy` ([`scripts/deploy.mjs`](scripts/deploy.mjs)), which deploys `main` to production and only uploads a preview version for anything else. A GitHub Actions workflow ([`deploy.yml`](.github/workflows/deploy.yml)) also deploys `main` and can be run by hand. Other branches and pull requests get their own preview URL on `*.workers.dev`. A build that fails (for example on a typo in `data.yaml`) never replaces the live site. Response headers (long caching for hashed assets, CORS for the API, security headers) come from [`public/_headers`](public/_headers).
 
 Every step taken to set this up, from buying the domain to email forwarding, is in **[CLOUDFLARE.md](CLOUDFLARE.md)**.
 

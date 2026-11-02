@@ -129,6 +129,35 @@ shows up as a check on the pull request.
 broken, the build fails with the field that is wrong, and the previous version
 stays online.
 
+### Deploying from GitHub Actions
+
+Workers Builds depends on dashboard settings that are easy to get wrong. To
+deploy no matter what they say, the workflow
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and
+deploys `main` to production on every push. It needs two repository secrets:
+
+1. In Cloudflare, go to **My Profile → API Tokens → Create Token**, pick the
+   **Edit Cloudflare Workers** template, choose the account and the zone
+   `steinmaerivoet.dev`, and create the token. Copy it.
+2. Copy the **Account ID** from **Workers & Pages** (right-hand column of the
+   overview, or the Worker's settings).
+3. On GitHub, open [Settings → Secrets and variables → Actions](https://github.com/steinmaerivoet/CurriculumVitae/settings/secrets/actions)
+   and add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+
+When it works, Workers Builds can stay on for previews. To avoid deploying
+`main` twice, set its production deploy command to `true` (does nothing) or
+keep it on `npm run deploy`. Deploying the same build twice does no harm.
+
+### Deploying by hand
+
+- **GitHub**: [Actions → Deploy to production → Run workflow](https://github.com/steinmaerivoet/CurriculumVitae/actions/workflows/deploy.yml)
+  on `main` (needs the secrets above).
+- **Cloudflare**: open the Worker → **Deployments**, find the latest build of
+  `main` and choose **Retry build**. This only deploys to production when the
+  production branch is `main` in **Branch control**.
+- **Your computer**: `npx wrangler login`, then `npm ci && npm run build &&
+  WORKERS_CI_BRANCH=main npm run deploy`.
+
 ## 6. Connect the custom domain
 
 1. Open the Worker → **Settings → Domains & Routes → Add → Custom domain**.
@@ -180,5 +209,6 @@ Replies still go out from the private mailbox.
 | Preview build fails about a `previews` block | Keep `"previews": {}` in `wrangler.jsonc`. |
 | Build fails | Open the build log of the Worker. Usually it is a typo in `data.yaml`, and the message names the field. |
 | Pushes to `main` only create a preview | The production branch in **Settings → Build → Branch control** is not `main`, or the deploy commands are still `npx wrangler versions upload`. Set both as in step 5. The build log should say `deploy: branch "main" → production`. |
+| No production build of `main` at all | Run the GitHub Actions workflow by hand (see "Deploying by hand"). |
 | `deploy: WORKERS_CI_BRANCH is not set` | `npm run deploy` ran outside Workers Builds. Locally, run `WORKERS_CI_BRANCH=main npm run deploy` (needs `npx wrangler login`). |
 | Mail to hello@ doesn't arrive | Check **Email → Email Routing** for the destination's verification, and that the MX and TXT records are still there. |
