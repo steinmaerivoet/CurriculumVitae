@@ -16,6 +16,7 @@ export type DeckInputHandlers = {
   /**
    * Wheel / trackpad magnet. `progress` runs from -1 to 1 (towards the
    * previous/next slide): the page is pulled along with growing resistance.
+   * During a glide the same pull speeds it on or holds it back.
    */
   pull: (progress: number) => void;
   /**
@@ -24,8 +25,6 @@ export type DeckInputHandlers = {
    * it, or back to the one it came from.
    */
   commit: (direction: Direction) => boolean;
-  /** Scrolling on during a glide: `amount` (0 to 1) of the way to the next commit. */
-  hurry: (amount: number) => void;
   /** The gesture ended before the commit point: spring back. */
   release: () => void;
   /** Touch: the page follows the finger. dy > 0 means the finger moved down. */
@@ -37,7 +36,7 @@ export type DeckInputHandlers = {
 // Wheel / trackpad magnet tuning
 const PULL_SOFTNESS = 200; // px of wheel delta for ~63% of the full pull
 const COMMIT_AT = 0.6; // fraction of the full pull that commits to the next slide
-const REVERSE_AT = 0.3; // ...and that turns a running glide around (one wheel click)
+const ONWARD_AT = 0.7; // during a glide: the pull that carries on to the slide after (a bit stiffer)
 const GESTURE_END_MS = 160; // silence that ends a trackpad gesture
 const NOTCH_END_MS = 380; // mouse wheels tick in notches: allow a pause between clicks
 const NOTCH_DELTA = 60; // deltas this big come from a notched mouse wheel
@@ -59,9 +58,11 @@ export function canScroll(el: HTMLElement | null, direction: number): boolean {
  * part of the same gesture, and is ignored once the gesture has committed.
  *
  * The glide itself never locks the wheel. New input (a reversal, a fresh
- * flick, another wheel click) steers it: scrolling on speeds it up and, as far
- * as one more pull, carries on to the slide after; scrolling back turns it
- * around. Inertia only ever slows down in the same direction, so it can't.
+ * flick, another wheel click) works the same magnet on the moving page:
+ * scrolling on pulls it ahead and, pulled far enough, carries it on to the
+ * slide after; scrolling back holds it back and, pulled as far as a commit at
+ * rest, turns it around. Inertia only ever slows down in the same direction,
+ * so it can't.
  *
  * Touch: the page follows the finger and the deck decides on release whether
  * to move on or snap back. Inside a slide whose content overflows, the content
@@ -150,22 +151,9 @@ export function useDeckInput(target: React.RefObject<HTMLElement | null>, handle
       accum += dy;
       const progress = Math.sign(accum) * (1 - Math.exp(-Math.abs(accum) / PULL_SOFTNESS));
 
-      if (gliding) {
-        // Steering a glide: the page is already moving, so nothing is pulled.
-        if (pulling) pulling = false;
-        const onward = Math.sign(progress) === gliding;
-        if (Math.abs(progress) >= (onward ? COMMIT_AT : REVERSE_AT)) {
-          committed = true;
-          accum = 0;
-          h.current.commit(Math.sign(progress) as Direction);
-        } else if (onward) {
-          h.current.hurry(Math.abs(progress) / COMMIT_AT);
-        }
-        return;
-      }
-
       pulling = true;
-      if (Math.abs(progress) >= COMMIT_AT) {
+      const commitAt = gliding && Math.sign(progress) === gliding ? ONWARD_AT : COMMIT_AT;
+      if (Math.abs(progress) >= commitAt) {
         committed = true;
         pulling = false;
         accum = 0;

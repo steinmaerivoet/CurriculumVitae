@@ -221,7 +221,7 @@ Two suites guard the experience:
 
 The UX rules the tests enforce:
 
-1. The deck only rests exactly on a slide, and one gesture moves at most one slide.
+1. The deck only rests exactly on a slide, and one gesture moves at most one slide. New wheel input during a glide can carry it on or turn it around, without a jerk.
 2. Content that has been revealed never disappears again.
 3. On desktop and laptop every slide fits without scrolling, in every employer and project state, in every theme. Phones may scroll inside a slide.
 4. Interactions inside a slide (filters, tabs, accordions) never move the rest of the slide.

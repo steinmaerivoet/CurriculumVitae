@@ -22,21 +22,53 @@ test.describe("snapping with mouse, trackpad and keyboard", () => {
     await expectAtRestOn(page, 0);
   });
 
-  test("glide: spinning the wheel on moves on without waiting for the glide", async ({ page }) => {
+  test("glide: one more wheel click pulls the glide along but doesn't carry on", async ({ page }) => {
     await openDeck(page);
     await page.mouse.move(600, 400);
-    await wheel(page, [100, 100, 100, 100], 90); // two clicks per slide, also mid-glide
+    await wheel(page, [100, 100, 100], 90);
+    await expectAtRestOn(page, 1);
+  });
+
+  test("glide: spinning the wheel on carries on without waiting for the glide", async ({ page }) => {
+    await openDeck(page);
+    await page.mouse.move(600, 400);
+    await wheel(page, [100, 100, 100, 100, 100], 90); // two clicks to go, three more to carry on mid-glide
     await expectAtRestOn(page, 2);
   });
 
   test("glide: scrolling back mid-glide turns the page around", async ({ page }) => {
     await openDeck(page);
     await page.mouse.move(600, 400);
-    await wheel(page, [100, 100], 90);
-    await expect.poll(() => activeIndex(page)).toBe(1);
-    await page.waitForTimeout(200); // still gliding
-    await wheel(page, [-100]);
+    await wheel(page, [100, 100, -100, -100], 90); // the last two land mid-glide
     await expectAtRestOn(page, 0);
+  });
+
+  test("glide: turning around and carrying on never jumps the page", async ({ page }) => {
+    await openDeck(page, "about");
+    await page.mouse.move(600, 400);
+    const h = await deckHeight(page);
+    // Record the track every frame while the wheel steers the glide.
+    const record = page.evaluate(
+      () =>
+        new Promise<number[]>((resolve) => {
+          const el = document.querySelector<HTMLElement>(".deck-track")!;
+          const ys: number[] = [];
+          const t0 = performance.now();
+          const tick = () => {
+            ys.push(new DOMMatrixReadOnly(getComputedStyle(el).transform).m42);
+            if (performance.now() - t0 < 2500) requestAnimationFrame(tick);
+            else resolve(ys);
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
+    await wheel(page, [100, 100, -100, -100, 100, 100, 100], 90);
+    const ys = await record;
+    // Speed changes gradually: no frame moves the page much further than the one before.
+    const steps = ys.slice(1).map((y, i) => y - ys[i]!);
+    const jolts = steps.slice(1).map((d, i) => Math.abs(d - steps[i]!));
+    expect(Math.max(...jolts)).toBeLessThan(h * 0.04);
+    await expectAtRestOn(page, await activeIndex(page));
   });
 
   test("glide: a trackpad flick back mid-glide turns the page around", async ({ page }) => {

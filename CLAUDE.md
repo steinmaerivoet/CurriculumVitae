@@ -40,7 +40,7 @@ Run `npm test` before pushing. The tests cover snapping (wheel, trackpad, touch,
 
 ## UX rules that the tests guard
 
-- The deck only rests exactly on a slide, and one gesture moves at most one slide (magnet snap on wheel and trackpad).
+- The deck only rests exactly on a slide, and one gesture moves at most one slide (magnet snap on wheel and trackpad). Trackpad inertia never moves it further, but new wheel input during a glide works the same magnet on the moving page: it can carry on to the next slide or turn around, and the glide keeps the page's speed so it never jerks.
 - Content that has been revealed never disappears again.
 - On desktop and laptop every slide fits without scrolling, including every employer and project state, in every theme. Phones may scroll inside a slide.
 - Interactions inside a slide (filters, tabs, accordions) must not move the rest of the slide.
