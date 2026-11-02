@@ -354,6 +354,16 @@ utilities (`bg-bg`, `text-fg`, `text-mute`, `border-line`, `text-accent`,
 `font-display`, ...), so shared components such as the downloads and the theme
 switcher look right in every theme.
 
+Stylesheets load with the page: each page in `src/pages` imports
+`src/web/styles/base.css` and its theme's `theme.css`, and no component or
+island imports CSS. A stylesheet imported from a script ends up in a JS chunk,
+and a lazily loaded chunk (such as the skills network) then injects it again
+long after the page loaded, on top of the theme, resetting its fonts and
+colours. `tests/e2e/styles.spec.ts` checks the build has no such chunk and
+that overlays and slide visits leave every theme's styles unchanged. The
+fallback tokens in `base.css` sit under `:where(:root)`, so a theme's tokens
+win whatever order the sheets arrive in.
+
 ### Conventions every theme follows
 
 These keep behaviour and accessibility the same across themes, and let one
@@ -466,7 +476,7 @@ content to the schema. Give every theme a component in
 **New theme.** Add it to the registry, add `src/web/themes/<id>/` (an
 `index.tsx` island, `Chrome.tsx`, `theme.css`, one component per slide), a
 presenter in `src/bff/web/themes/<id>.ts` if it needs one, and a page in
-`src/pages`. Add it to `THEMES` in `tests/e2e/themes.spec.ts`.
+`src/pages` that imports `base.css` and the theme's `theme.css`. Add it to `THEMES` in `tests/e2e/themes.spec.ts`.
 
 **New front end** (another document format, a feed, ...). Add a BFF folder in
 `src/bff/<name>` that turns `Cv` into what the front end needs, then a page

@@ -1,5 +1,3 @@
-import "@/web/styles/base.css";
-import "./theme.css";
 import Deck from "@/web/deck/Deck";
 import type { Theme, ThemeIslandProps } from "@/web/themes/types";
 import type { GitView } from "@/bff/web/themes/git";

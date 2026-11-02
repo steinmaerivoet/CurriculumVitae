@@ -33,7 +33,11 @@
   --breakpoint-xs: 380px;
 }
 
-:root {
+/*
+ * Fallback tokens. :where() gives them no specificity, so a theme's
+ * [data-theme="…"] tokens always win, whatever order the stylesheets load in.
+ */
+:where(:root) {
   --f-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-display: var(--f-sans);
   --f-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;

@@ -1,5 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+// Styles belong to the page, never to a JS island: a lazily loaded chunk that
+// carried CSS would re-inject it later and override the theme (see docs/ARCHITECTURE.md).
+import "@/web/styles/base.css";
+import "@/web/themes/plain/theme.css";
 import PlainDeck from "@/web/themes/plain";
 import IconSprite from "@/web/shared/IconSprite.astro";
 import { getCv } from "@/core";

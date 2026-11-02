@@ -1,5 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+// Styles belong to the page, never to a JS island: a lazily loaded chunk that
+// carried CSS would re-inject it later and override the theme (see docs/ARCHITECTURE.md).
+import "@/web/styles/base.css";
+import "@/web/themes/terminal/theme.css";
 import TerminalDeck from "@/web/themes/terminal";
 import { getCv } from "@/core";
 import { buildDeckModel } from "@/bff/web/deck";
