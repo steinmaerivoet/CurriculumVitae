@@ -31,7 +31,7 @@ export type PdfModel = {
   footer: { title: string; url: string; href: string };
   /** The site, shown next to the name with its QR code, so a reader of the PDF finds the interactive CV. */
   website: { url: string; label: string; caption: string };
-  header: { firstName: string; lastName: string; monogram: string; headline: string; tagline: string };
+  header: { firstName: string; lastName: string; headline: string; tagline: string };
   contact: { title: string; items: { label: string; value: string; href?: string }[] };
   skills: PdfSkillSection[];
   education?: { title: string; items: { title: string; school: string; period: string; note?: string | undefined }[] } | undefined;
@@ -73,7 +73,6 @@ export function buildPdfModel(cv: Cv): PdfModel {
     header: {
       firstName: person.firstName,
       lastName: person.lastName,
-      monogram: `${person.firstName[0] ?? ""}${person.lastName[0] ?? ""}`,
       headline: person.headline,
       tagline: clean(person.tagline),
     },

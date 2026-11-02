@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { createRequire } from "node:module";
-import { Document, Font, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Image, Link, Page, Path, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
 import type { SkillLevel } from "@/core/model";
 import type { PdfEmployer, PdfModel, PdfProject } from "@/bff/pdf/document";
+import { HASH_PATH, S_PATH } from "@/qr/styledQr";
 
 /** Images the page renders for the document (react-pdf embeds PNG, not SVG). */
 export type PdfAssets = { qrPng: Buffer };
@@ -69,15 +70,8 @@ const s = StyleSheet.create({
   qrImage: { width: 72, height: 72 },
   qrCaption: { fontSize: 6.4, lineHeight: 1.3, color: c.mute, textAlign: "center", marginTop: 4 },
   qrUrl: { fontSize: 7.6, fontWeight: 600, color: c.accentInk, textAlign: "center", marginTop: 1.5, textDecoration: "none" },
-  monogram: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: c.ink,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  monogramText: { fontFamily: "Instrument Serif", fontSize: 21, color: c.accentOnInk, marginTop: 3 },
+  // The site's "#S" favicon mark, kept light: no badge, just the glyphs.
+  mark: { width: 27, height: 20 },
   name: { fontFamily: "Instrument Serif", fontSize: 34, color: c.ink, lineHeight: 1 },
   nameAccent: { color: c.accentInk },
   headline: { fontSize: 11, fontWeight: 600, color: c.ink, marginTop: 6 },
@@ -231,9 +225,10 @@ export default function CvDocument({ model, assets }: { model: PdfModel; assets:
         {/* Header */}
         <View style={[s.base, s.header]}>
           <View style={s.headerSide}>
-            <View style={s.monogram}>
-              <Text style={s.monogramText}>{header.monogram}</Text>
-            </View>
+            <Svg style={s.mark} viewBox="9 15 46 34">
+              <Path d={HASH_PATH} fill={c.accent} fillOpacity={0.4} />
+              <Path d={S_PATH} fill={c.ink} fillOpacity={0.3} />
+            </Svg>
           </View>
           <View style={s.headerMain}>
             <View style={s.headerText}>
